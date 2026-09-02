@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08131f" />
+    <meta
+      name="description"
+      content="Практическая программа по проектному управлению как инженерии систем исполнения."
+    />
+    <title>PM 0.1 — Инженерия исполнения</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Перейти к содержанию</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Основная навигация">
+        <a class="brand" href="#/" aria-label="PM 0.1 — главная">
+          <span class="brand-mark">0.1</span>
+          <span><strong>PM</strong><small>EXECUTION ENGINEERING</small></span>
+        </a>
+        <nav class="main-nav">
+          <a href="#/" data-route="home"><span>01</span>Обзор</a>
+          <a href="#/course" data-route="course"><span>02</span>Программа</a>
+          <a href="#/diagnostic" data-route="diagnostic"><span>03</span>Диагностика</a>
+          <a href="#/toolkit" data-route="toolkit"><span>04</span>Инструменты</a>
+        </nav>
+        <div class="sidebar-progress" id="sidebar-progress"></div>
+        <p class="sidebar-note">Не изучай управление.<br />Изменяй систему работы.</p>
+      </aside>
+
+      <div class="mobile-header">
+        <a class="brand" href="#/"><span class="brand-mark">0.1</span><strong>PM</strong></a>
+        <button class="menu-button" id="menu-button" aria-expanded="false" aria-controls="mobile-nav">Меню</button>
+      </div>
+      <nav class="mobile-nav" id="mobile-nav" aria-label="Мобильная навигация">
+        <a href="#/">Обзор</a><a href="#/course">Программа</a>
+        <a href="#/diagnostic">Диагностика</a><a href="#/toolkit">Инструменты</a>
+      </nav>
+
+      <main id="main" tabindex="-1"></main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="course-data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
