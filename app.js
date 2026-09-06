@@ -300,12 +300,14 @@
     const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
     if (!parts.length) return { route: "home" };
     if (parts[0] === "lesson") return { route: "lesson", id: parts[1] };
+    if (parts[0] === "validation" && parts[1] === "m01" && parts.length === 2) return { route: "validation-m01" };
     if (["course", "diagnostic", "toolkit"].includes(parts[0])) return { route: parts[0] };
     return { route: "not-found" };
   }
 
   function render() {
     const { route, id } = parseRoute();
+    if (route === "validation-m01") return;
     const views = { home: homeView, course: courseView, lesson: () => lessonView(id), diagnostic: diagnosticView, toolkit: toolkitView, "not-found": notFoundView };
     document.querySelector("#main").innerHTML = views[route]();
     setActiveNav(route);
