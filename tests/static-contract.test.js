@@ -9,6 +9,7 @@ function read(name) {
 }
 
 const html = read('index.html');
+const baseApp = read('app.js');
 const validationApp = read('m01-validation-app.js');
 const validationStyles = read('m01-validation.css');
 
@@ -23,6 +24,11 @@ test('index loads validation styles and data, domain, base app, then validation 
     assert.equal(index > lastIndex, true, `${script} must load after previous script`);
     lastIndex = index;
   }
+});
+
+test('base router reserves the M01 validation route instead of rendering not-found before the extension', () => {
+  assert.equal(baseApp.includes('route: "validation-m01"'), true, 'base router must recognize validation/m01');
+  assert.equal(baseApp.includes('if (route === "validation-m01")'), true, 'base renderer must yield validation/m01 to the extension');
 });
 
 test('validation extension owns the M01 validation route and course CTA', () => {
