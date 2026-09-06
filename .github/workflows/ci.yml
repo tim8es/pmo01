@@ -17,5 +17,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          for file in app.js course-data.js learning-domain.js m01-validation-data.js m01-validation-app.js; do
+            node --check "$file"
+          done
       - name: Run tests
         run: node --test tests/*.test.js
