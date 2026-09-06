@@ -134,3 +134,31 @@
 - [x] Inspect final Actions run after documentation/CI changes and require GREEN.
 - [x] Review final diff for scope creep and architecture violations: Phase 1 only; no backend/auth/framework migration; legacy `app.js`, `course-data.js`, and `styles.css` unchanged.
 - [x] Update PR #2 from draft after verification; PR #2 is ready-for-review and mergeable.
+
+## Gate verification record — 2026-09-06
+
+### VERIFIED
+
+- PR #2 head is `050ea6d26197ba68f8e82d8dc34306f4c6678332`; it remains open and is not merged into `main`.
+- Stacked documentation head before this reconciliation was `82c4418de634ed2b824de5714bab34dec4e74ae9`.
+- GitHub Actions run #49 on that head completed successfully.
+- CI executed JavaScript syntax checks and `node --test tests/*.test.js`; all 19 tests passed, 0 failed, 0 skipped.
+- Full scope review of PR #2 confirms Phase 1-only changes: validation runtime/data/styles/tests/CI/docs; no backend, auth, CMS, AI subsystem, framework migration, or v1 rewrite.
+- Full scope review of the stacked docs layer confirms documentation/readiness-only changes; no runtime/application files changed.
+
+### UNEXECUTED
+
+- No merge of PR #2 into `main`.
+- No Phase 2 domain-contract freeze.
+- No framework selection or v1 migration.
+- No real learner cohort execution in this code gate.
+
+### BLOCKED
+
+- Phase 2 remains blocked on the empirical learner-evidence gate in Issue #4: at least 5 completed M01 learner sessions and one explicit cohort decision (`Promote`, `Revise and retest`, or `Reject mechanism`).
+
+### Next step
+
+1. Require GREEN CI on the new plan-reconciliation HEAD created by this update.
+2. If GREEN, treat the technical/scope gate as closed.
+3. Execute Issue #4 learner cohort before any Phase 2 work.
