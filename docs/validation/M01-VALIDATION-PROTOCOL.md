@@ -62,6 +62,22 @@ For each new participant:
 3. verify the page does not show an existing baseline score;
 4. do not show the M01 lesson content before baseline is submitted.
 
+## Measurement blinding rule
+
+Baseline answers and the computed score are persisted and frozen at submission, but the learner must **not** see baseline score or option-level feedback before completing the post-case.
+
+This rule prevents the assessment itself from becoming an unplanned teaching intervention. The participant may still see their own frozen choices and free-text diagnosis; explanatory feedback and score remain blind until post-case submission.
+
+After post-case submission the prototype may reveal:
+
+- baseline score;
+- post-case score;
+- per-dimension changes;
+- option feedback;
+- the prototype promotion signal.
+
+Any future implementation of the same experiment must preserve this blinding rule unless a new validation design explicitly replaces it.
+
 ## Session sequence
 
 ### 1. Baseline
@@ -72,7 +88,8 @@ Required evidence:
 
 - free-text diagnosis;
 - answers to all five rubric questions;
-- frozen baseline score after submission.
+- frozen baseline score stored after submission;
+- baseline score and option feedback hidden from the learner until post-case completion.
 
 Observe:
 
@@ -81,7 +98,7 @@ Observe:
 - whether they specify an early change condition;
 - hesitation or ambiguity in question wording.
 
-Do not coach the participant toward the system model.
+Do not coach the participant toward the system model and do not disclose whether any baseline answer is strong or weak.
 
 ### 2. Learning experience
 
@@ -107,6 +124,7 @@ Required evidence:
 - new free-text diagnosis;
 - all five post-case answers;
 - post score;
+- baseline score revealed only now;
 - total delta;
 - per-dimension delta;
 - individual promotion-signal result.
@@ -219,7 +237,8 @@ A drill that only creates clicks should be removed or redesigned.
 Block promotion for:
 
 - silent loss of learner work;
-- confusing sequence that contaminates baseline;
+- baseline score or explanatory feedback leaking before post-case completion;
+- confusing sequence that otherwise contaminates baseline;
 - inaccessible critical controls;
 - wording ambiguity that materially changes score interpretation.
 
