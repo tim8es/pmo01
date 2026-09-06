@@ -86,6 +86,25 @@ test('post-case unlocks only after baseline, both lessons, and both drills are r
   assert.match(main.innerHTML, /data-submit-assessment="postCase"/);
 });
 
+test('submitted baseline stays blind: score and option feedback are hidden until post-case is complete', () => {
+  const validationState = {
+    version: 1,
+    baseline: {
+      answers: { 'baseline-mechanism': 'people' },
+      reasoning: 'Я зафиксировал исходный диагноз до изучения материала.',
+      submittedAt: '2026-09-06T12:00:00.000Z',
+      score: { total: 0, max: 15, byDimension: { mechanism: 0 }, answered: 5 },
+    },
+  };
+  const { main } = runValidationApp('validation/m01', {
+    'pm01-validation-m01-v1': JSON.stringify(validationState),
+  });
+
+  assert.doesNotMatch(main.innerHTML, /итог по rubric/);
+  assert.doesNotMatch(main.innerHTML, /Это объясняет проблему качествами людей/);
+  assert.match(main.innerHTML, /результат скрыт до post-case/);
+});
+
 test('course route receives a single M01 validation CTA from the extension', () => {
   const { moduleList } = runValidationApp('course');
 
