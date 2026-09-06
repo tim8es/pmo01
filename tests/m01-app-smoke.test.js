@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const domain = require('../learning-domain.js');
+const baseAppCode = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 const validationDataCode = fs.readFileSync(path.join(__dirname, '..', 'm01-validation-data.js'), 'utf8');
 const validationAppCode = fs.readFileSync(path.join(__dirname, '..', 'm01-validation-app.js'), 'utf8');
 
@@ -51,6 +52,61 @@ function runValidationApp(route, initialStorage = {}) {
   vm.runInContext(validationDataCode, context, { filename: 'm01-validation-data.js' });
   vm.runInContext(validationAppCode, context, { filename: 'm01-validation-app.js' });
   return { main, moduleList, localStorage };
+}
+
+function runHashchangeOwnershipHandoff() {
+  const main = { innerHTML: '', focus() {} };
+  const sidebarProgress = { innerHTML: '' };
+  const mobileNav = { classList: { remove() {}, toggle() { return false; } } };
+  const menuButton = { addEventListener() {}, setAttribute() {} };
+  const listeners = { hashchange: [] };
+  const microtasks = [];
+  const document = {
+    querySelector(selector) {
+      if (selector === '#main') return main;
+      if (selector === '#sidebar-progress') return sidebarProgress;
+      if (selector === '#mobile-nav') return mobileNav;
+      if (selector === '#menu-button') return menuButton;
+      return null;
+    },
+    querySelectorAll() { return []; },
+  };
+  const localStorage = storageFrom();
+  const window = {
+    PM01: { modules: [], flows: [], diagnostics: [], tools: [] },
+    PM01Learning: domain,
+    addEventListener(type, callback) {
+      if (!listeners[type]) listeners[type] = [];
+      listeners[type].push(callback);
+    },
+    scrollTo() {},
+    confirm() { return true; },
+  };
+  const context = {
+    window,
+    document,
+    localStorage,
+    location: { hash: '#/unknown' },
+    queueMicrotask(callback) { microtasks.push(callback); },
+    console,
+    Date,
+  };
+  vm.createContext(context);
+  vm.runInContext(validationDataCode, context, { filename: 'm01-validation-data.js' });
+  vm.runInContext(baseAppCode, context, { filename: 'app.js' });
+  vm.runInContext(validationAppCode, context, { filename: 'm01-validation-app.js' });
+
+  assert.equal(listeners.hashchange.length, 2, 'base and extension hashchange handlers must both be registered');
+  main.innerHTML = 'sentinel-before-validation';
+  context.location.hash = '#/validation/m01';
+
+  listeners.hashchange[0]();
+  const afterBaseRouter = main.innerHTML;
+
+  listeners.hashchange[1]();
+  while (microtasks.length) microtasks.shift()();
+
+  return { afterBaseRouter, afterExtension: main.innerHTML };
 }
 
 test('fresh validation route renders baseline without exposing learning drills or post-case controls', () => {
@@ -110,4 +166,11 @@ test('course route receives a single M01 validation CTA from the extension', () 
 
   assert.match(moduleList.inserted, /data-validation-cta/);
   assert.match(moduleList.inserted, /#\/validation\/m01/);
+});
+
+test('hashchange hands validation/m01 to the extension without base-router DOM overwrite', () => {
+  const { afterBaseRouter, afterExtension } = runHashchangeOwnershipHandoff();
+
+  assert.equal(afterBaseRouter, 'sentinel-before-validation', 'base router must yield without writing #main');
+  assert.match(afterExtension, /01 · Baseline/, 'validation extension must own and render the route');
 });
