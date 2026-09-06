@@ -1,0 +1,49 @@
+.validation-shell { max-width: 980px; margin: 0 auto; }
+.validation-hero { margin-bottom: 38px; padding-bottom: 30px; border-bottom: 1px solid var(--line); }
+.validation-hero h1 { max-width: 860px; }
+.validation-note { max-width: 760px; padding: 14px 16px; border-left: 3px solid var(--accent); background: rgba(255,255,255,.035); color: #c4d0d7; line-height: 1.6; }
+.validation-step { margin: 38px 0; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--ink-2); }
+.validation-step.locked { opacity: .65; }
+.validation-step > header { margin-bottom: 20px; }
+.validation-step > header p { color: var(--muted); line-height: 1.6; }
+.validation-scenario { padding: 20px; border-radius: 10px; background: #06101a; color: #d0dae0; line-height: 1.65; }
+.validation-question { margin: 22px 0; padding: 0; border: 0; }
+.validation-question legend { margin-bottom: 10px; font-weight: 800; line-height: 1.45; }
+.validation-options { display: grid; gap: 8px; }
+.validation-option { display: flex; gap: 10px; align-items: flex-start; padding: 12px 13px; border: 1px solid var(--line); border-radius: 8px; color: #c4cfd6; cursor: pointer; }
+.validation-option:has(input:checked) { border-color: var(--accent); background: rgba(255,177,27,.08); color: white; }
+.validation-option input { margin-top: 3px; accent-color: var(--accent); }
+.validation-feedback { margin: 8px 0 0 27px; color: #91a2af; font-size: 13px; line-height: 1.55; }
+.validation-reasoning, .validation-evidence textarea { width: 100%; min-height: 120px; margin-top: 8px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #06101a; color: white; resize: vertical; line-height: 1.55; }
+.validation-reasoning:focus, .validation-evidence textarea:focus { outline: 3px solid rgba(255,177,27,.25); border-color: var(--accent); }
+.validation-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.validation-score { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+.validation-score > div { padding: 16px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.025); }
+.validation-score strong { display: block; font-size: 26px; }
+.validation-score span { color: var(--muted); font-size: 12px; }
+.validation-dimensions { display: grid; gap: 8px; margin-top: 14px; }
+.validation-dimension { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.validation-dimension span:last-child { color: var(--muted); }
+.validation-drills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.validation-drill { padding: 20px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); }
+.validation-drill p { color: #bcc8cf; line-height: 1.55; }
+.validation-lesson-links { display: flex; flex-wrap: wrap; gap: 9px; margin: 15px 0 22px; }
+.validation-evidence { display: grid; gap: 18px; }
+.validation-evidence label { display: block; font-weight: 700; }
+.validation-evidence small { display: block; margin-top: 5px; color: var(--muted); font-weight: 400; line-height: 1.45; }
+.validation-state { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 99px; color: #cbd5db; font: 12px "IBM Plex Mono", monospace; }
+.validation-message { min-height: 24px; margin-top: 14px; color: var(--muted); line-height: 1.5; }
+.validation-cta { margin: 28px 0; padding: 24px; border: 1px solid rgba(255,177,27,.35); border-radius: var(--radius); background: rgba(255,177,27,.055); }
+.validation-cta h2 { margin-bottom: 9px; font-size: 25px; }
+.validation-cta p { max-width: 760px; color: #b9c6ce; line-height: 1.55; }
+.validation-cta .button { margin-top: 8px; }
+.validation-result { margin-top: 24px; padding: 20px; border-radius: 10px; background: var(--paper); color: var(--ink); }
+.validation-result p { color: #59666e; line-height: 1.55; }
+.validation-result .validation-score > div { border-color: var(--paper-line); background: rgba(7,18,29,.035); }
+.validation-result .validation-dimension { border-color: var(--paper-line); }
+.validation-result .validation-dimension span:last-child { color: #65717a; }
+
+@media (max-width: 760px) {
+  .validation-step { padding: 20px; }
+  .validation-score, .validation-drills { grid-template-columns: 1fr; }
+}
