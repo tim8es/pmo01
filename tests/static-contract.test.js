@@ -10,9 +10,11 @@ function read(name) {
 
 const html = read('index.html');
 const validationApp = read('m01-validation-app.js');
-const styles = read('styles.css');
+const validationStyles = read('m01-validation.css');
 
-test('index loads validation data, domain, base app, then validation extension in order', () => {
+test('index loads validation styles and data, domain, base app, then validation extension in order', () => {
+  assert.notEqual(html.indexOf('href="m01-validation.css"'), -1, 'missing isolated validation stylesheet');
+
   const scripts = ['course-data.js', 'm01-validation-data.js', 'learning-domain.js', 'app.js', 'm01-validation-app.js'];
   let lastIndex = -1;
   for (const script of scripts) {
@@ -28,6 +30,10 @@ test('validation extension owns the M01 validation route and course CTA', () => 
   assert.equal(validationApp.includes('data-validation-cta'), true, 'missing M01 validation CTA contract');
 });
 
+test('validation uses an isolated storage key so legacy app saves cannot erase experiment work', () => {
+  assert.equal(validationApp.includes('pm01-validation-m01-v1'), true, 'missing isolated validation storage key');
+});
+
 test('validation UI uses semantic assessment controls and live result feedback', () => {
   assert.equal(validationApp.includes('<fieldset'), true, 'assessments must use fieldsets');
   assert.equal(validationApp.includes('<legend'), true, 'assessment fieldsets need legends');
@@ -36,7 +42,7 @@ test('validation UI uses semantic assessment controls and live result feedback',
 });
 
 test('validation styles are isolated under validation-specific classes', () => {
-  assert.equal(styles.includes('.validation-shell'), true);
-  assert.equal(styles.includes('.validation-score'), true);
-  assert.equal(styles.includes('.validation-evidence'), true);
+  assert.equal(validationStyles.includes('.validation-shell'), true);
+  assert.equal(validationStyles.includes('.validation-score'), true);
+  assert.equal(validationStyles.includes('.validation-evidence'), true);
 });
