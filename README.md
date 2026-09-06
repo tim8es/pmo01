@@ -35,6 +35,29 @@
 
 Не следует расширять текущие `app.js` и `course-data.js` как постоянную платформенную архитектуру.
 
+## Phase 1 — M01 Learning Validation
+
+Первый вертикальный validation slice проверяет модуль **M01 «Проект как система»** до начала v1 rewrite.
+
+Маршрут в прототипе:
+
+`#/validation/m01`
+
+Последовательность:
+
+`baseline → 2 урока + Decision Drills → integrative post-case → real-project transfer → reflection`
+
+Baseline и post-case оценивают пять измерений reasoning: механизм, доказательства, trade-offs, вмешательство и change condition. Положительный индивидуальный learning signal требует одновременно `post ≥ baseline + 3` и улучшения минимум по двум измерениям. Это development signal, а не автоматический `mastered`.
+
+Экспериментальный UI и данные намеренно изолированы от legacy-монолитов:
+
+- `learning-domain.js` — чистая scoring/state логика;
+- `m01-validation-data.js` — cases/drills/field/reflection content;
+- `m01-validation-app.js` — validation route и browser persistence;
+- `m01-validation.css` — отдельные стили.
+
+Операционный протокол реальных learner sessions: [`docs/validation/M01-VALIDATION-PROTOCOL.md`](docs/validation/M01-VALIDATION-PROTOCOL.md).
+
 ## Документация
 
 Начать с [`docs/README.md`](docs/README.md).
@@ -54,7 +77,27 @@
 
 ## Хранение данных
 
-Прогресс, ответы диагностики и рабочие заметки хранятся только в `localStorage` браузера. Они не отправляются на сервер.
+Все данные остаются в browser `localStorage` и не отправляются на сервер.
+
+- `pm01-state-v1` — legacy progress, diagnostic, notes и criteria основного курса;
+- `pm01-validation-m01-v1` — изолированное состояние M01 validation experiment.
+
+Раздельные ключи нужны, чтобы legacy `app.js` не мог случайно перезаписать экспериментальные ответы своим in-memory state.
+
+## Проверка
+
+CI использует Node.js built-in test runner и проверяет:
+
+- scoring/promotion/learning-state domain contracts;
+- структуру M01 validation content;
+- script/style integration и базовые accessibility contracts;
+- JavaScript syntax для prototype runtime files.
+
+Локально:
+
+```bash
+node --test tests/*.test.js
+```
 
 ## Публикация
 
