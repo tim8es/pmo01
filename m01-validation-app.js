@@ -108,10 +108,6 @@
     target.dataset.error = error ? 'true' : 'false';
   }
 
-  function dimensionLabel(id) {
-    return DATA.rubricDimensions.find((item) => item.id === id)?.label || id;
-  }
-
   function assessmentComplete(assessment, draft) {
     return assessment.questions.every((question) => draft.answers[question.id]) && draft.reasoning.trim().length >= 20;
   }
@@ -119,6 +115,7 @@
   function assessmentBlock(assessment, key, heading, unlocked) {
     const draft = state[key];
     const submitted = Boolean(draft.submittedAt);
+    const revealResults = submitted && (key !== 'baseline' || Boolean(state.postCase.submittedAt));
     if (!unlocked) {
       return `<section class="validation-step locked" aria-disabled="true">
         <header><p class="eyebrow">${escapeHtml(heading)}</p><h2>${escapeHtml(assessment.title)}</h2><p>Этот этап откроется после предыдущих шагов.</p></header>
@@ -132,7 +129,7 @@
         return `<label class="validation-option">
           <input type="radio" name="${key}-${escapeHtml(question.id)}" value="${escapeHtml(item.id)}" data-assessment="${key}" data-question="${escapeHtml(question.id)}" ${checked ? 'checked' : ''} ${submitted ? 'disabled' : ''}>
           <span>${escapeHtml(item.label)}</span>
-        </label>${submitted && checked ? `<p class="validation-feedback">${escapeHtml(item.feedback)}</p>` : ''}`;
+        </label>${revealResults && checked ? `<p class="validation-feedback">${escapeHtml(item.feedback)}</p>` : ''}`;
       }).join('');
       return `<fieldset class="validation-question" ${submitted ? 'disabled' : ''}>
         <legend>${escapeHtml(question.prompt)}</legend>
@@ -140,11 +137,15 @@
       </fieldset>`;
     }).join('');
 
-    const score = submitted && draft.score ? `<div class="validation-score">
+    const score = revealResults && draft.score ? `<div class="validation-score">
       <div><strong>${draft.score.total}/${draft.score.max}</strong><span>итог по rubric</span></div>
       <div><strong>${draft.score.answered}/${assessment.questions.length}</strong><span>зафиксировано ответов</span></div>
       <div><strong>зафиксирован</strong><span>ответ нельзя менять после submit</span></div>
     </div>` : '';
+
+    const submittedMessage = key === 'baseline' && !state.postCase.submittedAt
+      ? 'Baseline зафиксирован; результат скрыт до post-case, чтобы не загрязнять измерение.'
+      : 'Ответ зафиксирован. Feedback открыт после завершения измерения.';
 
     return `<section class="validation-step" data-assessment-section="${key}">
       <header><p class="eyebrow">${escapeHtml(heading)}</p><h2>${escapeHtml(assessment.title)}</h2><p>${escapeHtml(assessment.scenario)}</p></header>
@@ -153,7 +154,7 @@
       <textarea class="validation-reasoning" id="${key}-reasoning" data-reasoning="${key}" ${submitted ? 'readonly' : ''} placeholder="Минимум 20 символов: механизм, первое действие, ожидаемый сигнал…">${escapeHtml(draft.reasoning)}</textarea>
       ${questions}
       ${score}
-      ${submitted ? '<p class="validation-message">Ответ зафиксирован. Feedback показан только после фиксации выбора.</p>' : `<div class="validation-actions"><button class="button primary" type="button" data-submit-assessment="${key}">Зафиксировать ответ</button></div>`}
+      ${submitted ? `<p class="validation-message">${submittedMessage}</p>` : `<div class="validation-actions"><button class="button primary" type="button" data-submit-assessment="${key}">Зафиксировать ответ</button></div>`}
     </section>`;
   }
 
