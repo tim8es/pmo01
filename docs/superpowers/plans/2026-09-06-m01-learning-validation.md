@@ -20,6 +20,7 @@
 - Learner work must survive ordinary reload/navigation via localStorage.
 - New domain logic must be testable outside the DOM.
 - M01 validation data must not share a storage key with the legacy in-memory course state.
+- Baseline score and option-level explanatory feedback must remain blind until post-case submission so the assessment itself does not become an unplanned teaching intervention.
 
 ---
 
@@ -77,6 +78,7 @@
 - Modify: `index.html`
 - Create: `m01-validation-app.js`
 - Create: `tests/static-contract.test.js`
+- Create: `tests/m01-app-smoke.test.js`
 
 **Interfaces:**
 - `index.html` loads `course-data.js → m01-validation-data.js → learning-domain.js → app.js → m01-validation-app.js`.
@@ -87,8 +89,11 @@
 - [x] Add failing static-contract tests for script order, route ownership, course CTA, isolated storage, semantic controls, and validation CSS.
 - [x] Keep validation persistence separate from legacy storage after identifying stale-state overwrite risk.
 - [x] Add staged route: baseline → lesson links/drills → post-case → field application → reflection/result.
-- [x] Freeze submitted baseline/post answers and first drill choices before showing feedback.
-- [x] Show baseline score only after baseline submission; show post score/delta only after post submission.
+- [x] Freeze submitted baseline/post answers and first drill choices at submission.
+- [x] Keep baseline score and option-level feedback blind after baseline submission; reveal comparison/results only after post-case submission.
+- [x] Show post score, baseline/post comparison, dimension deltas, and promotion signal only after post-case submission.
+- [x] Add a VM runtime smoke test for route rendering, post-case gates, course CTA injection, and baseline blinding.
+- [x] Verify the baseline-blinding regression test fails before the fix and passes after the fix.
 - [x] Use `promotionDecision` for a neutral learning signal, explicitly not mastery.
 - [x] Use `deriveLearningState` only up to `applied` in the UI; delayed transfer evidence remains human-review evidence.
 - [x] Add M01 validation CTA to the course view without modifying the legacy router implementation.
@@ -122,8 +127,10 @@
 
 - [x] Document participant profile, baseline/post sequence, observations, interview prompts, field transfer, delayed follow-up, and anonymized session record.
 - [x] Define module-level review across learning signal, transfer, interaction usefulness, friction/reliability, and content-model fit.
+- [x] Document the baseline measurement-blinding rule and its rationale.
 - [x] Document M01 route, file boundaries, storage keys, and validation protocol in README.
 - [x] Add `node --check` for legacy and validation runtime JavaScript to CI.
-- [ ] Inspect final Actions run after all documentation/CI changes and require GREEN.
-- [ ] Review final diff for scope creep and architecture violations.
-- [ ] Update PR #2 from draft only after verification and review gates pass.
+- [x] Upgrade GitHub Actions runtime dependencies to current major versions used by the workflow.
+- [x] Inspect final Actions run after documentation/CI changes and require GREEN.
+- [x] Review final diff for scope creep and architecture violations: Phase 1 only; no backend/auth/framework migration; legacy `app.js`, `course-data.js`, and `styles.css` unchanged.
+- [ ] Update PR #2 from draft only after the verification run for this final plan-reconciliation commit is GREEN.
