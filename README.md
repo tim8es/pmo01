@@ -2,6 +2,8 @@
 
 Практическая программа по Project Management уровня senior+.
 
+> **Статус:** текущая реализация — reference prototype для проверки продукта и модели обучения. Она не считается целевой архитектурой масштабируемой платформы. Актуальная стратегия и источники истины находятся в [`docs/`](docs/README.md).
+
 Это не курс по Scrum, Jira или PMBOK. Программа учит рассматривать проект как систему преобразования неопределенности в ценный результат и управлять семью потоками:
 
 1. ценность;
@@ -20,6 +22,31 @@
 - 8 скачиваемых Markdown-шаблонов;
 - сохранение прогресса и заметок в браузере;
 - итоговый capstone длительностью 2–4 недели.
+
+## Стратегия развития
+
+Проект развивается по схеме **A → C**:
+
+1. текущий сайт сохраняется как reference prototype;
+2. на нем проверяются учебные механики и curriculum;
+3. подтвержденные требования фиксируются как продуктовые и доменные контракты;
+4. после validation gate строится отдельная масштабируемая v1;
+5. контент и механики мигрируют в v1 вертикально, только после проверки.
+
+Не следует расширять текущие `app.js` и `course-data.js` как постоянную платформенную архитектуру.
+
+## Документация
+
+Начать с [`docs/README.md`](docs/README.md).
+
+Ключевые документы:
+
+- [`docs/product/PRODUCT.md`](docs/product/PRODUCT.md) — продуктовый контракт;
+- [`docs/product/LEARNING_MODEL.md`](docs/product/LEARNING_MODEL.md) — модель обучения;
+- [`docs/product/CURRICULUM.md`](docs/product/CURRICULUM.md) — competency/curriculum contract;
+- [`docs/content/CONTENT_MODEL.md`](docs/content/CONTENT_MODEL.md) — модель контента;
+- [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) — текущая и целевая архитектура;
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — этапы и validation gates.
 
 ## Запуск локально
 
