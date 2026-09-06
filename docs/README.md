@@ -25,6 +25,12 @@ The reference prototype is not the long-term architecture.
 ### Content
 - `content/CONTENT_MODEL.md` — canonical entities and rules for lessons, drills, cases, assessments, and artifacts.
 
+### Validation
+- `validation/M01-VALIDATION-PROTOCOL.md` — operational protocol for the first end-to-end learner validation cycle.
+- `validation/M01-READINESS-AUDIT.md` — curriculum, learning-model, and content-contract audit before real learner sessions.
+- `validation/M01-SESSION-RECORD-TEMPLATE.md` — per-participant evidence and facilitator observation template.
+- `validation/M01-COHORT-REVIEW-TEMPLATE.md` — cohort synthesis and explicit Phase 1 exit decision record.
+
 ### Architecture
 - `architecture/ARCHITECTURE.md` — current-state and target-state architecture.
 - `architecture/adr/0001-reference-prototype-to-v1.md` — decision record for the A → C strategy.
@@ -35,6 +41,12 @@ The reference prototype is not the long-term architecture.
 ### Design specs
 - `superpowers/specs/2026-09-03-pmo01-v0-design.md` — historical V0 design. It remains useful context but is not the current architecture source of truth.
 - `superpowers/specs/2026-09-06-pmo01-platform-foundation-design.md` — current platform foundation design.
+
+## Current gate
+
+The technical/reference-prototype work required to run the first M01 validation cohort is prepared. The project remains in **Phase 1 — Validate the learning model** until real learner evidence is reviewed.
+
+Do not begin Phase 2 contract freeze solely because the prototype and CI are ready. Phase 2 requires an explicit cohort decision recorded with `validation/M01-COHORT-REVIEW-TEMPLATE.md`.
 
 ## Source-of-truth precedence
 

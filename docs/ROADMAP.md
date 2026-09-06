@@ -162,8 +162,20 @@ Only after core learning quality and state model are stable, evaluate separately
 
 Each is an independent product decision, not a default consequence of “scaling”.
 
-## Immediate next decision
+## Current gate — complete Phase 1 with real learner evidence
 
-Before code migration begins, review and accept the platform foundation documents in `docs/`.
+The platform foundation and the technical M01 validation slice are prepared for review. The remaining Phase 1 gate is empirical, not architectural.
 
-After acceptance, write an implementation plan for **Phase 1 only** rather than a single plan spanning the entire roadmap.
+Before Phase 2 begins:
+
+1. run at least 5 completed M01 learner sessions using `docs/validation/M01-VALIDATION-PROTOCOL.md`;
+2. record each session with `docs/validation/M01-SESSION-RECORD-TEMPLATE.md`;
+3. review diagnostic reasoning delta, field transfer, reflection quality, interaction usefulness, reliability/friction, and content-model fit;
+4. record one explicit cohort decision with `docs/validation/M01-COHORT-REVIEW-TEMPLATE.md`:
+   - **Promote to Phase 2**;
+   - **Revise and retest**;
+   - **Reject mechanism**.
+
+`docs/validation/M01-READINESS-AUDIT.md` documents the current curriculum/content-contract fit before learner testing.
+
+Do not freeze v1 domain contracts, select a framework, or start a v1 migration until the cohort decision is **Promote to Phase 2**.

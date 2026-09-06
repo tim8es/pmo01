@@ -43,7 +43,7 @@ Use people who can reason about real delivery work, for example:
 - Team Lead with delivery ownership;
 - Product/operations role that regularly coordinates dependencies and decisions.
 
-Record experience level rather than filtering to one exact seniority. For the first cycle, aim for at least **5 completed sessions** before making a module-level promotion decision. More sessions are useful when results conflict.
+Record experience level rather than filtering to one exact seniority. For the first cycle, require at least **5 completed sessions** before making a module-level promotion decision. More sessions are useful when results conflict.
 
 Do not use the course author as evidence of learning effectiveness.
 
@@ -183,6 +183,21 @@ Record:
 
 Do not introduce an automatic mastery rule until delayed evidence has been reviewed across multiple sessions.
 
+## Minimum evidence packet
+
+For each completed learner session, retain only the evidence needed for the Phase 1 decision:
+
+- anonymized participant ID and role/experience;
+- baseline total, post total, delta, and improved dimensions;
+- baseline and post free-text diagnoses;
+- whether each Decision Drill exposed or changed reasoning;
+- field transfer: credible / partial / no;
+- reflection showing changed diagnosis/action/evidence requirement, or no meaningful change;
+- major UX/reliability/content ambiguity that could distort the result;
+- delayed-transfer evidence when available.
+
+Do not add new engineering telemetry or product instrumentation for this cohort. Use the existing session record template and manual evidence capture.
+
 ## Session record
 
 For each participant record outside the product, using anonymized IDs where possible:
@@ -209,7 +224,7 @@ Do not store sensitive project details when an anonymized description is suffici
 
 Do not migrate M01 into v1 solely because CI is green or the UI works.
 
-After at least 5 completed learner sessions, review these five areas:
+After at least **5 completed learner sessions**, review these five areas:
 
 ### 1. Learning signal
 
@@ -248,10 +263,10 @@ Record every special case needed to represent M01. If the module requires one-of
 
 ## Promotion decision
 
-Possible outcomes:
+After the minimum cohort is complete, record exactly one outcome:
 
-- **Promote** — learning mechanism and transfer evidence are strong enough to become v1 requirements.
-- **Revise and retest** — promising signal, but content, rubric, interaction, or friction is materially distorting results.
-- **Reject mechanism** — interaction adds complexity without useful reasoning evidence.
+- **Promote to Phase 2** — learning mechanism and transfer evidence are strong enough to become v1 requirements.
+- **Revise and retest** — promising signal, but content, rubric, interaction, or friction materially distorts results.
+- **Reject mechanism** — interaction or module format adds complexity without useful reasoning/transfer evidence.
 
-Document the decision and evidence before beginning the v1 vertical slice.
+Until one of these outcomes is recorded after at least 5 completed sessions, Phase 2 and v1 work remain blocked.
