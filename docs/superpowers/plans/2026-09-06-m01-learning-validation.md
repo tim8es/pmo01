@@ -4,7 +4,7 @@
 
 **Goal:** Turn M01 `Проект как система` into the first measurable end-to-end learning-validation slice: baseline case → lessons/drills → integrative post-case → field application → reflection/evidence.
 
-**Architecture:** Keep the existing static prototype. Add a small pure-JavaScript learning domain module for scoring and state semantics, structured M01 validation content in `course-data.js`, and one dedicated validation route in `app.js`. Persist validation work in the existing localStorage state without introducing backend/auth/framework migration.
+**Architecture:** Keep the existing static prototype and leave legacy `app.js`, `course-data.js`, and `styles.css` unchanged. Add isolated M01 extension files: a pure learning-domain module, structured validation content, a post-router UI extension, and validation-specific CSS. Persist validation work under a separate `pm01-validation-m01-v1` localStorage key so the legacy app cannot erase experiment state when it writes `pm01-state-v1`.
 
 **Tech Stack:** Static HTML/CSS/JavaScript, browser `localStorage`, Node.js built-in test runner in GitHub Actions.
 
@@ -19,6 +19,7 @@
 - Promotion signal: post-case score improves by at least 3 points and at least 2 rubric dimensions improve.
 - Learner work must survive ordinary reload/navigation via localStorage.
 - New domain logic must be testable outside the DOM.
+- M01 validation data must not share a storage key with the legacy in-memory course state.
 
 ---
 
@@ -29,12 +30,12 @@
 - Create: `tests/learning-domain.test.js`
 
 **Interfaces:**
-- Consumes: future CommonJS exports from `learning-domain.js`.
+- Consumes: CommonJS exports from `learning-domain.js`.
 - Produces: executable contract for `scoreAssessment`, `promotionDecision`, and `deriveLearningState`.
 
-- [ ] Create a GitHub Actions workflow that runs `node --test tests/*.test.js` on pushes and pull requests.
-- [ ] Add tests asserting rubric totals, per-dimension scores, promotion delta + dimension gate, and the rule that immediate assessment cannot produce `mastered`.
-- [ ] Open/refresh the feature PR and verify CI fails specifically because `learning-domain.js` does not yet exist.
+- [x] Add GitHub Actions CI running `node --test tests/*.test.js` on pushes and pull requests.
+- [x] Add tests for rubric totals, unanswered questions, promotion delta + dimension gate, and non-automatic mastery.
+- [x] Verify RED in Actions: tests fail specifically because `learning-domain.js` does not exist.
 
 ### Task 2: Implement the pure learning domain
 
@@ -42,82 +43,87 @@
 - Create: `learning-domain.js`
 
 **Interfaces:**
-- Produces: `scoreAssessment(questions, answers) -> { total, byDimension, max }`.
+- Produces: `scoreAssessment(questions, answers) -> { total, byDimension, max, answered }`.
 - Produces: `promotionDecision(baseline, post, options?) -> { promoted, delta, improvedDimensions }`.
 - Produces: `deriveLearningState({ studied, fieldApplied, transferEvidence }) -> 'unseen'|'studied'|'applied'|'mastered'`.
 
-- [ ] Implement a browser + CommonJS compatible module with no DOM/storage dependencies.
-- [ ] Validate answer scores are integers 0..3 and ignore unanswered questions rather than inventing credit.
-- [ ] Implement the default promotion gate: `delta >= 3` and at least two dimensions improve.
-- [ ] Require explicit `transferEvidence` for `mastered`; `fieldApplied` alone yields `applied`.
-- [ ] Verify the Task 1 test suite passes.
+- [x] Implement browser + CommonJS compatible module with no DOM/storage dependencies.
+- [x] Validate option scores as integers `0..3`; unanswered questions receive no invented credit.
+- [x] Implement default promotion gate: `delta >= 3` and at least two improved dimensions.
+- [x] Require explicit transfer evidence for the domain function to return `mastered`; immediate application yields at most `applied`.
+- [x] Verify GREEN in Actions.
 
 ### Task 3: Add structured M01 validation content and content tests
 
 **Files:**
-- Modify: `course-data.js`
+- Create: `m01-validation-data.js`
 - Create: `tests/m01-content.test.js`
 
 **Interfaces:**
 - Produces: `window.PM01.m01Validation` with `rubricDimensions`, `baseline`, `decisionDrills`, `postCase`, `fieldApplication`, `reflection`.
 
-- [ ] First add a failing test that evaluates `course-data.js` in a VM sandbox and checks the M01 validation contract.
-- [ ] Add five stable rubric dimensions: mechanism, evidence, tradeoffs, intervention, changeCondition.
-- [ ] Add a baseline case with five scored questions; each answer option carries `score: 0..3` and inspectable feedback.
-- [ ] Add two decision drills mapped to the existing M01 lessons.
-- [ ] Add a non-identical integrative post-case using the same five dimensions.
-- [ ] Add a field-application prompt requiring a real project, intervention, expected signal, observed evidence, and next decision.
-- [ ] Add reflection prompts comparing baseline reasoning with post-case reasoning.
-- [ ] Verify content-contract tests pass.
+- [x] Add failing VM-based content-contract test before production content.
+- [x] Add five stable rubric dimensions: mechanism, evidence, tradeoffs, intervention, changeCondition.
+- [x] Add a five-question baseline with inspectable `0..3` options and feedback.
+- [x] Add two Decision Drills mapped to `project-system` and `system-diagnostic`.
+- [x] Add a non-identical five-question integrative post-case using the same dimensions.
+- [x] Add real-project field application requiring project, symptom, mechanism, intervention, signal, evidence, and next decision.
+- [x] Add reflection prompts comparing baseline reasoning with later reasoning.
+- [x] Verify RED before content and GREEN after content in Actions.
 
-### Task 4: Integrate the validation route and persisted learner state
+### Task 4: Integrate the validation route and isolated learner state
 
 **Files:**
 - Modify: `index.html`
-- Modify: `app.js`
+- Create: `m01-validation-app.js`
 - Create: `tests/static-contract.test.js`
 
 **Interfaces:**
-- `index.html` loads `learning-domain.js` after `course-data.js` and before `app.js`.
-- `app.js` persists `state.validation.m01` under existing `pm01-state-v1` storage.
+- `index.html` loads `course-data.js → m01-validation-data.js → learning-domain.js → app.js → m01-validation-app.js`.
+- Validation state persists under `pm01-validation-m01-v1`.
+- Existing course state remains under `pm01-state-v1` and is read only to determine whether both M01 lessons are completed.
 - Route: `#/validation/m01`.
 
-- [ ] First add failing static-contract tests for script order, route support, and the M01 validation CTA.
-- [ ] Extend default state with `validation: { m01: {} }` while preserving existing stored state.
-- [ ] Add a `validation/m01` route with staged sections: baseline, lesson links/drills, post-case, field application, reflection/result.
-- [ ] Save assessment answers and reasoning before revealing feedback.
-- [ ] Show baseline score only after baseline submission; show post score and delta only after post submission.
-- [ ] Use `promotionDecision` to show a neutral validation signal, not celebratory correctness UI.
-- [ ] Use `deriveLearningState` to show `studied`/`applied`; never auto-show `mastered` unless explicit transfer evidence is recorded.
-- [ ] Add a CTA from M01 in the course view to the validation route without changing other modules.
-- [ ] Verify static-contract and domain tests pass.
+- [x] Add failing static-contract tests for script order, route ownership, course CTA, isolated storage, semantic controls, and validation CSS.
+- [x] Keep validation persistence separate from legacy storage after identifying stale-state overwrite risk.
+- [x] Add staged route: baseline → lesson links/drills → post-case → field application → reflection/result.
+- [x] Freeze submitted baseline/post answers and first drill choices before showing feedback.
+- [x] Show baseline score only after baseline submission; show post score/delta only after post submission.
+- [x] Use `promotionDecision` for a neutral learning signal, explicitly not mastery.
+- [x] Use `deriveLearningState` only up to `applied` in the UI; delayed transfer evidence remains human-review evidence.
+- [x] Add M01 validation CTA to the course view without modifying the legacy router implementation.
+- [x] Verify RED before UI extension and GREEN after integration.
 
-### Task 5: Add validation UI styling and accessibility checks
+### Task 5: Add validation-specific styling and accessibility contracts
 
 **Files:**
-- Modify: `styles.css`
+- Create: `m01-validation.css`
 - Modify: `tests/static-contract.test.js`
 
 **Interfaces:**
-- Reuse existing `.question-card`, `.option`, `.practice`, `.button` patterns where possible.
+- Reuses existing typography/button tokens while keeping validation selectors isolated.
 
-- [ ] Add only the styles required for the validation stepper, rubric result rows, reasoning textareas, and evidence summary.
-- [ ] Ensure all inputs have visible labels/legends and keyboard-operable native controls.
-- [ ] Ensure score/learning-state meaning is conveyed by text, not color alone.
-- [ ] Add static checks for required fieldsets/labels/aria-live result region.
-- [ ] Verify all tests pass.
+- [x] Add validation step, score, drill, evidence, result, and CTA styles.
+- [x] Use native radio/fieldset/legend/textarea/button controls.
+- [x] Provide explicit labels for textareas and a polite live region for persistence/validation messages.
+- [x] Convey score/state meaning with text rather than color alone.
+- [x] Add narrow-screen layout for score/drill grids.
+- [x] Verify static contracts pass.
 
 ### Task 6: Document the experiment and prepare review
 
 **Files:**
 - Create: `docs/validation/M01-VALIDATION-PROTOCOL.md`
 - Modify: `README.md`
+- Modify: `.github/workflows/ci.yml`
 
 **Interfaces:**
-- Produces an operational protocol for real learner sessions and a clear statement that scores are prototype evidence, not validated mastery.
+- Produces a reproducible learner-session protocol and makes runtime/test boundaries visible to future contributors.
 
-- [ ] Document who to test with, baseline/post protocol, what to observe, interview prompts, and how to record qualitative failures.
-- [ ] Define the module promotion review: learning delta, transfer evidence, interaction usefulness, friction, and content-model exceptions.
-- [ ] Add a README link to the M01 validation route/protocol.
-- [ ] Run/inspect GitHub Actions and require green CI before marking the PR ready.
-- [ ] Review the final diff for scope creep: no backend/auth/framework migration or unrelated refactor.
+- [x] Document participant profile, baseline/post sequence, observations, interview prompts, field transfer, delayed follow-up, and anonymized session record.
+- [x] Define module-level review across learning signal, transfer, interaction usefulness, friction/reliability, and content-model fit.
+- [x] Document M01 route, file boundaries, storage keys, and validation protocol in README.
+- [x] Add `node --check` for legacy and validation runtime JavaScript to CI.
+- [ ] Inspect final Actions run after all documentation/CI changes and require GREEN.
+- [ ] Review final diff for scope creep and architecture violations.
+- [ ] Update PR #2 from draft only after verification and review gates pass.
