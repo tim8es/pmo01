@@ -133,4 +133,4 @@
 - [x] Upgrade GitHub Actions runtime dependencies to current major versions used by the workflow.
 - [x] Inspect final Actions run after documentation/CI changes and require GREEN.
 - [x] Review final diff for scope creep and architecture violations: Phase 1 only; no backend/auth/framework migration; legacy `app.js`, `course-data.js`, and `styles.css` unchanged.
-- [ ] Update PR #2 from draft only after the verification run for this final plan-reconciliation commit is GREEN.
+- [x] Update PR #2 from draft after verification; PR #2 is ready-for-review and mergeable.
