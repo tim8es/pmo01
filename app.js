@@ -33,7 +33,7 @@
   }
 
   function progress() {
-    return Math.round((state.completed.length / allLessons.length) * 100);
+    return allLessons.length ? Math.round((state.completed.length / allLessons.length) * 100) : 0;
   }
 
   function renderSidebarProgress() {
@@ -55,6 +55,7 @@
 
   function showToast(message) {
     const toast = document.querySelector("#toast");
+    if (!toast) return;
     toast.textContent = message;
     toast.classList.add("show");
     clearTimeout(showToast.timer);
@@ -63,7 +64,8 @@
 
   function moduleCompletion(module) {
     const done = module.lessons.filter((lesson) => state.completed.includes(lesson.id)).length;
-    return { done, total: module.lessons.length, percent: Math.round((done / module.lessons.length) * 100) };
+    const total = module.lessons.length;
+    return { done, total, percent: total ? Math.round((done / total) * 100) : 0 };
   }
 
   function nextLesson() {
@@ -73,46 +75,51 @@
     return allLessons.find((lesson) => !state.completed.includes(lesson.id)) || allLessons.at(-1);
   }
 
+  function moduleTargetLesson(module) {
+    return module.lessons.find((lesson) => !state.completed.includes(lesson.id)) || module.lessons.at(-1);
+  }
+
   function homeView() {
     const next = nextLesson();
     const nextIndex = allLessons.findIndex((lesson) => lesson.id === next.id) + 1;
     return `
       <div class="page">
         <section class="hero">
-          <p class="eyebrow">Практическая программа · уровень senior+</p>
-          <h1>Инженерия<br><span class="accent">исполнения</span></h1>
-          <p class="lead">Научись управлять не задачами и статусами, а системой: потоком ценности, решений, информации, зависимостей и риска.</p>
+          <p class="eyebrow">Практика управления проектами · senior+</p>
+          <h1>Управляй системой,<br><span class="accent">а не списком задач</span></h1>
+          <p class="lead">Курс учит находить причину проблем проекта, принимать решения и проверять их на реальной работе. Иди по урокам по порядку — практика встроена в каждый шаг.</p>
           <div class="hero-actions">
-            <a class="button primary" href="#/lesson/${next.id}">${progress() ? "Продолжить обучение" : "Начать с первого урока"}</a>
-            <a class="button" href="#/diagnostic">Пройти диагностику</a>
+            <a class="button primary" href="#/lesson/${next.id}">${progress() ? "Продолжить" : "Начать обучение"}</a>
+            <a class="button" href="#/course">Посмотреть путь</a>
+            <a class="button subtle" href="#/diagnostic">Самопроверка · необязательно</a>
           </div>
           <div class="stat-grid">
-            <div class="stat"><strong>10</strong><span>модулей</span></div>
-            <div class="stat"><strong>20</strong><span>полевых уроков</span></div>
+            <div class="stat"><strong>10</strong><span>модулей по порядку</span></div>
+            <div class="stat"><strong>20</strong><span>уроков с практикой</span></div>
             <div class="stat"><strong>8</strong><span>рабочих шаблонов</span></div>
-            <div class="stat"><strong>2–4</strong><span>недели на capstone</span></div>
+            <div class="stat"><strong>1</strong><span>итоговая работа</span></div>
           </div>
         </section>
 
         <section class="section">
-          <div class="section-heading"><div><p class="eyebrow">Основная модель</p><h2>Семь потоков проекта</h2></div><p>Любая системная проблема проекта проявляется как задержка, разрыв или искажение одного из этих потоков.</p></div>
+          <div class="section-heading"><div><p class="eyebrow">Модель курса</p><h2>Семь потоков проекта</h2></div><p>Это семь мест, где чаще всего ломается работа проекта. В каждом модуле ты научишься замечать один из таких разрывов и исправлять его.</p></div>
           <div class="system-map">${DATA.flows.map((flow, i) => `<div class="system-node" style="--node:${flow.color}"><span>0${i + 1}</span><strong>${flow.name}</strong></div>`).join("")}</div>
         </section>
 
         <section class="section next-card">
           <div>
-            <p class="eyebrow" style="color:var(--ink)">Следующий шаг · урок ${String(nextIndex).padStart(2, "0")}</p>
+            <p class="eyebrow" style="color:var(--ink)">Твой следующий шаг · урок ${String(nextIndex).padStart(2, "0")}</p>
             <h2>${next.title}</h2>
             <p>${next.thesis}</p>
           </div>
           <div class="next-meta">
             <span class="mono">${next.minutes} минут · ${next.moduleTitle}</span>
-            <a class="button" href="#/lesson/${next.id}">Открыть урок →</a>
+            <a class="button" href="#/lesson/${next.id}">Продолжить →</a>
           </div>
         </section>
 
         <section class="section">
-          <div class="section-heading"><div><p class="eyebrow">Маршрут</p><h2>Не линейный курс, а система практики</h2></div><a class="button subtle" href="#/course">Вся программа</a></div>
+          <div class="section-heading"><div><p class="eyebrow">Основной путь</p><h2>Один маршрут: урок → практика → следующий урок</h2></div><a class="button subtle" href="#/course">Все 10 модулей</a></div>
           <div class="module-grid">${DATA.modules.slice(0, 4).map(moduleCard).join("")}</div>
         </section>
       </div>`;
@@ -120,26 +127,35 @@
 
   function moduleCard(module, index = DATA.modules.indexOf(module)) {
     const completion = moduleCompletion(module);
+    const target = moduleTargetLesson(module);
     return `<article class="module-card" data-number="${String(index + 1).padStart(2, "0")}">
       <span class="module-kicker">МОДУЛЬ ${String(index + 1).padStart(2, "0")} · ${module.duration}</span>
       <h3>${module.title}</h3><p>${module.outcome}</p>
-      <div class="module-footer"><span class="mono muted">${completion.done}/${completion.total}</span><a href="#/lesson/${module.lessons[0].id}">Перейти →</a></div>
+      <div class="module-footer"><span class="mono muted">${completion.done}/${completion.total}</span><a href="#/lesson/${target.id}">${completion.done === completion.total ? "Повторить" : "Продолжить"} →</a></div>
     </article>`;
   }
 
   function courseView() {
     const hours = DATA.modules.reduce((sum, module) => {
-      const [min, max] = module.duration.match(/\d+/g).map(Number);
+      const values = module.duration.match(/\d+/g)?.map(Number) || [0, 0];
+      const min = values[0] || 0;
+      const max = values[1] ?? min;
       return [sum[0] + min, sum[1] + max];
     }, [0, 0]);
+    const currentModuleIndex = DATA.modules.findIndex((module) => moduleCompletion(module).done < module.lessons.length);
     return `<div class="page">
       <section class="course-intro">
-        <div><p class="eyebrow">Учебный маршрут</p><h1>От диспетчера задач<br>к архитектору системы</h1><p class="lead">Каждый модуль заканчивается артефактом для реального проекта. Теория считается освоенной только после наблюдаемого изменения системы.</p></div>
-        <div class="course-metrics"><strong>${hours[0]}–${hours[1]} ч</strong><p>общая нагрузка</p><strong>${progress()}%</strong><p>пройдено</p><strong>1</strong><p>итоговое системное вмешательство</p></div>
+        <div><p class="eyebrow">Основной путь</p><h1>10 модулей.<br>Иди по порядку.</h1><p class="lead">Начни с первого незавершённого урока. В конце каждого урока есть короткая практика. Когда она выполнена, кнопка завершения откроет следующий шаг. Проверки и диагностика дополняют путь, но не создают второй курс.</p></div>
+        <div class="course-metrics"><strong>${hours[0]}–${hours[1]} ч</strong><p>ориентир по времени</p><strong>${progress()}%</strong><p>пройдено</p><strong>${state.completed.length}/${allLessons.length}</strong><p>уроков завершено</p></div>
       </section>
+      <div class="path-note"><strong>Как двигаться:</strong><span>1. Открой текущий урок</span><span>2. Сделай практику</span><span>3. Заверши урок</span><span>4. Перейди дальше</span></div>
       <div class="module-list">${DATA.modules.map((module, index) => {
         const completion = moduleCompletion(module);
-        return `<article class="module-row"><span class="module-index">${String(index + 1).padStart(2, "0")}</span><h2>${module.title}</h2><p>${module.outcome}</p><a href="#/lesson/${module.lessons[0].id}">${completion.done === completion.total ? "Пройдено ✓" : `${completion.done}/${completion.total} · Открыть`}</a></article>`;
+        const target = moduleTargetLesson(module);
+        const finished = completion.done === completion.total;
+        const current = !finished && (currentModuleIndex === index || currentModuleIndex === -1);
+        const status = finished ? "Завершено" : current ? "Сейчас" : "Дальше";
+        return `<article class="module-row ${finished ? "completed" : current ? "current" : "upcoming"}"><span class="module-index">${String(index + 1).padStart(2, "0")}</span><div><span class="module-status">${status}</span><h2>${module.title}</h2></div><p>${module.outcome}</p><a href="#/lesson/${target.id}">${finished ? "Повторить" : current ? "Продолжить" : "Открыть"} →</a></article>`;
       }).join("")}</div>
     </div>`;
   }
@@ -154,6 +170,8 @@
     const next = allLessons[index + 1];
     const checked = state.criteria[id] || [];
     const done = state.completed.includes(id);
+    const required = lesson.criteria.length;
+    const ready = checked.length >= required;
 
     return `<div class="page lesson-layout">
       <article>
@@ -161,31 +179,35 @@
           <p class="eyebrow">${lesson.moduleTitle} · урок ${String(index + 1).padStart(2, "0")}/${allLessons.length}</p>
           <h1>${lesson.title}</h1>
           <p class="lead">${lesson.thesis}</p>
-          <div class="meta"><span>${lesson.minutes} минут</span><span>практика обязательна</span></div>
+          <div class="meta"><span>${lesson.minutes} минут</span><span>${done ? "завершён ✓" : "теория + практика"}</span></div>
         </header>
 
-        <section class="lesson-block" id="idea"><h2>Смена оптики</h2>${lesson.body.map((paragraph) => `<p>${paragraph}</p>`).join("")}</section>
+        <section class="lesson-block" id="idea"><h2>Главная мысль</h2>${lesson.body.map((paragraph) => `<p>${paragraph}</p>`).join("")}</section>
         <blockquote class="insight">${lesson.thesis}</blockquote>
-        <section class="lesson-block" id="model"><h2>Рабочая модель</h2><div class="model-card">${lesson.model}</div></section>
+        <section class="lesson-block" id="model"><h2>Как это работает</h2><div class="model-card">${lesson.model}</div></section>
         <section class="practice" id="practice">
-          <p class="eyebrow">Полевая работа</p><h2>Применить на реальном проекте</h2>
+          <p class="eyebrow">Практика</p><h2>Примени к своему проекту</h2>
           <ol>${lesson.practice.map((step) => `<li>${step}</li>`).join("")}</ol>
-          <h3>Доказательства освоения</h3>
+          <h3>Проверь результат</h3>
+          <p class="practice-help">Отметь пункт только если действительно сделал его. Это не тест — чекбоксы просто помогают понять, готов ли ты идти дальше.</p>
           <div class="criteria">${lesson.criteria.map((criterion, criterionIndex) => `<label class="criterion"><input type="checkbox" data-criterion="${criterionIndex}" ${checked.includes(criterionIndex) ? "checked" : ""}><span>${criterion}</span></label>`).join("")}</div>
-          <label for="lesson-notes"><strong>Рабочие заметки</strong></label>
-          <textarea class="notes" id="lesson-notes" placeholder="Факты, решение, результат…">${escapeHtml(state.notes[id] || "")}</textarea>
+          <p class="completion-status ${ready ? "ready" : ""}" id="completion-status">${checked.length}/${required} выполнено${ready ? " · можно завершать урок" : " · выполни все пункты, чтобы открыть следующий шаг"}</p>
+          <label for="lesson-notes"><strong>Заметки</strong><span class="field-help">Можно сохранить примеры, решения или выводы.</span></label>
+          <textarea class="notes" id="lesson-notes" placeholder="Что заметил? Что решил? Что изменилось?">${escapeHtml(state.notes[id] || "")}</textarea>
           <div class="lesson-actions">
-            <button class="button primary ${done ? "done" : ""}" id="complete-lesson">${done ? "Урок пройден ✓" : "Отметить урок пройденным"}</button>
+            ${done
+              ? `<a class="button primary" href="${next ? `#/lesson/${next.id}` : "#/course"}">${next ? "Продолжить к следующему уроку" : "Вернуться к программе"} →</a>`
+              : `<button class="button primary" id="complete-lesson" ${ready ? "" : "disabled"}>Завершить урок и продолжить →</button>`}
             <button class="button" id="save-notes">Сохранить заметки</button>
           </div>
         </section>
       </article>
 
       <aside class="lesson-aside">
-        <nav class="toc" aria-label="Разделы урока"><small>В ЭТОМ УРОКЕ</small><a href="#/lesson/${id}" data-scroll="idea">Смена оптики</a><a href="#/lesson/${id}" data-scroll="model">Рабочая модель</a><a href="#/lesson/${id}" data-scroll="practice">Полевая работа</a></nav>
+        <nav class="toc" aria-label="Разделы урока"><small>В ЭТОМ УРОКЕ</small><a href="#/lesson/${id}" data-scroll="idea">Главная мысль</a><a href="#/lesson/${id}" data-scroll="model">Как это работает</a><a href="#/lesson/${id}" data-scroll="practice">Практика</a></nav>
         <div class="lesson-nav">
-          ${previous ? `<a class="button subtle" href="#/lesson/${previous.id}">← Назад</a>` : ""}
-          ${next ? `<a class="button subtle" href="#/lesson/${next.id}">Следующий →</a>` : `<a class="button subtle" href="#/course">К программе</a>`}
+          ${previous ? `<a class="button subtle" href="#/lesson/${previous.id}">← Предыдущий урок</a>` : ""}
+          <a class="button subtle" href="#/course">Все модули</a>
         </div>
       </aside>
     </div>`;
@@ -199,8 +221,8 @@
       { score: 3, label: "Системно — есть правило, владелец и обратная связь" }
     ];
     return `<div class="page">
-      <p class="eyebrow">Baseline · 7 потоков</p><h1>Диагностика зрелости</h1>
-      <p class="lead">Оцени не намерения команды, а воспроизводимое поведение системы за последние четыре недели. Результат покажет, с какого модуля начинать.</p>
+      <p class="eyebrow">Необязательная самопроверка</p><h1>Где проект теряет управляемость?</h1>
+      <p class="lead">Оцени, как проект работал последние четыре недели. Результат покажет слабое место, на которое стоит обратить внимание. Порядок курса при этом не меняется.</p>
       <div class="diagnostic-grid section">
         <form id="diagnostic-form">${DATA.diagnostics.map((item, index) => `<fieldset class="question-card"><legend>${index + 1}. ${item.q}</legend><div class="options">${choices.map((choice) => `<label class="option"><input type="radio" name="q${index}" value="${choice.score}" data-flow="${item.flow}" ${String(state.diagnostic[index]) === String(choice.score) ? "checked" : ""}><span>${choice.label}</span></label>`).join("")}</div></fieldset>`).join("")}</form>
         <aside class="diagnostic-result" id="diagnostic-result"></aside>
@@ -213,7 +235,7 @@
     if (!target) return;
     const answers = Object.keys(state.diagnostic);
     if (answers.length < DATA.diagnostics.length) {
-      target.innerHTML = `<p class="eyebrow">Результат</p><h3>${answers.length}/${DATA.diagnostics.length} ответов</h3><p class="result-empty">Ответь на все вопросы. Оценка сохранится в этом браузере автоматически.</p>`;
+      target.innerHTML = `<p class="eyebrow">Результат</p><h3>${answers.length}/${DATA.diagnostics.length} ответов</h3><p class="result-empty">Ответь на все вопросы. Ответы сохраняются в этом браузере автоматически.</p>`;
       return;
     }
     const scores = Object.fromEntries(DATA.flows.map((flow) => [flow.id, []]));
@@ -222,18 +244,33 @@
     const weakest = [...results].sort((a, b) => a.score - b.score)[0];
     const moduleMap = { value: 2, work: 4, information: 8, decisions: 7, dependencies: 3, uncertainty: 6, feedback: 10 };
     const recommended = DATA.modules[moduleMap[weakest.id] - 1];
-    target.innerHTML = `<p class="eyebrow">Точка старта</p><h3>${weakest.name}: ${weakest.score}%</h3><p class="result-empty">Слабейший поток системы. Начни с модуля «${recommended.title}» и повтори диагностику после полевого вмешательства.</p>${results.map((result) => `<div class="score-row"><div><span>${result.name}</span><strong>${result.score}%</strong></div><div class="progress-track"><div class="progress-fill" style="width:${result.score}%;background:${result.color}"></div></div></div>`).join("")}<a class="button primary" style="width:100%;margin-top:12px" href="#/lesson/${recommended.lessons[0].id}">Открыть модуль ${String(moduleMap[weakest.id]).padStart(2, "0")}</a>`;
+    target.innerHTML = `<p class="eyebrow">Зона внимания</p><h3>${weakest.name}: ${weakest.score}%</h3><p class="result-empty">Слабее всего сейчас выглядит поток «${weakest.name}». Продолжай основной путь и обрати особое внимание на модуль «${recommended.title}».</p>${results.map((result) => `<div class="score-row"><div><span>${result.name}</span><strong>${result.score}%</strong></div><div class="progress-track"><div class="progress-fill" style="width:${result.score}%;background:${result.color}"></div></div></div>`).join("")}<a class="button primary" style="width:100%;margin-top:12px" href="#/course">Вернуться к основному пути</a>`;
   }
 
   function toolkitView() {
-    return `<div class="page"><p class="eyebrow">Рабочие артефакты</p><h1>Инструменты,<br>которые меняют решения</h1><p class="lead">Скачай Markdown-шаблон, заполни фактами реального проекта и принеси на следующую точку принятия решения.</p>
+    return `<div class="page"><p class="eyebrow">Шаблоны для работы</p><h1>Инструменты,<br>которые помогают принять решение</h1><p class="lead">Скачай нужный Markdown-шаблон, заполни его фактами проекта и используй в реальной рабочей ситуации.</p>
       <div class="tool-grid">${DATA.tools.map((tool, index) => `<article class="tool-card"><span class="tool-number">TOOL ${String(index + 1).padStart(2, "0")}</span><h3>${tool.name}</h3><p>${tool.description}</p><button class="button subtle download-tool" data-index="${index}">Скачать .md ↓</button></article>`).join("")}</div>
-      <section class="section"><div class="section-heading"><div><p class="eyebrow">Правило применения</p><h2>Артефакт существует ради решения</h2></div></div><div class="principles"><div class="principle"><strong>Есть потребитель</strong><p>До заполнения ясно, кто и какое решение примет с его помощью.</p></div><div class="principle"><strong>Есть срок жизни</strong><p>Устаревший документ удаляют или обновляют, а не хранят как декорацию.</p></div><div class="principle"><strong>Один источник истины</strong><p>Информация не копируется вручную между несколькими статусами.</p></div><div class="principle"><strong>Минимум достаточного</strong><p>Поле остается только если его отсутствие уже приводило к дорогой ошибке.</p></div></div></section>
+      <section class="section"><div class="section-heading"><div><p class="eyebrow">Правило</p><h2>Шаблон нужен только тогда, когда помогает решить задачу</h2></div></div><div class="principles"><div class="principle"><strong>Понятно, кому нужен</strong><p>До заполнения ясно, кто и какое решение примет с его помощью.</p></div><div class="principle"><strong>Понятно, когда устареет</strong><p>Ненужный документ удаляют или обновляют, а не хранят ради процесса.</p></div><div class="principle"><strong>Один источник</strong><p>Не копируй одну и ту же информацию вручную в несколько мест.</p></div><div class="principle"><strong>Только нужные поля</strong><p>Оставляй поле, если без него уже возникали ошибки или плохие решения.</p></div></div></section>
     </div>`;
   }
 
   function notFoundView() {
-    return `<div class="page empty-state"><p class="eyebrow">404</p><h1>Такого урока нет</h1><p class="lead" style="margin-inline:auto">Вернись к программе и выбери следующий шаг.</p><a class="button primary" href="#/course">Открыть программу</a></div>`;
+    return `<div class="page empty-state"><p class="eyebrow">404</p><h1>Такой страницы нет</h1><p class="lead" style="margin-inline:auto">Вернись к учебному пути и продолжи с текущего шага.</p><a class="button primary" href="#/course">Открыть учебный путь</a></div>`;
+  }
+
+  function updateLessonCompletionGate(id) {
+    const criteria = document.querySelectorAll("[data-criterion]");
+    const checked = document.querySelectorAll("[data-criterion]:checked").length;
+    const button = document.querySelector("#complete-lesson");
+    const status = document.querySelector("#completion-status");
+    const ready = checked >= criteria.length;
+    if (button) button.disabled = !ready;
+    if (status) {
+      status.textContent = `${checked}/${criteria.length} выполнено${ready ? " · можно завершать урок" : " · выполни все пункты, чтобы открыть следующий шаг"}`;
+      status.classList.toggle("ready", ready);
+    }
+    state.criteria[id] = [...document.querySelectorAll("[data-criterion]:checked")].map((item) => Number(item.dataset.criterion));
+    saveState();
   }
 
   function bindViewEvents(route, id) {
@@ -245,29 +282,27 @@
         });
       });
       document.querySelectorAll("[data-criterion]").forEach((checkbox) => {
-        checkbox.addEventListener("change", () => {
-          state.criteria[id] = [...document.querySelectorAll("[data-criterion]:checked")].map((item) => Number(item.dataset.criterion));
-          saveState();
-        });
+        checkbox.addEventListener("change", () => updateLessonCompletionGate(id));
       });
       document.querySelector("#save-notes")?.addEventListener("click", () => {
         state.notes[id] = document.querySelector("#lesson-notes").value;
         saveState();
         showToast("Заметки сохранены");
       });
-      document.querySelector("#complete-lesson")?.addEventListener("click", (event) => {
+      document.querySelector("#complete-lesson")?.addEventListener("click", () => {
         state.notes[id] = document.querySelector("#lesson-notes").value;
-        const completed = state.completed.includes(id);
-        if (!completed && (state.criteria[id] || []).length < document.querySelectorAll("[data-criterion]").length) {
-          saveState();
-          showToast("Сначала отметь все доказательства освоения");
+        const criteriaCount = document.querySelectorAll("[data-criterion]").length;
+        if ((state.criteria[id] || []).length < criteriaCount) {
+          updateLessonCompletionGate(id);
+          showToast("Сначала выполни все пункты практики");
           return;
         }
-        state.completed = completed ? state.completed.filter((item) => item !== id) : [...state.completed, id];
+        if (!state.completed.includes(id)) state.completed = [...state.completed, id];
         saveState();
-        event.currentTarget.textContent = completed ? "Отметить урок пройденным" : "Урок пройден ✓";
-        event.currentTarget.classList.toggle("done", !completed);
-        showToast(completed ? "Отметка снята" : "Урок добавлен в прогресс");
+        const index = allLessons.findIndex((lesson) => lesson.id === id);
+        const next = allLessons[index + 1];
+        showToast("Урок завершён");
+        location.hash = next ? `#/lesson/${next.id}` : "#/course";
       });
     }
 
@@ -315,13 +350,13 @@
     bindViewEvents(route, id);
     document.querySelector("#main").focus({ preventScroll: true });
     window.scrollTo(0, 0);
-    document.querySelector("#mobile-nav").classList.remove("open");
-    document.querySelector("#menu-button").setAttribute("aria-expanded", "false");
+    document.querySelector("#mobile-nav")?.classList.remove("open");
+    document.querySelector("#menu-button")?.setAttribute("aria-expanded", "false");
   }
 
-  document.querySelector("#menu-button").addEventListener("click", (event) => {
+  document.querySelector("#menu-button")?.addEventListener("click", (event) => {
     const nav = document.querySelector("#mobile-nav");
-    const open = nav.classList.toggle("open");
+    const open = nav?.classList.toggle("open") || false;
     event.currentTarget.setAttribute("aria-expanded", String(open));
   });
   window.addEventListener("hashchange", render);
