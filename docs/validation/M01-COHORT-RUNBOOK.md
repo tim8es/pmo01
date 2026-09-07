@@ -8,8 +8,8 @@ This is an operational product gate for a small exploratory cohort, not a statis
 
 Published learner experience under test:
 
-- course: `https://tim8es.github.io/pmo01/?v=e2bb179a`
-- validation route: `https://tim8es.github.io/pmo01/?v=e2bb179a#/validation/m01`
+- course: `https://tim8es.github.io/pmo01/`
+- validation route: `https://tim8es.github.io/pmo01/#/validation/m01`
 
 Do not activate M02 during this cohort.
 
@@ -39,9 +39,13 @@ If a session is excluded, document why and run an additional participant so the 
 
 ### 0. Setup — 2 minutes
 
-1. Open the validation route.
-2. Reset M01 validation data or use a fresh browser profile.
-3. Confirm that no previous baseline result is visible.
+For **each new participant**, use a fresh browser context where both PMO01 localStorage keys are absent. Use a fresh browser profile/private session or clear all PMO01 site data before opening the validation route.
+
+Do **not** prepare a different participant by pressing only **Сбросить M01 validation data**. That button clears the validation answers but deliberately preserves the main-course progress, so reused M01 progress could contaminate the next participant.
+
+1. Start a fresh browser context or clear all PMO01 site data.
+2. Open the validation route.
+3. Confirm that no previous baseline result or completed M01 state is visible.
 4. Tell the participant:
 
 > Проходи задания так, как решал бы реальную рабочую ситуацию. Я не буду подсказывать правильный ответ. Если формулировка или интерфейс мешают — говори вслух, что именно непонятно.
@@ -79,15 +83,19 @@ Required evidence:
 Participant completes, in order:
 
 1. `project-system` Learning Lab;
-2. its decision drill;
-3. workbook/transfer fields required by the lesson;
-4. `system-diagnostic` Learning Lab;
-5. its decision drill;
-6. workbook/transfer fields required by the lesson.
+2. its **cold decision drill** — first choice is frozen when feedback opens;
+3. its exit drill;
+4. workbook/transfer fields required by the lesson;
+5. `system-diagnostic` Learning Lab;
+6. its **cold decision drill** — first choice is frozen when feedback opens;
+7. its exit drill;
+8. workbook/transfer fields required by the lesson.
+
+The validation route does **not** ask the learner to repeat those cold drills. After both lessons satisfy their evidence-aware completion gates, return to validation and continue directly to post-case.
 
 Facilitator does not teach the answer. Record only observed friction and reasoning changes.
 
-For each decision drill capture:
+For each cold decision drill capture:
 
 - first choice;
 - short reason for the choice;
@@ -191,14 +199,14 @@ Diagnosis summary:
 Observed pattern: people/symptom / mixed / mechanism
 Ambiguity/friction:
 
-DRILL 1 — project-system
+DRILL 1 — project-system cold drill
 First choice:
 Reason:
 Feedback changed reasoning: yes / no / unclear
 Misconception exposed: yes / no / unclear
 Useful: useful / partial / weak
 
-DRILL 2 — system-diagnostic
+DRILL 2 — system-diagnostic cold drill
 First choice:
 Reason:
 Feedback changed reasoning: yes / no / unclear
@@ -256,7 +264,7 @@ First calculate:
 
 - number of positive individual signals;
 - number of credible transfers;
-- for each drill, number of sessions where it was `useful` or `partial` and why;
+- for each cold drill, number of sessions where it was `useful` or `partial` and why;
 - number of sessions with blocking UX/reliability problems;
 - number of sessions where rubric ambiguity could plausibly affect the result;
 - repeated content/wording problems appearing in at least two valid sessions.
