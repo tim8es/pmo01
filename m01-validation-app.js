@@ -115,6 +115,33 @@
     return location.hash.replace(/^#\/?/, '').replace(/\/$/, '');
   }
 
+  function bindColdLabDrillLock() {
+    const route = currentRoute();
+    const lessonId = route.startsWith('lesson/') ? route.slice('lesson/'.length) : null;
+    if (!lessonId || !m01LessonIds.includes(lessonId)) return;
+
+    const currentLesson = lesson(lessonId);
+    const coldDrill = currentLesson && currentLesson.learningLab
+      ? currentLesson.learningLab.drills.find((drill) => drill.stage === 'cold')
+      : null;
+    if (!coldDrill) return;
+
+    const inputs = [...document.querySelectorAll(`[data-lab-drill="${coldDrill.id}"]`)];
+    if (!inputs.length) return;
+
+    const lock = () => inputs.forEach((input) => { input.disabled = true; });
+    const stored = legacyState();
+    const answer = stored.lab && stored.lab[lessonId]
+      && stored.lab[lessonId].drillAnswers && stored.lab[lessonId].drillAnswers[coldDrill.id];
+
+    if (answer) {
+      lock();
+      return;
+    }
+
+    inputs.forEach((input) => input.addEventListener('change', lock));
+  }
+
   function setMessage(text, error) {
     const target = document.querySelector('#validation-message');
     if (!target) return;
@@ -421,6 +448,7 @@
   function renderExtension() {
     if (currentRoute() === validationRoute) renderValidationRoute();
     else if (currentRoute() === 'course') decorateCourse();
+    else bindColdLabDrillLock();
   }
 
   window.addEventListener('hashchange', () => queueMicrotask(renderExtension));
