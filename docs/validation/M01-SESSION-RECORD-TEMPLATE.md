@@ -1,27 +1,31 @@
-# M01 Learner Session Record Template
+# M01.1 Learner Session Record Template
 
-> Copy this file for each participant. Use a non-identifying participant ID. Do not record sensitive project details unless they are essential to the learning observation.
+> Copy this file for each real participant. Use a non-identifying participant ID. Do not record sensitive project details unless essential to interpret the learning evidence.
 
 ## Session metadata
 
-- **Participant ID:**
+- **Participant ID:** P0_
 - **Date:**
 - **Role:**
 - **Experience level:**
 - **Facilitator:**
 - **Browser/device:**
-- **Fresh validation state confirmed:** yes / no
+- **Fresh browser context confirmed:** yes / no
+- **`pm01-validation-m01-v1` absent at start:** yes / no
+- **`pm01-state-v1` absent at start:** yes / no
+- **Session valid / excluded:**
+- **Exclusion reason:**
 
 ## Baseline
 
 - **Baseline total (0–15):**
-- **Mechanism:**
-- **Evidence:**
-- **Trade-offs:**
-- **Intervention:**
-- **Change condition:**
+- **Mechanism /3:**
+- **Evidence /3:**
+- **Trade-offs /3:**
+- **Intervention /3:**
+- **Change condition /3:**
 - **Free-text diagnosis summary:**
-- **Observed reasoning pattern:**
+- **Observed reasoning pattern:** people/symptom / mixed / mechanism
 - **Question ambiguity/friction:**
 
 > Baseline score and explanatory feedback must remain hidden from the participant until post-case submission.
@@ -30,24 +34,26 @@
 
 ### Lesson 1 — `project-system`
 
-- What appeared to change in where the participant looked for the problem?
-- Did they distinguish facts from interpretations?
-- Did the seven-flow model help or add noise?
+- Did the learner distinguish facts from interpretations?
+- Did they compare more than one plausible explanation?
+- Did the hypothesis scan help or add noise?
 - Friction/ambiguity:
 
 ### Decision Drill — `m01-drill-system`
 
 - **First choice:**
 - **Why:**
+- **Near-miss chosen or seriously considered:** yes / no / unclear
 - **Did feedback change the rationale?** yes / no / unclear
 - **Misconception exposed:**
-- **Interaction useful?** yes / partial / no
+- **Interaction useful?** useful / partial / weak
 - **Reason:**
 
 ### Lesson 2 — `system-diagnostic`
 
-- Could the participant distinguish symptom → mechanism → system condition?
-- Did they move away from person-level explanations?
+- Could the learner distinguish symptom → mechanism → system condition?
+- Did they formulate a plausible alternative hypothesis?
+- Could they name evidence that would weaken their preferred diagnosis?
 - Could they connect intervention to mechanism?
 - Friction/ambiguity:
 
@@ -55,45 +61,57 @@
 
 - **First choice:**
 - **Why:**
+- **Near-miss chosen or seriously considered:** yes / no / unclear
 - **Did feedback change the rationale?** yes / no / unclear
 - **Misconception exposed:**
-- **Interaction useful?** yes / partial / no
+- **Interaction useful?** useful / partial / weak
 - **Reason:**
 
 ## Integrative post-case
 
 - **Post total (0–15):**
-- **Mechanism:**
-- **Evidence:**
-- **Trade-offs:**
-- **Intervention:**
-- **Change condition:**
+- **Mechanism /3:**
+- **Evidence /3:**
+- **Trade-offs /3:**
+- **Intervention /3:**
+- **Change condition /3:**
 - **Total delta:**
-- **Improved dimensions:**
-- **Prototype individual signal:** pass / not pass
+- **Improved dimensions count:**
+- **Prototype individual signal:** positive / absent
 - **Free-text diagnosis summary:**
-- **What changed compared with baseline:**
+- **Free text supports score:** yes / partial / no
 - **Question ambiguity/friction:**
 
-## Field application
+Individual positive signal requires `post >= baseline + 3` and at least two improved dimensions. It is not mastery.
+
+## M01.1 real-project transfer
+
+Use a current or recent real project. Do not accept mere repetition of course terminology as transfer.
 
 - **Real/recent project used:** yes / no
 - **Description sufficiently anonymized:** yes / no / n/a
-- **Mechanism credible:** yes / partial / no
-- **Intervention acts on mechanism:** yes / partial / no
-- **Early signal observable:** yes / partial / no
+- **Primary hypothesis / mechanism:**
+- **Strong alternative hypothesis:**
+- **Discriminating evidence:**
+- **Falsifier / факт-опровержение:**
+- **Decision / minimal intervention:**
+- **Early observable signal:**
+- **Revision condition — evidence that would make the learner revise, stop, change or reverse the decision:**
 - **Evidence actually observed:** yes / not yet / unclear
 - **Next decision follows from evidence:** yes / partial / no
 - **Overall transfer:** credible / partial / restatement only / not completed
 - **Facilitator notes:**
 
-## Reflection
+A **credible** transfer requires a defensible mechanism, a genuinely plausible alternative, observable discriminating/falsifying evidence, an intervention acting on the mechanism, an observable early signal, and an explicit revision condition.
 
-Classify each item based on the participant's response.
+## Reflection
 
 - **Changed diagnosis:** clear / partial / absent
 - **Changed planned action:** clear / partial / absent
 - **New evidence requirement:** clear / partial / absent
+- **Alternative hypothesis considered:** clear / partial / absent
+- **Falsifier stated:** clear / partial / absent
+- **Decision revision condition stated:** clear / partial / absent
 - **Remaining uncertainty made testable:** clear / partial / absent
 - **Mostly restated lesson content:** yes / no / mixed
 
@@ -101,31 +119,15 @@ Key quote or paraphrased observation:
 
 ## Short interview
 
-### 1. What did you initially think the project problem was?
-
-Notes:
-
-### 2. What changed in your diagnosis after the module?
-
-Notes:
-
-### 3. Which part of the module caused that change?
-
-Notes:
-
-### 4. Which feedback felt obvious, misleading, or unconvincing?
-
-Notes:
-
-### 5. Could you use the model tomorrow without opening the course? Where?
-
-Notes:
-
-### 6. What information would you now request earlier on a real project?
-
-Notes:
-
-### 7. Where did the interface or wording interfere with your reasoning?
+1. What did you initially think the project problem was?
+2. What changed in your diagnosis after M01.1?
+3. Which part caused that change?
+4. Which alternative hypothesis felt most plausible?
+5. What fact could falsify your final diagnosis?
+6. Under what evidence would you revise or reverse your decision?
+7. Which feedback felt obvious, misleading, or unconvincing?
+8. Where did interface or wording interfere with reasoning?
+9. Where could you use the model tomorrow without opening the course?
 
 Notes:
 
@@ -134,17 +136,20 @@ Notes:
 - Any response/state loss: yes / no
 - Reload/navigation recovery worked: yes / no / not tested
 - Persistence error surfaced explicitly if applicable: yes / no / n/a
+- Route/navigation confusion: yes / no
 - Keyboard-critical path issue: yes / no / not tested
+- Blocking readability/interaction issue: yes / no
+- Baseline contamination: yes / no
+- Rubric ambiguity could affect score: yes / no
 - Major abandonment/friction point:
 - Other prototype defect:
 
 ## Content-model observations
 
-Did the learner reveal any requirement that the current production content model cannot represent without a one-off exception?
+Did the learner reveal any requirement the current production content model cannot represent cleanly without a one-off exception?
 
 - yes / no / unclear
-
-If yes, describe the requirement without proposing architecture prematurely:
+- If yes, describe the requirement without proposing architecture prematurely:
 
 ## Delayed follow-up
 
@@ -152,27 +157,23 @@ If yes, describe the requirement without proposing architecture prematurely:
 - **Delay:**
 - **New case/domain:**
 - **Independent reconstruction of mechanism:** yes / partial / no
+- **Alternative hypothesis generated independently:** yes / partial / no
+- **Falsifier stated independently:** yes / partial / no
 - **Intervention matched diagnosis:** yes / partial / no
-- **Change condition/evidence stated:** yes / partial / no
+- **Revision condition/evidence stated:** yes / partial / no
 - **Needed course terminology as prompt:** yes / no
 - **Transfer persisted:** yes / partial / no / unclear
 
 ## Session-level review
 
 - **Learning signal:** positive / mixed / absent / uninterpretable
-- **Transfer evidence:** strong / partial / absent
+- **Transfer evidence:** credible / partial / absent
 - **Interaction usefulness:** strong / mixed / weak
 - **Major friction:** none / manageable / blocking
 - **Rubric ambiguity:** none / manageable / blocking
-- **Recommended action for M01:** keep / revise / investigate / exclude session
+- **Recommended action for M01.1:** keep / revise / investigate / exclude session
 - **Reason:**
 
 ## Data handling
 
-Do not store:
-
-- credentials or access tokens;
-- customer/person names when unnecessary;
-- confidential contract/commercial terms;
-- sensitive internal metrics when an abstract value or direction is sufficient;
-- personal data not required to interpret the learning result.
+Do not store credentials/access tokens, unnecessary names, confidential commercial terms, sensitive internal metrics when abstract values suffice, or personal data not required to interpret the learning result.
