@@ -8,6 +8,8 @@ const courseDataCode = fs.readFileSync(path.join(__dirname, '..', 'course-data.j
 const validationDataCode = fs.readFileSync(path.join(__dirname, '..', 'm01-validation-data.js'), 'utf8');
 const labDataCode = fs.readFileSync(path.join(__dirname, '..', 'm01-learning-lab-data.js'), 'utf8');
 const appCode = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+const validationAppCode = fs.readFileSync(path.join(__dirname, '..', 'm01-validation-app.js'), 'utf8');
+const domain = require('../learning-domain.js');
 
 function storageFrom(initial = {}) {
   const values = new Map(Object.entries(initial));
@@ -23,10 +25,16 @@ function drillInput(value) {
     value,
     disabled: false,
     dataset: { labDrill: 'm01-drill-system' },
+    listeners: [],
     addEventListener(type, callback) {
-      if (type === 'change') this.change = callback;
+      if (type === 'change') this.listeners.push(callback);
     },
   };
+}
+
+function dispatchChange(input) {
+  if (input.disabled) return;
+  for (const callback of input.listeners) callback({ target: input, currentTarget: input });
 }
 
 test('M01 cold drill freezes the first choice after feedback instead of allowing answer replacement', () => {
@@ -53,14 +61,17 @@ test('M01 cold drill freezes the first choice after feedback instead of allowing
   };
   const localStorage = storageFrom();
   const window = {
+    PM01Learning: domain,
     addEventListener() {},
     scrollTo() {},
+    confirm() { return true; },
   };
   const context = {
     window,
     document,
     localStorage,
     location: { hash: '#/lesson/project-system' },
+    queueMicrotask(callback) { callback(); },
     console,
     Blob,
     URL,
@@ -72,12 +83,14 @@ test('M01 cold drill freezes the first choice after feedback instead of allowing
   vm.runInContext(validationDataCode, context, { filename: 'm01-validation-data.js' });
   vm.runInContext(labDataCode, context, { filename: 'm01-learning-lab-data.js' });
   vm.runInContext(appCode, context, { filename: 'app.js' });
+  vm.runInContext(validationAppCode, context, { filename: 'm01-validation-app.js' });
 
-  first.change({ target: first });
-  second.change({ target: second });
+  dispatchChange(first);
+  assert.equal(first.disabled, true);
+  assert.equal(second.disabled, true);
+
+  dispatchChange(second);
 
   const stored = JSON.parse(localStorage.getItem('pm01-state-v1'));
   assert.equal(stored.lab['project-system'].drillAnswers['m01-drill-system'], 'escalate-dev');
-  assert.equal(first.disabled, true);
-  assert.equal(second.disabled, true);
 });
