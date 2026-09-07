@@ -102,10 +102,6 @@
     return m01LessonIds.every((id) => completed.includes(id) && lessonEvidenceComplete(lesson(id), stored));
   }
 
-  function allDrillsAnswered() {
-    return DATA.decisionDrills.every((drill) => state.drills[drill.id] && state.drills[drill.id].choice);
-  }
-
   function escapeHtml(value) {
     return String(value == null ? '' : value)
       .replaceAll('&', '&amp;')
@@ -176,38 +172,15 @@
     </section>`;
   }
 
-  function drillBlock(drill) {
-    const stored = state.drills[drill.id];
-    const selected = stored && stored.choice;
-    const options = drill.options.map((item) => {
-      const checked = selected === item.id;
-      return `<label class="validation-option">
-        <input type="radio" name="drill-${escapeHtml(drill.id)}" value="${escapeHtml(item.id)}" data-drill="${escapeHtml(drill.id)}" ${checked ? 'checked' : ''} ${selected ? 'disabled' : ''}>
-        <span>${escapeHtml(item.label)}</span>
-      </label>${checked ? `<p class="validation-feedback">${escapeHtml(item.feedback)}</p>` : ''}`;
-    }).join('');
-    return `<article class="validation-drill">
-      <p class="eyebrow">Decision Drill</p>
-      <h3>${escapeHtml(drill.title)}</h3>
-      <p>${escapeHtml(drill.situation)}</p>
-      <fieldset class="validation-question" ${selected ? 'disabled' : ''}>
-        <legend>${escapeHtml(drill.prompt)}</legend>
-        <div class="validation-options">${options}</div>
-      </fieldset>
-    </article>`;
-  }
-
   function learningBlock() {
     const studied = isStudied();
-    const drillsDone = allDrillsAnswered();
     return `<section class="validation-step">
-      <header><p class="eyebrow">02 · Learning</p><h2>Изучи модель и прими два решения</h2><p>Вернись сюда после двух уроков. Decision Drills фиксируют первое решение до показа feedback.</p></header>
+      <header><p class="eyebrow">02 · Learning</p><h2>Пройди два урока M01</h2><p>Первый выбор и feedback уже встроены в Learning Lab каждого урока. Возвращайся сюда после завершения обоих уроков.</p></header>
       <div class="validation-lesson-links">
         <a class="button subtle" href="#/lesson/project-system">Урок 1 · За пределами треугольника</a>
         <a class="button subtle" href="#/lesson/system-diagnostic">Урок 2 · Диагностика до вмешательства</a>
       </div>
-      <p class="validation-state">Уроки: ${studied ? 'изучены ✓' : 'нужно завершить оба'} · Drills: ${drillsDone ? '2/2 ✓' : `${Object.keys(state.drills).length}/2`}</p>
-      <div class="validation-drills">${DATA.decisionDrills.map(drillBlock).join('')}</div>
+      <p class="validation-state">Уроки: ${studied ? 'изучены ✓' : 'нужно завершить оба'}</p>
     </section>`;
   }
 
@@ -279,7 +252,7 @@
 
   function validationView() {
     const baselineDone = Boolean(state.baseline.submittedAt);
-    const postUnlocked = baselineDone && isStudied() && allDrillsAnswered();
+    const postUnlocked = baselineDone && isStudied();
     const postDone = Boolean(state.postCase.submittedAt);
     const fieldDone = Boolean(state.field.submittedAt);
     const storageWarning = storageHealthy ? '' : '<p class="validation-note">Браузер сейчас не дает сохранить localStorage. Не продолжай эксперимент до восстановления хранения: переход к урокам может привести к потере ответов.</p>';
@@ -350,15 +323,6 @@
       state[key].score = DOMAIN.scoreAssessment(assessment.questions, state[key].answers);
       state[key].submittedAt = new Date().toISOString();
       if (saveValidationState()) rerenderValidation(`${key === 'baseline' ? 'Baseline' : 'Post-case'} зафиксирован.`);
-    }));
-  }
-
-  function bindDrillEvents() {
-    document.querySelectorAll('[data-drill]').forEach((input) => input.addEventListener('change', () => {
-      const id = input.dataset.drill;
-      if (state.drills[id] && state.drills[id].choice) return;
-      state.drills[id] = { choice: input.value, selectedAt: new Date().toISOString() };
-      if (saveValidationState()) rerenderValidation('Первый выбор Decision Drill зафиксирован; feedback открыт.');
     }));
   }
 
@@ -436,7 +400,6 @@
     main.innerHTML = validationView();
     document.querySelectorAll('.main-nav a').forEach((link) => link.classList.toggle('active', link.dataset.route === 'course'));
     bindAssessmentEvents();
-    bindDrillEvents();
     bindFieldEvents();
     bindReflectionEvents();
     bindReset();
