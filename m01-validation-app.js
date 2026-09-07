@@ -10,6 +10,12 @@
 
   if (!DATA || !DOMAIN) return;
 
+  const lessons = (window.PM01.modules || []).flatMap((module) => module.lessons || []);
+
+  function lesson(id) {
+    return lessons.find((item) => item.id === id);
+  }
+
   function emptyAssessment() {
     return { answers: {}, reasoning: '', submittedAt: null, score: null };
   }
@@ -79,9 +85,21 @@
     return loadJson(legacyStorageKey, { completed: [] });
   }
 
+  function lessonEvidenceComplete(currentLesson, stored) {
+    if (!currentLesson || !currentLesson.learningLab) return true;
+    const lessonState = stored.lab && stored.lab[currentLesson.id] || {};
+    const drillAnswers = lessonState.drillAnswers || {};
+    const workbook = lessonState.workbook || {};
+    const requiredDrills = currentLesson.learningLab.drills.filter((drill) => drill.required !== false);
+    const requiredFields = currentLesson.learningLab.workbookFields.filter((field) => field.required !== false);
+    return requiredDrills.every((drill) => Boolean(drillAnswers[drill.id]))
+      && requiredFields.every((field) => String(workbook[field.id] || '').trim().length > 0);
+  }
+
   function isStudied() {
-    const completed = Array.isArray(legacyState().completed) ? legacyState().completed : [];
-    return m01LessonIds.every((id) => completed.includes(id));
+    const stored = legacyState();
+    const completed = Array.isArray(stored.completed) ? stored.completed : [];
+    return m01LessonIds.every((id) => completed.includes(id) && lessonEvidenceComplete(lesson(id), stored));
   }
 
   function allDrillsAnswered() {
