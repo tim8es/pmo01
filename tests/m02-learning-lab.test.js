@@ -12,15 +12,14 @@ function read(name) {
 const html = read('index.html');
 const m02DataSource = read('m02-learning-lab-data.js');
 
-test('M02 learning lab data loads after M01 lab data and before the shared app runtime', () => {
+test('production entry point keeps M02 candidate inactive before cohort promotion', () => {
   const m01Index = html.indexOf('src="m01-learning-lab-data.js"');
   const m02Index = html.indexOf('src="m02-learning-lab-data.js"');
   const appIndex = html.indexOf('src="app.js"');
 
   assert.notEqual(m01Index, -1, 'M01 baseline lab script must remain loaded');
-  assert.notEqual(m02Index, -1, 'missing m02-learning-lab-data.js');
-  assert.equal(m02Index > m01Index, true, 'M02 lab data must load after M01 baseline data');
-  assert.equal(m02Index < appIndex, true, 'M02 lab data must load before shared app.js runtime');
+  assert.notEqual(appIndex, -1, 'shared app runtime must remain loaded');
+  assert.equal(m02Index, -1, 'M02 candidate must not be activated by production index.html before Promote to Phase 2');
 });
 
 test('M02 defines substantive learning labs for exactly its two lesson ids', () => {
