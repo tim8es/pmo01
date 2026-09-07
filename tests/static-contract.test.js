@@ -12,6 +12,8 @@ const html = read('index.html');
 const baseApp = read('app.js');
 const validationApp = read('m01-validation-app.js');
 const validationStyles = read('m01-validation.css');
+const labData = read('m01-learning-lab-data.js');
+const artDirection = read('art-direction.css');
 
 test('index loads validation styles and data, domain, base app, then validation extension in order', () => {
   assert.notEqual(html.indexOf('href="m01-validation.css"'), -1, 'missing isolated validation stylesheet');
@@ -51,4 +53,30 @@ test('validation styles are isolated under validation-specific classes', () => {
   assert.equal(validationStyles.includes('.validation-shell'), true);
   assert.equal(validationStyles.includes('.validation-score'), true);
   assert.equal(validationStyles.includes('.validation-evidence'), true);
+});
+
+test('M01 learning lab data loads after validation data and before the base app', () => {
+  const validationIndex = html.indexOf('src="m01-validation-data.js"');
+  const labIndex = html.indexOf('src="m01-learning-lab-data.js"');
+  const appIndex = html.indexOf('src="app.js"');
+  assert.notEqual(labIndex, -1, 'missing m01-learning-lab-data.js');
+  assert.equal(labIndex > validationIndex, true, 'lab data must load after validation data');
+  assert.equal(labIndex < appIndex, true, 'lab data must load before app.js');
+});
+
+test('M01 learning lab data targets exactly the two M01 lesson ids and reuses validation drills', () => {
+  assert.equal(labData.includes('project-system'), true, 'project-system lab contract missing');
+  assert.equal(labData.includes('system-diagnostic'), true, 'system-diagnostic lab contract missing');
+  assert.equal(labData.includes('decisionDrills'), true, 'lab must reuse existing decision drill source');
+  assert.equal(labData.includes('workbookFields'), true, 'lab workbook field contract missing');
+  assert.equal(labData.includes('transferPrompt'), true, 'lab transfer contract missing');
+});
+
+test('Editorial Instrument exposes readable learner text tokens and dedicated learning-lab styles', () => {
+  assert.equal(artDirection.includes('--text-secondary:'), true, 'readable secondary text token missing');
+  assert.equal(artDirection.includes('--text-tertiary:'), true, 'readable tertiary text token missing');
+  assert.equal(artDirection.includes('.learning-lab'), true, 'learning-lab visual contract missing');
+  assert.equal(artDirection.includes('.lab-feedback'), true, 'lab feedback visual contract missing');
+  assert.equal(artDirection.includes('.lab-workbook'), true, 'lab workbook visual contract missing');
+  assert.equal(artDirection.includes(':focus-visible'), true, 'visible keyboard focus contract missing');
 });
