@@ -58,6 +58,6 @@ test('M01 transfer requires a real decision, evidence and a condition for revisi
     const prompt = lesson.learningLab.transferPrompt.toLowerCase();
     assert.match(prompt, /решени/, `${lesson.id} transfer must require a real decision`);
     assert.match(prompt, /(evidence|доказ|факт)/, `${lesson.id} transfer must require evidence`);
-    assert.match(prompt, /(пересмотр|изменить|отменить|опроверг)/, `${lesson.id} transfer must define when to revise the decision`);
+    assert.match(prompt, /(пересмотр|измен|отмен|опроверг)/, `${lesson.id} transfer must define when to revise the decision`);
   }
 });
