@@ -1,6 +1,6 @@
-# M01 Cohort Review Template
+# M01.1 Cohort Review Template
 
-Use this document after the first learner cohort is complete. The first review should normally include at least **5 completed sessions**.
+Use after the first cohort is complete. The first decision requires at least **5 valid completed sessions**.
 
 This is a product/learning decision record, not a statistical significance report.
 
@@ -12,20 +12,19 @@ This is a product/learning decision record, not a statistical significance repor
 - **Reason for exclusions:**
 - **Experience mix:**
 - **Facilitator(s):**
+- **Published Pages SHA under test:** `c4f8ac2af6a66efdb79881baa58d4c091a0e6aed`
 
 ## Per-session summary
 
-| Participant ID | Baseline | Post | Delta | Improved dimensions | Individual signal | Field transfer | Major friction | Delayed follow-up |
+| ID | Baseline | Post | Delta | Improved dims | Signal | Transfer | Alt/falsifier quality | Major friction |
 |---|---:|---:|---:|---:|---|---|---|---|
-| | | | | | | | | |
-| | | | | | | | | |
-| | | | | | | | | |
-| | | | | | | | | |
-| | | | | | | | | |
+| P01 | | | | | | | | |
+| P02 | | | | | | | | |
+| P03 | | | | | | | | |
+| P04 | | | | | | | | |
+| P05 | | | | | | | | |
 
 ## L1 — Diagnostic reasoning delta
-
-Review the direction and distribution of change rather than only the average.
 
 - **Positive individual signals (`+3` and ≥2 improved dimensions):**
 - **No-signal sessions:**
@@ -43,71 +42,72 @@ Review the direction and distribution of change rather than only the average.
 | Intervention | | | | |
 | Change condition | | | | |
 
-Questions:
+Review whether improvement is broad, whether any item has floor/ceiling effects, whether wording ambiguity plausibly explains movement, and whether free-text reasoning supports the scored result.
 
-1. Is improvement broad across reasoning dimensions or concentrated in one item?
-2. Is any item too easy/hard to discriminate before and after learning?
-3. Is wording ambiguity a plausible alternative explanation for score movement?
-4. Does free-text reasoning support the same conclusion as multiple-choice scores?
+## L2 — M01.1 transfer
 
-## L2 — Transfer
+Count:
 
-For participants who studied M01:
-
-- **Credible field applications:**
-- **Partial applications:**
-- **Restatement-only / no transfer:**
+- **Credible:**
+- **Partial:**
+- **Restatement only:**
 - **Not completed:**
 
-Prototype transfer rate:
+Do not count a filled form as transfer.
 
-```text
-credible or policy-defined completed field applications
--------------------------------------------------------
-participants who studied the module
-```
+### Falsifiable reasoning review
 
-Do not interpret a filled form as transfer when intervention/evidence does not follow from the diagnosis.
+For each valid session review the full chain:
 
-### Common transfer patterns
+`primary hypothesis ↔ strong alternative → discriminating evidence → falsifier → intervention → early signal → revision condition`
 
-- Mechanisms learners identified:
-- Interventions learners attempted:
-- Signals/evidence learners used:
-- Where learners reverted to symptom/person-level reasoning:
+Cohort observations:
+
+- **Plausible alternative hypotheses generated without prompting:**
+- **Alternatives that were merely cosmetic restatements:**
+- **Useful discriminating evidence identified:**
+- **Concrete falsifiers / facts capable of overturning the diagnosis:**
+- **Explicit decision revision conditions:**
+- **Cases where intervention did not follow from the selected mechanism:**
+- **Cases where early signal was not observable:**
+
+Questions:
+
+1. Do learners genuinely compare competing explanations, or just fill an “alternative” field?
+2. Are falsifiers concrete enough that the primary diagnosis could actually lose?
+3. Does the revision condition identify evidence that would make the learner revise, change, stop or reverse the decision?
+4. Does this reasoning survive transfer to a real project?
 
 ## L3 — Reflection quality
 
-Count/classify whether reflections show:
+Classify whether reflections show:
 
 - changed diagnosis;
 - changed planned action;
 - new evidence requirement;
+- plausible alternative hypothesis;
+- falsifier / факт-опровержение;
+- explicit decision revision condition;
 - testable remaining uncertainty;
-- lesson restatement without mental-model change.
+- mere lesson restatement.
 
-Key qualitative patterns:
-
-## L4 — Delayed retrieval / application
+## L4 — Delayed retrieval/application
 
 - **Delayed checks run:**
 - **Independent transfer retained:**
 - **Partial:**
 - **Absent:**
 
-Observations:
+When available, check whether participants independently reconstruct the mechanism, alternative, falsifier and revision condition without course vocabulary prompts and whether the reasoning transfers to another domain.
 
-- Did participants reconstruct the model without course vocabulary prompts?
-- Did transfer survive a different project domain?
-- Did immediate post-case gains persist?
-
-Do not introduce a `mastered` rule from a small cohort. Record evidence only.
+Do not create a `mastered` rule from this small cohort.
 
 ## Decision Drill review
 
 ### `m01-drill-system`
 
-- Preferred choice selected immediately by most learners: yes / no / unclear
+- Preferred/best choice selected immediately by most learners: yes / no / unclear
+- Credible near-miss chosen or seriously considered: yes / no / mixed
 - Meaningful misconception exposed: yes / no / mixed
 - Feedback changed reasoning: yes / no / mixed
 - Transfer contribution observed: yes / no / unclear
@@ -116,24 +116,22 @@ Do not introduce a `mastered` rule from a small cohort. Record evidence only.
 
 ### `m01-drill-diagnostic`
 
-- Preferred choice selected immediately by most learners: yes / no / unclear
+- Preferred/best choice selected immediately by most learners: yes / no / unclear
+- Credible near-miss chosen or seriously considered: yes / no / mixed
 - Meaningful misconception exposed: yes / no / mixed
 - Feedback changed reasoning: yes / no / mixed
 - Transfer contribution observed: yes / no / unclear
 - Recommendation: keep / revise / remove
 - Reason:
 
-## Integrative case review
+A near-miss that nobody finds plausible may be weak; a near-miss that everyone selects may indicate ambiguity or a scoring/content problem. Either conclusion requires participant evidence, not static inspection alone.
 
-- Case felt structurally similar but non-identical to baseline: yes / no / mixed
-- Case tested multiple concepts rather than recall: yes / no / mixed
-- Scoring dimensions remained interpretable: yes / no / mixed
-- Free-text diagnosis added useful evidence beyond choices: yes / no / mixed
-- Recommendation: keep / revise / replace
+## Integrative case / rubric review
 
-## Rubric review
-
-For each dimension, note ambiguity, ceiling/floor effects, or mismatch between option score and observed reasoning.
+- Case structurally similar but non-identical to baseline: yes / no / mixed
+- Case tests reasoning rather than recall: yes / no / mixed
+- Five dimensions remain interpretable: yes / no / mixed
+- Free text adds evidence beyond choices: yes / no / mixed
 
 | Dimension | Keep | Revise | Evidence |
 |---|---|---|---|
@@ -143,16 +141,7 @@ For each dimension, note ambiguity, ceiling/floor effects, or mismatch between o
 | Intervention | | | |
 | Change condition | | | |
 
-### Promotion threshold review
-
-The current `+3 total / ≥2 dimensions` rule is a development heuristic.
-
-- Did it classify sessions in a way consistent with qualitative reasoning evidence?
-- Did it create obvious false positives?
-- Did it create obvious false negatives?
-- Recommendation: keep for next prototype cycle / revise / stop using
-
-Do not convert this threshold into mastery semantics.
+The `+3 total / ≥2 dimensions` rule remains a development heuristic. Review false-positive/false-negative cases against qualitative evidence before keeping or revising it.
 
 ## Reliability / UX review
 
@@ -169,63 +158,61 @@ Count and classify:
 
 ### Blocking defects
 
-List defects that invalidate or materially distort learner evidence:
+List only defects that invalidate or materially distort learner evidence:
 
-## Content-contract fit review
+## Content/UX risk review
 
-Start from `M01-READINESS-AUDIT.md` and record whether learner-driven revisions create a real new content-domain requirement.
+Record only evidence-backed patterns from real sessions:
 
-### Expected migration enrichments
+- repeated confusion over “alternative hypothesis”;
+- repeated inability to understand falsifier despite otherwise strong reasoning;
+- workbook perceived as form-filling rather than decision support;
+- near-miss wording producing accidental answer cues;
+- feedback causing answer-language mimicry rather than understanding;
+- transfer prompt not leading to a real decision;
+- repeated content-model exception.
 
-These are not special cases by themselves:
+Do not patch a risk that has not appeared in real evidence unless it is independently reproducible as a technical defect.
 
-- competency/outcome metadata;
-- structured drill analysis;
-- explicit rubric IDs/versioning;
-- explicit field-application artifact/evidence/privacy metadata.
+## Phase 1 decision
 
-### New exceptions discovered
+Choose exactly one.
 
-List only requirements that cannot be represented cleanly by the current canonical entities:
+### PROMOTE
 
-## Phase 1 exit decision
+Only if:
 
-Choose exactly one:
+- at least 5 valid sessions;
+- at least **3/5** positive individual signals;
+- at least **3/5** credible transfers;
+- qualitative evidence does not materially contradict score gains;
+- no unresolved reliability/UX/rubric defect plausibly explains the gains;
+- no unresolved content-model exception blocks preserving M01.1.
 
-### A. Promote to Phase 2
+### REVISE and retest
 
-Use only when:
+Use when the mechanism is plausible but evidence is mixed, transfer mostly partial, alternative/falsifier work becomes form-filling, the same content/UX/rubric issue appears in at least two valid sessions, or quantitative and qualitative evidence conflict.
 
-- learner evidence indicates meaningful reasoning improvement or useful discrimination;
-- field transfer is credible enough to preserve as a requirement;
-- major learner friction is known and non-blocking;
-- no unresolved content-domain ambiguity remains.
+### REJECT mechanism
 
-### B. Revise and retest
+Use only when sessions are interpretable and both are true:
 
-Use when the learning mechanism looks promising but:
+- **0–1/5** positive individual signals;
+- **0–1/5** credible transfers;
 
-- wording/rubric distorts measurement;
-- an interaction is weak;
-- transfer is incomplete;
-- UX/reliability interferes with evidence;
-- content-contract assumptions changed materially.
+with no blocking measurement/usability defect that reasonably explains failure.
 
-### C. Reject mechanism
-
-Use when an interaction or module format adds complexity without producing useful reasoning or transfer evidence.
+Borderline/conflicting evidence defaults to **REVISE**, not PROMOTE.
 
 ## Recorded decision
 
-- **Decision:** A / B / C
+- **Decision:** PROMOTE / REVISE / REJECT
 - **Rationale:**
-- **Evidence supporting the decision:**
+- **Evidence supporting decision:**
 - **Required changes before next gate:**
 - **Owner:**
 - **Date:**
 
 ## Phase 2 authorization
 
-Phase 2 contract freeze is authorized only if the recorded decision is **A. Promote to Phase 2**.
-
-If the decision is B or C, do not begin v1 domain freeze or framework selection.
+Phase 2 contract freeze/framework selection is authorized only after an evidence-backed **PROMOTE** decision. Otherwise it remains blocked.
