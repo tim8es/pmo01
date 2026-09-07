@@ -32,17 +32,27 @@
       .replaceAll("'", "&#039;");
   }
 
+  function isLessonComplete(lesson) {
+    if (!lesson || !state.completed.includes(lesson.id)) return false;
+    return lesson.learningLab ? labReady(lesson).ready : true;
+  }
+
+  function completedCount() {
+    return allLessons.filter((lesson) => isLessonComplete(lesson)).length;
+  }
+
   function progress() {
-    return allLessons.length ? Math.round((state.completed.length / allLessons.length) * 100) : 0;
+    return allLessons.length ? Math.round((completedCount() / allLessons.length) * 100) : 0;
   }
 
   function renderSidebarProgress() {
     const target = document.querySelector("#sidebar-progress");
     if (!target) return;
+    const done = completedCount();
     target.innerHTML = `
       <div class="label-row"><span>Прогресс</span><strong>${progress()}%</strong></div>
       <div class="progress-track" aria-label="Пройдено ${progress()}%"><div class="progress-fill" style="width:${progress()}%"></div></div>
-      <div class="label-row" style="margin-top:9px"><span>${state.completed.length} из ${allLessons.length} уроков</span></div>`;
+      <div class="label-row" style="margin-top:9px"><span>${done} из ${allLessons.length} уроков</span></div>`;
   }
 
   function setActiveNav(route) {
@@ -63,20 +73,19 @@
   }
 
   function moduleCompletion(module) {
-    const done = module.lessons.filter((lesson) => state.completed.includes(lesson.id)).length;
+    const done = module.lessons.filter((lesson) => isLessonComplete(lesson)).length;
     const total = module.lessons.length;
     return { done, total, percent: total ? Math.round((done / total) * 100) : 0 };
   }
 
   function nextLesson() {
-    if (state.lastLesson && !state.completed.includes(state.lastLesson)) {
-      return allLessons.find((lesson) => lesson.id === state.lastLesson) || allLessons[0];
-    }
-    return allLessons.find((lesson) => !state.completed.includes(lesson.id)) || allLessons.at(-1);
+    const lastLesson = state.lastLesson ? allLessons.find((lesson) => lesson.id === state.lastLesson) : null;
+    if (lastLesson && !isLessonComplete(lastLesson)) return lastLesson;
+    return allLessons.find((lesson) => !isLessonComplete(lesson)) || allLessons.at(-1);
   }
 
   function moduleTargetLesson(module) {
-    return module.lessons.find((lesson) => !state.completed.includes(lesson.id)) || module.lessons.at(-1);
+    return module.lessons.find((lesson) => !isLessonComplete(lesson)) || module.lessons.at(-1);
   }
 
   function ensureLabState(id) {
@@ -170,7 +179,7 @@
     return `<div class="page">
       <section class="course-intro">
         <div><p class="eyebrow">Основной путь</p><h1>10 модулей.<br>Иди по порядку.</h1><p class="lead">Начни с первого незавершённого урока. В M01 решения и рабочая карта проверяются прямо внутри урока. Проверки и диагностика дополняют путь, но не создают второй курс.</p></div>
-        <div class="course-metrics"><strong>${hours[0]}–${hours[1]} ч</strong><p>ориентир по времени</p><strong>${progress()}%</strong><p>пройдено</p><strong>${state.completed.length}/${allLessons.length}</strong><p>уроков завершено</p></div>
+        <div class="course-metrics"><strong>${hours[0]}–${hours[1]} ч</strong><p>ориентир по времени</p><strong>${progress()}%</strong><p>пройдено</p><strong>${completedCount()}/${allLessons.length}</strong><p>уроков завершено</p></div>
       </section>
       <div class="path-note"><strong>Как двигаться:</strong><span>1. Разбери кейс</span><span>2. Примени технику</span><span>3. Заполни рабочий инструмент</span><span>4. Проверь перенос на проект</span></div>
       <div class="module-list">${DATA.modules.map((module, index) => {
@@ -294,7 +303,7 @@
     const previous = allLessons[index - 1];
     const next = allLessons[index + 1];
     const checked = state.criteria[id] || [];
-    const done = state.completed.includes(id);
+    const done = isLessonComplete(lesson);
     const ready = lesson.learningLab ? labReady(lesson).ready : checked.length >= lesson.criteria.length;
 
     return `<div class="page lesson-layout">
@@ -518,6 +527,7 @@
     const open = nav?.classList.toggle("open") || false;
     event.currentTarget.setAttribute("aria-expanded", String(open));
   });
+
   window.addEventListener("hashchange", render);
   render();
 })();
