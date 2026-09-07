@@ -53,14 +53,22 @@ The prototype stores experiment data only in browser `localStorage` under:
 
 `pm01-validation-m01-v1`
 
-The main course continues using its own `pm01-state-v1` key. The separation prevents legacy course saves from erasing validation work.
+The main course uses a separate key:
+
+`pm01-state-v1`
+
+For **each new participant**, start from a fresh browser context where both keys are absent. Use a fresh browser profile/private session or clear all PMO01 site data before opening the validation route.
+
+Do **not** prepare a different participant by using only **Сбросить M01 validation data**. That control intentionally clears `pm01-validation-m01-v1` but preserves the main-course progress in `pm01-state-v1`, so reused course progress could contaminate the next participant's learning sequence.
 
 For each new participant:
 
-1. open `#/validation/m01`;
-2. use **Сбросить M01 validation data** before the session, or use a fresh browser profile;
-3. verify the page does not show an existing baseline score;
+1. start a fresh browser context or clear all PMO01 site data;
+2. open `#/validation/m01`;
+3. verify the page does not show an existing baseline score or completed M01 state;
 4. do not show the M01 lesson content before baseline is submitted.
+
+The in-product validation reset remains useful for restarting the **same participant's** validation answers when the facilitator intentionally wants to preserve their course state. It is not a cohort participant reset.
 
 ## Measurement blinding rule
 
@@ -102,18 +110,20 @@ Do not coach the participant toward the system model and do not disclose whether
 
 ### 2. Learning experience
 
-Participant completes both existing M01 lessons:
+Participant completes both existing M01 Learning Lab lessons:
 
 - `project-system`;
 - `system-diagnostic`.
 
-Then they complete both Decision Drills. The first drill choice is frozen before feedback is revealed.
+Each lesson contains its own cold Decision Drill, immediate feedback, an exit drill, and required workbook evidence. The cold drill records the learner's first choice and becomes read-only after feedback.
+
+The validation route must **not** repeat these same drills. Post-case becomes available after both M01 lessons satisfy their current evidence-aware completion contract.
 
 Observe:
 
 - whether feedback explains consequences rather than merely marking correct/incorrect;
-- whether a drill exposes a misconception that the lesson text did not expose;
-- whether the participant can explain why their choice changed after feedback.
+- whether a drill exposes a misconception that the lesson material did not expose;
+- whether the participant can explain why the feedback changed or did not change their reasoning.
 
 ### 3. Integrative post-case
 
@@ -190,7 +200,7 @@ For each completed learner session, retain only the evidence needed for the Phas
 - anonymized participant ID and role/experience;
 - baseline total, post total, delta, and improved dimensions;
 - baseline and post free-text diagnoses;
-- whether each Decision Drill exposed or changed reasoning;
+- first choice from each M01 cold drill and whether its feedback exposed or changed reasoning;
 - field transfer: credible / partial / no;
 - reflection showing changed diagnosis/action/evidence requirement, or no meaningful change;
 - major UX/reliability/content ambiguity that could distort the result;
