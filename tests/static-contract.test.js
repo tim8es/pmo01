@@ -64,10 +64,11 @@ test('M01 learning lab data loads after validation data and before the base app'
   assert.equal(labIndex < appIndex, true, 'lab data must load before app.js');
 });
 
-test('M01 learning lab data targets exactly the two M01 lesson ids and reuses validation drills', () => {
+test('M01 learning lab data targets the two M01 lessons and keeps stable cold drill ids', () => {
   assert.equal(labData.includes('project-system'), true, 'project-system lab contract missing');
   assert.equal(labData.includes('system-diagnostic'), true, 'system-diagnostic lab contract missing');
-  assert.equal(labData.includes('decisionDrills'), true, 'lab must reuse existing decision drill source');
+  assert.equal(labData.includes('m01-drill-system'), true, 'project-system cold drill id must stay stable');
+  assert.equal(labData.includes('m01-drill-diagnostic'), true, 'system-diagnostic cold drill id must stay stable');
   assert.equal(labData.includes('workbookFields'), true, 'lab workbook field contract missing');
   assert.equal(labData.includes('transferPrompt'), true, 'lab transfer contract missing');
 });
