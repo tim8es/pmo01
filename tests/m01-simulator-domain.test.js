@@ -34,11 +34,12 @@ test('initial run exposes four bounded meters and pinned treatment id', () => {
   for (const value of Object.values(run.meters)) assert.ok(value >= 0 && value <= 100);
 });
 
-test('decision commits are immutable and clamp meter values', () => {
+test('decision commits are append-only, immutable and clamp meter values', () => {
   const { mission, domain } = loadSimulator();
   const run = domain.initialRun(mission);
   const first = domain.commitDecision(run, mission, 'd1', 'decision-timeline', 'Need evidence first');
-  assert.equal(first.decisions.d1.optionId, 'decision-timeline');
+  assert.equal(first.decisions.length, 1);
+  assert.equal(first.decisions[0].optionId, 'decision-timeline');
   assert.equal(first.flags.timeline_reconstructed, true);
   assert.throws(() => domain.commitDecision(first, mission, 'd1', 'hard-deadline', 'replace'), /already committed/i);
 
