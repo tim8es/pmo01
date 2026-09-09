@@ -17,6 +17,8 @@
 - Do not modify `main`; work only on the isolated feature branch.
 - No production publication or merge.
 - Mission ID is `m01-mission-partner-launch-v1`.
+- Simulator storage key is exactly `pm01-sim-m01-v1`.
+- Runtime committed decisions are an append-only `decisions[]` array.
 - Exactly four deterministic decision moments; no randomness and no hidden aggregate score.
 - Visible project state: deadline confidence, stakeholder trust, team capacity, launch risk, each clamped to `0..100`.
 - Optional tools are penalty-free and never reveal the preferred answer.
@@ -58,23 +60,23 @@
   - `window.PM01SimulatorDomain.isComplete(run, mission)`
   - `window.PM01SimulatorDomain.trajectory(run, mission)`
 
-- [ ] **Step 1: Write failing pure-domain tests**
+- [x] **Step 1: Write failing pure-domain tests**
 
 Test that the mission has exactly four decisions, every decision has 3–4 options, all effects are deterministic integers, initial meters are `0..100`, transitions clamp meter values, committed decisions cannot be replaced, tool opening records evidence without changing meters, and completion requires exactly four committed decisions plus required rationales for D1/D4.
 
-- [ ] **Step 2: Write failing integration/static tests**
+- [x] **Step 2: Write failing integration/static tests**
 
 Test that `index.html` loads simulator data → domain → app after base learning data but before validation extension; the base router reserves `mission/m01`; the simulator app owns `#/mission/m01`; validation uses the simulator completion contract instead of legacy lesson completion on this branch; simulator storage uses a dedicated key and does not write telemetry.
 
-- [ ] **Step 3: Run tests and confirm RED**
+- [x] **Step 3: Run tests and confirm RED**
 
 Run: `node --test tests/m01-simulator-domain.test.js tests/m01-simulator-integration.test.js`
 
-Expected: FAIL because simulator files/interfaces do not yet exist.
+Observed in CI #147: expected FAIL because simulator files/interfaces/wiring do not yet exist; existing tests remain green.
 
-- [ ] **Step 4: Commit RED tests**
+- [x] **Step 4: Align RED contract with approved spec before production code**
 
-Commit message: `test: define M01 simulator vertical-slice contract`
+Corrected the storage key to `pm01-sim-m01-v1` and the runtime decision contract to append-only `decisions[]` before GREEN implementation.
 
 ---
 
@@ -87,8 +89,8 @@ Commit message: `test: define M01 simulator vertical-slice contract`
 
 **Interfaces:**
 - `PM01SimulatorData.mission` includes `id`, `version`, `title`, `initialState`, `meters`, `tools`, `decisions`.
-- `initialRun(mission)` returns `{ treatmentId, status, decisionIndex, meters, flags, decisions, toolsOpened, events }`.
-- `commitDecision(...)` returns a new run object and throws/returns an explicit error for invalid node/option or a second commit to the same node.
+- `initialRun(mission)` returns `{ treatmentId, missionVersion, status, decisionIndex, meters, flags, decisions: [], toolsOpened: [], events: [] }`.
+- `commitDecision(...)` returns a new run object and rejects an invalid node/option or a second commit to the same node.
 - `openTool(...)` returns a new run with one evidence event and unchanged meters.
 - `trajectory(...)` returns a deterministic review model from the run; no hidden aggregate score.
 
@@ -98,7 +100,7 @@ Use initial meters: deadline 58, trust 64, capacity 72, risk 63. Implement D1–
 
 - [ ] **Step 2: Implement pure immutable domain functions**
 
-Clamp meters to `0..100`. Record `before`, `after`, `delta`, selected option, flags added, rationale and event sequence. Do not use time or randomness in domain decisions; timestamps are UI persistence metadata only.
+Clamp meters to `0..100`. Append decision records containing `decisionId`, `optionId`, rationale, state before/after, delta and flags added. Do not use time or randomness in domain decisions; timestamps are UI persistence metadata only.
 
 - [ ] **Step 3: Run pure-domain tests**
 
@@ -128,9 +130,9 @@ Commit message: `feat: add deterministic M01 simulator mission engine`
 
 **Interfaces:**
 - Route: `#/mission/m01`.
-- Dedicated storage key: `pm01-simulator-m01-v1`.
-- Stored envelope: `{ treatmentId, missionVersion, run, startedAt, completedAt }`.
-- Completion evidence must expose the pinned treatment ID `m01-mission-partner-launch-v1`.
+- Dedicated storage key: `pm01-sim-m01-v1`.
+- Stored envelope: `{ treatmentId, missionVersion, run, startedAt, completedAt, reviewReachedAt }`.
+- Completion evidence must expose the pinned treatment ID `m01-mission-partner-launch-v1` and require the trajectory review to have been reached/persisted.
 
 - [ ] **Step 1: Load simulator modules and CSS in `index.html`**
 
@@ -150,11 +152,11 @@ D1 requires a non-empty rationale before commit. D4 requires a non-empty keep/re
 
 - [ ] **Step 5: Implement final trajectory review**
 
-Show the four committed decisions, state trajectory, rationale snippets, tools opened and whether the diagnosis was revised. Before post-case, do not label options as correct/preferred and do not reveal an expert solution. Provide a CTA back to `#/validation/m01` when the run is complete.
+Show the four committed decisions, state trajectory, rationale snippets, tools opened and whether the diagnosis was revised. Before post-case, do not label options as correct/preferred and do not reveal an expert solution. Persist `reviewReachedAt`, then provide a CTA back to `#/validation/m01`.
 
-- [ ] **Step 6: Add storage failure handling**
+- [ ] **Step 6: Add storage failure and version-mismatch handling**
 
-Probe localStorage. If saving fails, show an assertive visible message and prevent moving to the next decision so cohort evidence is not silently lost.
+Probe localStorage. If saving fails, show an assertive visible message and prevent moving to the next decision so cohort evidence is not silently lost. If a stored mission version does not equal the loaded definition, do not migrate silently; show a blocking mismatch message.
 
 - [ ] **Step 7: Add accessibility behavior**
 
@@ -183,7 +185,7 @@ Commit message: `feat: add playable M01 simulator mission UI`
 **Interfaces:**
 - `app.js` must not render not-found for `mission/m01`; simulator extension owns that route.
 - M01 course entry should target `#/mission/m01`; other modules keep the existing lesson routing.
-- `m01-validation-app.js` determines `isStudied()` from a valid completed simulator envelope with exact treatment ID/version, not legacy M01 lesson flags, for this feature treatment.
+- `m01-validation-app.js` determines treatment completion from a valid simulator envelope: exact treatment ID/version, four decisions, persisted complete run, and `reviewReachedAt`; it no longer uses legacy M01 lesson completion to unlock post-case on this feature treatment.
 
 - [ ] **Step 1: Reserve simulator route in base router**
 
@@ -199,13 +201,13 @@ After blind baseline, show one CTA to `#/mission/m01` and a treatment status. Po
 
 - [ ] **Step 4: Preserve validation measurement**
 
-Do not alter baseline questions, scoring, blinding, post-case questions, field application, reflection, validation storage key, or promotion rule.
+Do not alter baseline questions, scoring, blinding, post-case questions, field application, reflection, validation storage key, or promotion rule. Keep validation reset semantics unchanged; participant clean-start remains a facilitator protocol requiring all relevant keys absent.
 
 - [ ] **Step 5: Run integration + validation tests**
 
 Run: `node --test tests/m01-simulator-integration.test.js tests/m01-validation-*.test.js tests/m01-app-smoke.test.js`
 
-Expected: PASS.
+Expected: PASS after updating obsolete tests that encode the old two-lesson treatment, while preserving baseline/post-case integrity assertions.
 
 - [ ] **Step 6: Run full suite**
 
@@ -279,13 +281,13 @@ If no real browser-control runtime is available, mark actual click-through, resp
 
 - [ ] **Step 5: Open a review PR only; do not merge**
 
-Base it on the M01.1 feature/design lineage, describe treatment isolation, RED→GREEN evidence and browser-review limitations. No deployment.
+Base the implementation PR on `design/m01-simulator-vertical-slice` so the code review is isolated from the already approved design/plan. Describe treatment isolation, RED→GREEN evidence and browser-review limitations. No deployment.
 
 ---
 
 ## Self-Review
 
-- Spec coverage: mission structure, four meters, D1–D4 consequences, optional tools, trajectory review, M01.1 concept migration, cohort treatment isolation, accessibility, persistence, tests and success gates are each mapped to a task.
+- Spec coverage: mission structure, four meters, D1–D4 consequences, optional tools, trajectory review, M01.1 concept migration, cohort treatment isolation, accessibility, persistence, version mismatch, tests and success gates are each mapped to a task.
 - Scope: one mission only; no framework migration, no M02, no telemetry, no production release.
-- Type/interface consistency: mission/data/domain/app names and storage/treatment IDs are consistent across tasks.
+- Type/interface consistency: mission/data/domain/app names, append-only `decisions[]`, `pm01-sim-m01-v1`, and treatment IDs are consistent across tasks.
 - No placeholder implementation steps remain.
