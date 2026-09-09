@@ -44,28 +44,6 @@ function validationHarness(initialStorage = {}) {
   return { context, main, localStorage, window };
 }
 
-function completeM01CourseState(window) {
-  const lessonIds = ['project-system', 'system-diagnostic'];
-  const lessons = window.PM01.modules.flatMap((module) => module.lessons || []);
-  const lab = {};
-
-  for (const id of lessonIds) {
-    const current = lessons.find((lesson) => lesson.id === id);
-    lab[id] = { drillAnswers: {}, workbook: {} };
-    for (const drill of current.learningLab.drills.filter((item) => item.required !== false)) {
-      lab[id].drillAnswers[drill.id] = drill.options[0].id;
-    }
-    for (const field of current.learningLab.workbookFields.filter((item) => item.required !== false)) {
-      lab[id].workbook[field.id] = 'evidence';
-    }
-  }
-
-  return {
-    completed: lessonIds,
-    notes: {}, criteria: {}, lastLesson: null, diagnostic: {}, lab,
-  };
-}
-
 function submittedBaseline() {
   return {
     version: 1,
@@ -77,31 +55,87 @@ function submittedBaseline() {
   };
 }
 
-test('validation post-case stays locked when legacy completed flags lack current Learning Lab evidence', () => {
-  const courseState = {
+function completedSimulatorEnvelope(overrides = {}) {
+  const decisions = [
+    { decisionId: 'd1', optionId: 'decision-timeline', rationale: 'Нужно сначала различить механизм.' },
+    { decisionId: 'd2', optionId: 'decision-contract', rationale: '' },
+    { decisionId: 'd3', optionId: 'split-decision', rationale: '' },
+    { decisionId: 'd4', optionId: 'revise-diagnosis', rationale: 'Новый security blocker опровергает прежнюю модель.' },
+  ];
+  return {
+    treatmentId: 'm01-mission-partner-launch-v1',
+    missionVersion: 1,
+    startedAt: '2026-09-09T10:00:00.000Z',
+    completedAt: '2026-09-09T10:08:00.000Z',
+    reviewReachedAt: '2026-09-09T10:08:00.000Z',
+    run: {
+      treatmentId: 'm01-mission-partner-launch-v1',
+      missionVersion: 1,
+      status: 'decisions_complete',
+      decisionIndex: 4,
+      decisions,
+      meters: { deadline: 72, trust: 85, capacity: 67, risk: 17 },
+      flags: { hypothesis_revised: true },
+      toolsOpened: [],
+      events: [],
+    },
+    ...overrides,
+  };
+}
+
+test('legacy M01 lesson completion cannot unlock simulator-treatment post-case', () => {
+  const legacyCourseState = {
     completed: ['project-system', 'system-diagnostic'],
     notes: {}, criteria: {}, lastLesson: null, diagnostic: {}, lab: {},
   };
-  const { context, main, localStorage } = validationHarness({
+  const { context, main } = validationHarness({
     'pm01-validation-m01-v1': JSON.stringify(submittedBaseline()),
-    'pm01-state-v1': JSON.stringify(courseState),
+    'pm01-state-v1': JSON.stringify(legacyCourseState),
   });
   vm.runInContext(validationAppCode, context, { filename: 'm01-validation-app.js' });
 
-  assert.match(main.innerHTML, /Уроки: нужно завершить оба/);
+  assert.match(main.innerHTML, /Миссия: нужно завершить|симулятор/i);
   assert.doesNotMatch(main.innerHTML, /data-submit-assessment="postCase"/);
+});
+
+test('only exact completed simulator treatment with final review unlocks post-case', () => {
+  const { context, main, localStorage } = validationHarness({
+    'pm01-validation-m01-v1': JSON.stringify(submittedBaseline()),
+    'pm01-sim-m01-v1': JSON.stringify(completedSimulatorEnvelope()),
+  });
+  vm.runInContext(validationAppCode, context, { filename: 'm01-validation-app.js' });
+
+  assert.match(main.innerHTML, /Миссия: завершена ✓|симулятор завершен/i);
+  assert.match(main.innerHTML, /data-submit-assessment="postCase"/);
   assert.ok(localStorage);
 });
 
-test('completed M01 Learning Labs unlock post-case without rendering or requiring duplicate validation drills', () => {
-  const { context, main, localStorage, window } = validationHarness({
+test('simulator treatment does not unlock post-case before final trajectory review is reached', () => {
+  const incompleteReview = completedSimulatorEnvelope({ reviewReachedAt: null, completedAt: null });
+  const { context, main } = validationHarness({
     'pm01-validation-m01-v1': JSON.stringify(submittedBaseline()),
+    'pm01-sim-m01-v1': JSON.stringify(incompleteReview),
   });
-  localStorage.setItem('pm01-state-v1', JSON.stringify(completeM01CourseState(window)));
   vm.runInContext(validationAppCode, context, { filename: 'm01-validation-app.js' });
 
-  assert.match(main.innerHTML, /Уроки: изучены ✓/);
-  assert.match(main.innerHTML, /data-submit-assessment="postCase"/);
-  assert.doesNotMatch(main.innerHTML, /Decision Drill/);
-  assert.doesNotMatch(main.innerHTML, /data-drill=/);
+  assert.doesNotMatch(main.innerHTML, /data-submit-assessment="postCase"/);
+});
+
+test('simulator treatment rejects wrong version or broken D1/D4 rationale evidence', () => {
+  const wrongVersion = completedSimulatorEnvelope({ missionVersion: 2 });
+  const { context: versionContext, main: versionMain } = validationHarness({
+    'pm01-validation-m01-v1': JSON.stringify(submittedBaseline()),
+    'pm01-sim-m01-v1': JSON.stringify(wrongVersion),
+  });
+  vm.runInContext(validationAppCode, versionContext, { filename: 'm01-validation-app.js' });
+  assert.doesNotMatch(versionMain.innerHTML, /data-submit-assessment="postCase"/);
+
+  const missingRationale = completedSimulatorEnvelope();
+  missingRationale.run.decisions[3].rationale = '';
+  const { context: rationaleContext, main: rationaleMain } = validationHarness({
+    'pm01-validation-m01-v1': JSON.stringify(submittedBaseline()),
+    'pm01-sim-m01-v1': JSON.stringify(missingRationale),
+  });
+  vm.runInContext(validationAppCode, rationaleContext, { filename: 'm01-validation-app.js' });
+  assert.doesNotMatch(rationaleMain.innerHTML, /data-submit-assessment="postCase"/);
 });
