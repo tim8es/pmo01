@@ -26,7 +26,7 @@ test('base router reserves mission/m01 and M01 course entry targets simulator wi
 
 test('simulator app owns mission route, isolated storage, semantic choices and focusable progression', () => {
   const simulator = read('m01-simulator-app.js');
-  assert.match(simulator, /pm01-simulator-m01-v1/);
+  assert.match(simulator, /pm01-sim-m01-v1/);
   assert.match(simulator, /mission\/m01/);
   assert.match(simulator, /<fieldset/);
   assert.match(simulator, /aria-expanded/);
@@ -37,7 +37,7 @@ test('simulator app owns mission route, isolated storage, semantic choices and f
 
 test('validation uses pinned simulator completion instead of legacy lesson completion for treatment gate', () => {
   const validation = read('m01-validation-app.js');
-  assert.match(validation, /pm01-simulator-m01-v1/);
+  assert.match(validation, /pm01-sim-m01-v1/);
   assert.match(validation, /m01-mission-partner-launch-v1/);
   assert.match(validation, /#\/mission\/m01/);
   assert.match(validation, /симулятор|мисси/i);
