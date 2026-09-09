@@ -109,16 +109,16 @@ function runHashchangeOwnershipHandoff() {
   return { afterBaseRouter, afterExtension: main.innerHTML };
 }
 
-test('fresh validation route renders baseline without exposing learning drills or post-case controls', () => {
+test('fresh validation route renders baseline without exposing simulator treatment or post-case controls', () => {
   const { main } = runValidationApp('validation/m01');
 
   assert.match(main.innerHTML, /01 · Baseline/);
   assert.match(main.innerHTML, /data-submit-assessment="baseline"/);
-  assert.doesNotMatch(main.innerHTML, /Decision Drill/);
+  assert.doesNotMatch(main.innerHTML, /#\/mission\/m01/);
   assert.doesNotMatch(main.innerHTML, /data-submit-assessment="postCase"/);
 });
 
-test('submitted baseline points learners to the two M01 lessons without duplicating their decision drills', () => {
+test('submitted baseline points learner to the pinned M01 simulator without exposing legacy lesson treatment', () => {
   const validationState = {
     version: 1,
     baseline: {
@@ -132,9 +132,10 @@ test('submitted baseline points learners to the two M01 lessons without duplicat
     'pm01-validation-m01-v1': JSON.stringify(validationState),
   });
 
-  assert.match(main.innerHTML, /#\/lesson\/project-system/);
-  assert.match(main.innerHTML, /#\/lesson\/system-diagnostic/);
-  assert.doesNotMatch(main.innerHTML, /Decision Drill/);
+  assert.match(main.innerHTML, /#\/mission\/m01/);
+  assert.match(main.innerHTML, /симулятор|мисси/i);
+  assert.doesNotMatch(main.innerHTML, /#\/lesson\/project-system/);
+  assert.doesNotMatch(main.innerHTML, /#\/lesson\/system-diagnostic/);
 });
 
 test('submitted baseline stays blind: score and option feedback are hidden until post-case is complete', () => {
