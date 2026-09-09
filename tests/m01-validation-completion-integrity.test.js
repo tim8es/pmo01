@@ -14,6 +14,7 @@ const domain = require('../learning-domain.js');
 function storageFrom(initial = {}) {
   const values = new Map(Object.entries(initial));
   return {
+    _values: values,
     getItem(key) { return values.has(key) ? values.get(key) : null; },
     setItem(key, value) { values.set(key, String(value)); },
     removeItem(key) { values.delete(key); },
@@ -110,7 +111,7 @@ test('only exact completed simulator treatment with final review unlocks post-ca
 
   assert.equal(window.PM01SimulatorGate.isComplete(), true);
   assert.match(main.innerHTML, /data-submit-assessment="postCase"/);
-  assert.equal(localStorage.getItem('pm01-state-v1'), null, 'gate must not persist synthetic legacy course evidence');
+  assert.equal(localStorage._values.has('pm01-state-v1'), false, 'gate must not persist synthetic legacy course evidence');
 });
 
 test('simulator treatment does not unlock post-case before final trajectory review is reached', () => {
