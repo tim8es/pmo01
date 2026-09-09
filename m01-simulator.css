@@ -1,0 +1,124 @@
+.sim-shell {
+  --sim-border: rgba(20, 20, 20, 0.14);
+  --sim-soft: rgba(20, 20, 20, 0.05);
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.sim-header,
+.sim-briefing {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.sim-header h1,
+.sim-briefing h1 { margin-bottom: 8px; }
+
+.sim-progress {
+  font: 700 0.85rem/1 monospace;
+  padding: 10px 12px;
+  border: 1px solid var(--sim-border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.sim-meters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 24px;
+}
+
+.sim-meter {
+  border: 1px solid var(--sim-border);
+  border-radius: 16px;
+  padding: 16px;
+  background: var(--paper, #fff);
+}
+
+.sim-meter > span,
+.sim-meter > small { display: block; }
+.sim-meter > span { font-weight: 700; margin-bottom: 8px; }
+.sim-meter strong { display: block; font-size: 1.8rem; margin-bottom: 10px; }
+.sim-meter strong small { font-size: 0.75rem; font-weight: 500; }
+.sim-meter-track { height: 7px; background: var(--sim-soft); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
+.sim-meter-track span { display: block; height: 100%; background: currentColor; border-radius: inherit; transition: width 180ms ease; }
+
+.sim-situation,
+.sim-decision-card,
+.sim-tools,
+.sim-consequence,
+.sim-briefing-card,
+.sim-review-grid > *,
+.sim-reflection,
+.sim-blocked {
+  border: 1px solid var(--sim-border);
+  border-radius: 18px;
+  padding: 22px;
+  background: var(--paper, #fff);
+  margin-bottom: 18px;
+}
+
+.sim-situation > p:last-child,
+.sim-consequence > p,
+.sim-briefing-card p { max-width: 78ch; font-size: 1.04rem; line-height: 1.6; }
+
+.sim-tools-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.sim-tools-head p:last-child { max-width: 50ch; }
+.sim-tool-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.sim-tool-drawer { margin-top: 16px; padding: 18px; border: 1px dashed var(--sim-border); border-radius: 14px; background: var(--sim-soft); }
+.sim-tool-drawer ul { padding-left: 20px; }
+.sim-tool-drawer li { margin: 8px 0; line-height: 1.45; }
+
+.sim-decision-card fieldset { border: 0; padding: 0; margin: 0; }
+.sim-decision-card legend { font-size: 1.3rem; font-weight: 750; margin-bottom: 16px; }
+.sim-options { display: grid; gap: 10px; }
+.sim-option { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 10px; padding: 14px; border: 1px solid var(--sim-border); border-radius: 13px; cursor: pointer; }
+.sim-option:has(input:checked) { outline: 2px solid currentColor; outline-offset: 1px; }
+.sim-option input { margin-top: 3px; }
+.sim-rationale { display: grid; gap: 8px; margin-top: 18px; }
+.sim-rationale textarea { width: 100%; resize: vertical; min-height: 92px; }
+
+.sim-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.sim-message { min-height: 1.4em; margin-top: 12px; font-weight: 650; }
+
+.sim-deltas { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 8px; }
+.sim-deltas li { display: flex; justify-content: space-between; gap: 12px; padding-top: 8px; border-top: 1px solid var(--sim-border); }
+
+.sim-review-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); gap: 16px; }
+.sim-path { list-style: none; padding: 0; display: grid; gap: 12px; }
+.sim-path li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; }
+.sim-path li > span { font: 700 0.8rem/1.6 monospace; }
+.sim-path p { margin: 6px 0 0; }
+.sim-reflection ul { margin-bottom: 0; }
+.sim-blocked { max-width: 760px; }
+
+.sim-option:focus-within,
+.sim-tool-buttons .button:focus-visible,
+.sim-actions .button:focus-visible,
+.sim-tool-drawer .button:focus-visible,
+#sim-focus-target:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (max-width: 860px) {
+  .sim-meters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sim-review-grid { grid-template-columns: 1fr; }
+  .sim-tools-head { display: block; }
+}
+
+@media (max-width: 520px) {
+  .sim-meters { grid-template-columns: 1fr; }
+  .sim-header { display: block; }
+  .sim-progress { display: inline-block; margin-top: 8px; }
+  .sim-deltas li { display: grid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sim-meter-track span { transition: none; }
+  .sim-shell *, .sim-shell *::before, .sim-shell *::after { scroll-behavior: auto !important; }
+}
