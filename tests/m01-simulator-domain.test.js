@@ -58,6 +58,17 @@ test('opening tools records evidence without changing project meters', () => {
   assert.equal(opened.toolsOpened[0].toolId, 'decision-timeline');
 });
 
+test('required rationale contract rejects fewer than 8 trimmed characters', () => {
+  const { mission, domain } = loadSimulator();
+  const run = domain.initialRun(mission);
+  assert.throws(
+    () => domain.commitDecision(run, mission, 'd1', 'decision-timeline', '1234567'),
+    /rationale/i,
+  );
+  const accepted = domain.commitDecision(run, mission, 'd1', 'decision-timeline', '12345678');
+  assert.equal(accepted.decisions[0].rationale, '12345678');
+});
+
 test('completion requires all four decisions and required rationales', () => {
   const { mission, domain } = loadSimulator();
   let run = domain.initialRun(mission);
@@ -66,6 +77,7 @@ test('completion requires all four decisions and required rationales', () => {
   run = domain.commitDecision(run, mission, 'd3', 'split-decision', '');
   assert.equal(domain.isComplete(run, mission), false);
   assert.throws(() => domain.commitDecision(run, mission, 'd4', 'revise-diagnosis', ''), /rationale/i);
+  assert.throws(() => domain.commitDecision(run, mission, 'd4', 'revise-diagnosis', 'short'), /rationale/i);
   run = domain.commitDecision(run, mission, 'd4', 'revise-diagnosis', 'Security dependency changes the diagnosis');
   assert.equal(domain.isComplete(run, mission), true);
 });
