@@ -1,6 +1,8 @@
 (function () {
   'use strict';
 
+  const MIN_RATIONALE_LENGTH = 8;
+
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
   }
@@ -15,6 +17,10 @@
 
   function findOption(decision, optionId) {
     return decision && decision.options.find((option) => option.id === optionId);
+  }
+
+  function rationaleValid(value) {
+    return String(value || '').trim().length >= MIN_RATIONALE_LENGTH;
   }
 
   function initialRun(mission) {
@@ -41,7 +47,9 @@
     const option = findOption(decision, optionId);
     if (!option) throw new Error(`Unknown option ${optionId}`);
     const cleanRationale = String(rationale || '').trim();
-    if (decision.requiredRationale && !cleanRationale) throw new Error(`Decision ${decisionId} requires rationale`);
+    if (decision.requiredRationale && !rationaleValid(cleanRationale)) {
+      throw new Error(`Decision ${decisionId} requires rationale of at least ${MIN_RATIONALE_LENGTH} characters`);
+    }
 
     const next = clone(run);
     const before = clone(next.meters);
@@ -81,7 +89,7 @@
     if (run.decisions.length !== mission.decisions.length) return false;
     return mission.decisions.every((decision) => {
       const committed = run.decisions.find((item) => item.decisionId === decision.id);
-      return Boolean(committed) && (!decision.requiredRationale || Boolean(String(committed.rationale || '').trim()));
+      return Boolean(committed) && (!decision.requiredRationale || rationaleValid(committed.rationale));
     });
   }
 
