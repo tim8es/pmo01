@@ -90,3 +90,9 @@ test('pre-post trajectory review does not reveal preferred-answer labels', () =>
   const simulator = read('m01-simulator-app.js');
   assert.doesNotMatch(simulator, /правильн(ый|ая|ое)|preferred answer|сильный ход/i);
 });
+
+test('light simulator panels force readable descendant text in the rendered cascade', () => {
+  const css = read('m01-simulator.css');
+  assert.match(css, /\.sim-shell \.sim-meter \*/, 'meter descendants must have an explicit readable color');
+  assert.match(css, /color:\s*#[0-9a-fA-F]{6}\s*!important/);
+});
