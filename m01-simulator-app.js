@@ -148,7 +148,7 @@
             <legend>${escapeHtml(decision.prompt)}</legend>
             <div class="sim-options">${decision.options.map((option) => `<label class="sim-option"><input type="radio" name="sim-choice" value="${escapeHtml(option.id)}"><span>${escapeHtml(option.label)}</span></label>`).join('')}</div>
           </fieldset>
-          ${decision.requiredRationale ? `<label class="sim-rationale" for="sim-rationale"><strong>${escapeHtml(decision.rationalePrompt)}</strong><textarea id="sim-rationale" rows="3" data-rationale="${decision.id}">${escapeHtml(draft)}</textarea></label>` : ''}
+          ${decision.requiredRationale ? `<label class="sim-rationale" for="sim-rationale"><strong>${escapeHtml(decision.rationalePrompt)}</strong><textarea id="sim-rationale" rows="3" minlength="8" required aria-describedby="sim-rationale-hint" data-rationale="${decision.id}">${escapeHtml(draft)}</textarea><small id="sim-rationale-hint">Минимум 8 символов. Опиши причину решения до фиксации.</small></label>` : ''}
           <div class="sim-actions"><button class="button primary" type="submit">Зафиксировать решение</button><a class="button subtle" href="#/validation/m01">Вернуться к validation</a></div>
         </form>
       </section>

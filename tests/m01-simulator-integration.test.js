@@ -70,6 +70,21 @@ test('simulator styles include reduced-motion handling and visible meter semanti
   assert.match(css, /:focus-visible/);
 });
 
+test('light simulator panels explicitly use dark readable text and controls', () => {
+  const css = read('m01-simulator.css');
+  assert.match(css, /\.sim-meter[\s\S]*?color:\s*var\(--ink\)/);
+  assert.match(css, /\.sim-situation[\s\S]*?color:\s*var\(--ink\)/);
+  assert.match(css, /\.sim-tools[\s\S]*?\.button[\s\S]*?color:\s*var\(--ink\)/);
+  assert.match(css, /\.sim-rationale textarea[\s\S]*?color:\s*var\(--ink\)/);
+});
+
+test('required rationale exposes the same 8-character rule before submit', () => {
+  const simulator = read('m01-simulator-app.js');
+  assert.match(simulator, /minlength="8"/);
+  assert.match(simulator, /required/);
+  assert.match(simulator, /Минимум 8/);
+});
+
 test('pre-post trajectory review does not reveal preferred-answer labels', () => {
   const simulator = read('m01-simulator-app.js');
   assert.doesNotMatch(simulator, /правильн(ый|ая|ое)|preferred answer|сильный ход/i);
