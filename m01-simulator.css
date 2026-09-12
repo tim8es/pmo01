@@ -37,6 +37,7 @@
   border-radius: 16px;
   padding: 16px;
   background: var(--paper, #fff);
+  color: var(--ink);
 }
 
 .sim-meter > span,
@@ -59,6 +60,7 @@
   border-radius: 18px;
   padding: 22px;
   background: var(--paper, #fff);
+  color: var(--ink);
   margin-bottom: 18px;
 }
 
@@ -69,6 +71,15 @@
 .sim-tools-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
 .sim-tools-head p:last-child { max-width: 50ch; }
 .sim-tool-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.sim-tools .button,
+.sim-decision-card .button,
+.sim-blocked .button {
+  border-color: rgba(7, 18, 29, 0.28);
+  color: var(--ink);
+}
+.sim-tools .button:hover,
+.sim-decision-card .button:hover,
+.sim-blocked .button:hover { border-color: rgba(7, 18, 29, 0.55); }
 .sim-tool-drawer { margin-top: 16px; padding: 18px; border: 1px dashed var(--sim-border); border-radius: 14px; background: var(--sim-soft); }
 .sim-tool-drawer ul { padding-left: 20px; }
 .sim-tool-drawer li { margin: 8px 0; line-height: 1.45; }
@@ -78,9 +89,21 @@
 .sim-options { display: grid; gap: 10px; }
 .sim-option { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 10px; padding: 14px; border: 1px solid var(--sim-border); border-radius: 13px; cursor: pointer; }
 .sim-option:has(input:checked) { outline: 2px solid currentColor; outline-offset: 1px; }
-.sim-option input { margin-top: 3px; }
+.sim-option input { margin-top: 3px; accent-color: var(--ink); }
 .sim-rationale { display: grid; gap: 8px; margin-top: 18px; }
-.sim-rationale textarea { width: 100%; resize: vertical; min-height: 92px; }
+.sim-rationale textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 92px;
+  padding: 12px 14px;
+  border: 1px solid rgba(7, 18, 29, 0.28);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.sim-rationale textarea:focus { outline: 3px solid rgba(255,177,27,.35); border-color: var(--accent-2); }
+.sim-rationale small { color: #52616b; line-height: 1.4; }
 
 .sim-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
 .sim-message { min-height: 1.4em; margin-top: 12px; font-weight: 650; }
