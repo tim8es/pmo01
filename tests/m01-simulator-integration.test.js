@@ -27,6 +27,19 @@ test('M01 routing adapter sends course and validation entries to mission/m01', (
   assert.match(routing, /m01MissionEntry/);
 });
 
+test('simulator is explicitly discoverable from desktop and mobile navigation', () => {
+  const html = read('index.html');
+  const missionLinks = html.match(/href="#\/mission\/m01"/g) || [];
+  assert.ok(missionLinks.length >= 2, 'expected visible mission links in desktop and mobile navigation');
+  assert.match(html, /Симулятор M01/);
+});
+
+test('routing adapter relabels legacy M01 lesson entries as simulator actions', () => {
+  const routing = read('m01-simulator-routing.js');
+  assert.match(routing, /Открыть симулятор/);
+  assert.match(routing, /7–10 минут/);
+});
+
 test('simulator app owns mission route, isolated storage, semantic choices and focusable progression', () => {
   const simulator = read('m01-simulator-app.js');
   assert.match(simulator, /pm01-sim-m01-v1/);
