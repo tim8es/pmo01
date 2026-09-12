@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const missionHref = '#/mission/m01';
+  const missionHref = 'simulator.html#/mission/m01';
 
   function currentRoute() {
     return location.hash.replace(/^#\/?/, '').replace(/\/$/, '');

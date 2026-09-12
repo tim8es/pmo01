@@ -1,6 +1,9 @@
 .sim-shell {
   --sim-border: rgba(20, 20, 20, 0.14);
   --sim-soft: rgba(20, 20, 20, 0.05);
+  --sim-text: #07121d;
+  --sim-muted: #52616b;
+  --sim-accent-dark: #445000;
   max-width: 1120px;
   margin: 0 auto;
 }
@@ -37,14 +40,14 @@
   border-radius: 16px;
   padding: 16px;
   background: var(--paper, #fff);
-  color: var(--ink);
+  color: var(--sim-text);
 }
 
 .sim-meter > span,
 .sim-meter > small { display: block; }
 .sim-meter > span { font-weight: 700; margin-bottom: 8px; }
-.sim-meter strong { display: block; font-size: 1.8rem; margin-bottom: 10px; }
-.sim-meter strong small { font-size: 0.75rem; font-weight: 500; }
+.sim-meter strong { display: block; font-size: 1.8rem; margin-bottom: 10px; color: var(--sim-text); }
+.sim-meter strong small { font-size: 0.75rem; font-weight: 500; color: var(--sim-text); }
 .sim-meter-track { height: 7px; background: var(--sim-soft); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
 .sim-meter-track span { display: block; height: 100%; background: currentColor; border-radius: inherit; transition: width 180ms ease; }
 
@@ -60,8 +63,45 @@
   border-radius: 18px;
   padding: 22px;
   background: var(--paper, #fff);
-  color: var(--ink);
+  color: var(--sim-text);
   margin-bottom: 18px;
+}
+
+.sim-shell .sim-situation h1,
+.sim-shell .sim-situation h2,
+.sim-shell .sim-situation h3,
+.sim-shell .sim-decision-card h1,
+.sim-shell .sim-decision-card h2,
+.sim-shell .sim-decision-card h3,
+.sim-shell .sim-tools h1,
+.sim-shell .sim-tools h2,
+.sim-shell .sim-tools h3,
+.sim-shell .sim-consequence h1,
+.sim-shell .sim-consequence h2,
+.sim-shell .sim-consequence h3,
+.sim-shell .sim-briefing-card h1,
+.sim-shell .sim-briefing-card h2,
+.sim-shell .sim-briefing-card h3,
+.sim-shell .sim-review-grid h1,
+.sim-shell .sim-review-grid h2,
+.sim-shell .sim-review-grid h3,
+.sim-shell .sim-reflection h1,
+.sim-shell .sim-reflection h2,
+.sim-shell .sim-reflection h3,
+.sim-shell .sim-blocked h1,
+.sim-shell .sim-blocked h2,
+.sim-shell .sim-blocked h3 {
+  color: var(--sim-text);
+}
+
+.sim-shell .sim-situation .eyebrow,
+.sim-shell .sim-tools .eyebrow,
+.sim-shell .sim-consequence .eyebrow,
+.sim-shell .sim-briefing-card .eyebrow,
+.sim-shell .sim-review-grid .eyebrow,
+.sim-shell .sim-reflection .eyebrow,
+.sim-shell .sim-blocked .eyebrow {
+  color: var(--sim-accent-dark);
 }
 
 .sim-situation > p:last-child,
@@ -71,26 +111,31 @@
 .sim-tools-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
 .sim-tools-head p:last-child { max-width: 50ch; }
 .sim-tool-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.sim-tools .button,
-.sim-decision-card .button,
-.sim-blocked .button {
+.sim-shell .sim-tools .button,
+.sim-shell .sim-decision-card .button,
+.sim-shell .sim-blocked .button {
   border-color: rgba(7, 18, 29, 0.28);
-  color: var(--ink);
+  color: var(--sim-text);
 }
-.sim-tools .button:hover,
-.sim-decision-card .button:hover,
-.sim-blocked .button:hover { border-color: rgba(7, 18, 29, 0.55); }
-.sim-tool-drawer { margin-top: 16px; padding: 18px; border: 1px dashed var(--sim-border); border-radius: 14px; background: var(--sim-soft); }
+.sim-shell .sim-tools .button:hover,
+.sim-shell .sim-decision-card .button:hover,
+.sim-shell .sim-blocked .button:hover { border-color: rgba(7, 18, 29, 0.55); }
+.sim-shell .sim-tools .button.primary,
+.sim-shell .sim-decision-card .button.primary,
+.sim-shell .sim-blocked .button.primary {
+  color: #0a0a0a;
+}
+.sim-tool-drawer { margin-top: 16px; padding: 18px; border: 1px dashed var(--sim-border); border-radius: 14px; background: var(--sim-soft); color: var(--sim-text); }
 .sim-tool-drawer ul { padding-left: 20px; }
 .sim-tool-drawer li { margin: 8px 0; line-height: 1.45; }
 
 .sim-decision-card fieldset { border: 0; padding: 0; margin: 0; }
-.sim-decision-card legend { font-size: 1.3rem; font-weight: 750; margin-bottom: 16px; }
+.sim-decision-card legend { font-size: 1.3rem; font-weight: 750; margin-bottom: 16px; color: var(--sim-text); }
 .sim-options { display: grid; gap: 10px; }
-.sim-option { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 10px; padding: 14px; border: 1px solid var(--sim-border); border-radius: 13px; cursor: pointer; }
+.sim-option { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 10px; padding: 14px; border: 1px solid var(--sim-border); border-radius: 13px; cursor: pointer; color: var(--sim-text); }
 .sim-option:has(input:checked) { outline: 2px solid currentColor; outline-offset: 1px; }
-.sim-option input { margin-top: 3px; accent-color: var(--ink); }
-.sim-rationale { display: grid; gap: 8px; margin-top: 18px; }
+.sim-option input { margin-top: 3px; accent-color: var(--sim-text); }
+.sim-rationale { display: grid; gap: 8px; margin-top: 18px; color: var(--sim-text); }
 .sim-rationale textarea {
   width: 100%;
   resize: vertical;
@@ -99,24 +144,25 @@
   border: 1px solid rgba(7, 18, 29, 0.28);
   border-radius: 8px;
   background: #fff;
-  color: var(--ink);
+  color: var(--sim-text);
   line-height: 1.5;
 }
-.sim-rationale textarea:focus { outline: 3px solid rgba(255,177,27,.35); border-color: var(--accent-2); }
-.sim-rationale small { color: #52616b; line-height: 1.4; }
+.sim-rationale textarea:focus { outline: 3px solid rgba(255,177,27,.35); border-color: #8a6500; }
+.sim-rationale small { color: var(--sim-muted); line-height: 1.4; }
 
 .sim-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
 .sim-message { min-height: 1.4em; margin-top: 12px; font-weight: 650; }
 
 .sim-deltas { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 8px; }
-.sim-deltas li { display: flex; justify-content: space-between; gap: 12px; padding-top: 8px; border-top: 1px solid var(--sim-border); }
+.sim-deltas li { display: flex; justify-content: space-between; gap: 12px; padding-top: 8px; border-top: 1px solid var(--sim-border); color: var(--sim-text); }
 
 .sim-review-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); gap: 16px; }
 .sim-path { list-style: none; padding: 0; display: grid; gap: 12px; }
-.sim-path li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; }
+.sim-path li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; color: var(--sim-text); }
 .sim-path li > span { font: 700 0.8rem/1.6 monospace; }
-.sim-path p { margin: 6px 0 0; }
+.sim-path p { margin: 6px 0 0; color: var(--sim-text); }
 .sim-reflection ul { margin-bottom: 0; }
+.sim-reflection li { color: var(--sim-text); }
 .sim-blocked { max-width: 760px; }
 
 .sim-option:focus-within,

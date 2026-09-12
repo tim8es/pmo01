@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <base href="./index.html" />
+    <title>PM 0.1 — Симулятор M01</title>
+    <meta name="description" content="Интерактивный тренажёр PMO01: четыре управленческих решения и последствия для проекта." />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="art-direction.css" />
+    <link rel="stylesheet" href="m01-simulator.css" />
+    <style>
+      main { margin-left: 0 !important; }
+      .sim-standalone-nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 24px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(10, 10, 10, .96);
+        backdrop-filter: blur(10px);
+      }
+      .sim-standalone-nav strong { color: var(--ink); }
+      .sim-standalone-nav a { text-decoration: none; }
+      .sim-standalone-nav .sim-back { color: var(--text-secondary, #c9c8c1); font-size: 13px; }
+      @media (max-width: 640px) {
+        .sim-standalone-nav { padding: 12px 16px; }
+        .page { padding-inline: 16px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="sim-standalone-nav">
+      <a href="#/" aria-label="Вернуться в PMO01"><strong>PM 0.1 · M01 SIMULATOR</strong></a>
+      <a class="sim-back" href="#/validation/m01">← К validation</a>
+    </header>
+    <main id="main" tabindex="-1"></main>
+
+    <script src="m01-simulator-data.js"></script>
+    <script src="m01-simulator-domain.js"></script>
+    <script src="m01-simulator-app.js"></script>
+  </body>
+</html>
