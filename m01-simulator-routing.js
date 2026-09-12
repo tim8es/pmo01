@@ -12,6 +12,7 @@
     if (!['home', 'course', ''].includes(route)) return;
     document.querySelectorAll('a[href="#/lesson/project-system"], a[href="#/lesson/system-diagnostic"]').forEach((link) => {
       link.setAttribute('href', missionHref);
+      link.textContent = 'Открыть симулятор · 7–10 минут →';
       link.dataset.m01MissionEntry = 'true';
     });
   }
@@ -23,7 +24,7 @@
 
     const primary = links[0];
     primary.setAttribute('href', missionHref);
-    primary.textContent = 'Открыть M01 playable mission →';
+    primary.textContent = 'Открыть симулятор · 7–10 минут →';
     primary.dataset.m01MissionEntry = 'true';
     links.slice(1).forEach((link) => { link.hidden = true; });
 
@@ -31,8 +32,8 @@
     const heading = step && step.querySelector('h2');
     const description = step && step.querySelector('header p:last-child');
     const state = step && step.querySelector('.validation-state');
-    if (heading) heading.textContent = 'Пройди M01 playable mission';
-    if (description) description.textContent = 'Четыре решения фиксируют твою траекторию. Вернись сюда после финального разбора — тогда откроется post-case.';
+    if (heading) heading.textContent = 'Пройди интерактивный симулятор M01';
+    if (description) description.textContent = '7–10 минут, четыре решения и последствия для сроков, доверия, ресурсов и рисков. Вернись сюда после финального разбора — тогда откроется post-case.';
     if (state) {
       const complete = Boolean(window.PM01SimulatorGate && window.PM01SimulatorGate.isComplete());
       state.textContent = `Миссия: ${complete ? 'завершена ✓' : 'нужно пройти до финального разбора'}`;
