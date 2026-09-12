@@ -191,3 +191,15 @@
   .sim-meter-track span { transition: none; }
   .sim-shell *, .sim-shell *::before, .sim-shell *::after { scroll-behavior: auto !important; }
 }
+/* Keep light simulator panels readable even when the global art direction theme changes. */
+.sim-shell .sim-meter *,
+.sim-shell .sim-situation *,
+.sim-shell .sim-tools *,
+.sim-shell .sim-decision-card *,
+.sim-shell .sim-consequence *,
+.sim-shell .sim-briefing-card *,
+.sim-shell .sim-review-grid *,
+.sim-shell .sim-reflection *,
+.sim-shell .sim-blocked * {
+  color: #07121d !important;
+}
