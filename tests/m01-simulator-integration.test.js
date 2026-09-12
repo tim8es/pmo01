@@ -6,43 +6,36 @@ function read(path) {
   return fs.readFileSync(path, 'utf8');
 }
 
-test('index loads simulator runtime, routing and validation gate before validation extension', () => {
+test('index loads simulator routing and validation integration', () => {
   const html = read('index.html');
-  const css = html.indexOf('m01-simulator.css');
-  const data = html.indexOf('m01-simulator-data.js');
-  const domain = html.indexOf('m01-simulator-domain.js');
-  const app = html.indexOf('m01-simulator-app.js');
   const routing = html.indexOf('m01-simulator-routing.js');
   const gate = html.indexOf('m01-validation-simulator-gate.js');
   const validation = html.indexOf('m01-validation-app.js');
-  assert.ok(css >= 0);
-  assert.ok(data >= 0 && domain > data && app > domain && routing > app && gate > routing && validation > gate);
+  assert.ok(routing >= 0 && gate > routing && validation > gate);
 });
 
-test('M01 routing adapter sends course and validation entries to mission/m01', () => {
-  const routing = read('m01-simulator-routing.js');
-  assert.match(routing, /#\/mission\/m01/);
-  assert.match(routing, /project-system/);
-  assert.match(routing, /system-diagnostic/);
-  assert.match(routing, /m01MissionEntry/);
+test('dedicated simulator entrypoint bypasses legacy app router and loads simulator runtime', () => {
+  const html = read('simulator.html');
+  assert.doesNotMatch(html, /src="app\.js"/);
+  assert.match(html, /<base href="\.\/index\.html"/);
+  const data = html.indexOf('m01-simulator-data.js');
+  const domain = html.indexOf('m01-simulator-domain.js');
+  const app = html.indexOf('m01-simulator-app.js');
+  assert.ok(data >= 0 && domain > data && app > domain);
 });
 
-test('base app reserves mission/m01 for simulator instead of rendering not-found', () => {
-  const app = read('app.js');
-  assert.match(app, /parts\[0\]\s*===\s*["']mission["'][\s\S]*parts\[1\]\s*===\s*["']m01["']/);
-  assert.match(app, /route:\s*["']mission-m01["']/);
-  assert.match(app, /if\s*\(route\s*===\s*["']mission-m01["']\)\s*return/);
-});
-
-test('simulator is explicitly discoverable from desktop and mobile navigation', () => {
+test('desktop and mobile navigation point to dedicated simulator entrypoint', () => {
   const html = read('index.html');
-  const missionLinks = html.match(/href="#\/mission\/m01"/g) || [];
-  assert.ok(missionLinks.length >= 2, 'expected visible mission links in desktop and mobile navigation');
+  const missionLinks = html.match(/href="simulator\.html#\/mission\/m01"/g) || [];
+  assert.ok(missionLinks.length >= 2, 'expected dedicated mission links in desktop and mobile navigation');
   assert.match(html, /Симулятор M01/);
 });
 
-test('routing adapter relabels legacy M01 lesson entries as simulator actions', () => {
+test('M01 routing adapter sends course and validation entries to dedicated simulator entrypoint', () => {
   const routing = read('m01-simulator-routing.js');
+  assert.match(routing, /simulator\.html#\/mission\/m01/);
+  assert.match(routing, /project-system/);
+  assert.match(routing, /system-diagnostic/);
   assert.match(routing, /Открыть симулятор/);
   assert.match(routing, /7–10 минут/);
 });
@@ -82,7 +75,7 @@ test('light simulator panels use a private dark text token immune to later art-d
   assert.match(css, /--sim-text:\s*#[0-9a-fA-F]{6}/);
   assert.match(css, /\.sim-meter[\s\S]*?color:\s*var\(--sim-text\)/);
   assert.match(css, /\.sim-situation[\s\S]*?color:\s*var\(--sim-text\)/);
-  assert.match(css, /\.sim-tools[\s\S]*?\.button[\s\S]*?color:\s*var\(--sim-text\)/);
+  assert.match(css, /\.sim-shell \.sim-tools h3[\s\S]*?color:\s*var\(--sim-text\)/);
   assert.match(css, /\.sim-rationale textarea[\s\S]*?color:\s*var\(--sim-text\)/);
 });
 
