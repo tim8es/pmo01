@@ -27,6 +27,13 @@ test('M01 routing adapter sends course and validation entries to mission/m01', (
   assert.match(routing, /m01MissionEntry/);
 });
 
+test('base app reserves mission/m01 for simulator instead of rendering not-found', () => {
+  const app = read('app.js');
+  assert.match(app, /parts\[0\]\s*===\s*["']mission["'][\s\S]*parts\[1\]\s*===\s*["']m01["']/);
+  assert.match(app, /route:\s*["']mission-m01["']/);
+  assert.match(app, /if\s*\(route\s*===\s*["']mission-m01["']\)\s*return/);
+});
+
 test('simulator is explicitly discoverable from desktop and mobile navigation', () => {
   const html = read('index.html');
   const missionLinks = html.match(/href="#\/mission\/m01"/g) || [];
@@ -70,12 +77,13 @@ test('simulator styles include reduced-motion handling and visible meter semanti
   assert.match(css, /:focus-visible/);
 });
 
-test('light simulator panels explicitly use dark readable text and controls', () => {
+test('light simulator panels use a private dark text token immune to later art-direction variables', () => {
   const css = read('m01-simulator.css');
-  assert.match(css, /\.sim-meter[\s\S]*?color:\s*var\(--ink\)/);
-  assert.match(css, /\.sim-situation[\s\S]*?color:\s*var\(--ink\)/);
-  assert.match(css, /\.sim-tools[\s\S]*?\.button[\s\S]*?color:\s*var\(--ink\)/);
-  assert.match(css, /\.sim-rationale textarea[\s\S]*?color:\s*var\(--ink\)/);
+  assert.match(css, /--sim-text:\s*#[0-9a-fA-F]{6}/);
+  assert.match(css, /\.sim-meter[\s\S]*?color:\s*var\(--sim-text\)/);
+  assert.match(css, /\.sim-situation[\s\S]*?color:\s*var\(--sim-text\)/);
+  assert.match(css, /\.sim-tools[\s\S]*?\.button[\s\S]*?color:\s*var\(--sim-text\)/);
+  assert.match(css, /\.sim-rationale textarea[\s\S]*?color:\s*var\(--sim-text\)/);
 });
 
 test('required rationale exposes the same 8-character rule before submit', () => {
