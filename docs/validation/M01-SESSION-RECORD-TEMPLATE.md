@@ -1,6 +1,6 @@
 # M01 Learner Session Record Template
 
-> Copy this file for each participant. Use a non-identifying participant ID. Do not record sensitive project details unless they are essential to the learning observation.
+> Copy this file for each participant. Use a non-identifying participant ID. Do not record sensitive project details unless essential to interpret the learning evidence.
 
 ## Session metadata
 
@@ -10,137 +10,163 @@
 - **Experience level:**
 - **Facilitator:**
 - **Browser/device:**
-- **Fresh validation state confirmed:** yes / no
+- **Treatment ID:** `m01-mission-partner-launch-v1`
+- **Mission version:** `1`
+- **Fresh validation/course/simulator state confirmed:** yes / no
+- **Valid / excluded:**
+- **Exclusion reason:**
 
 ## Baseline
 
 - **Baseline total (0–15):**
-- **Mechanism:**
-- **Evidence:**
-- **Trade-offs:**
-- **Intervention:**
-- **Change condition:**
+- **Mechanism /3:**
+- **Evidence /3:**
+- **Trade-offs /3:**
+- **Intervention /3:**
+- **Change condition /3:**
 - **Free-text diagnosis summary:**
-- **Observed reasoning pattern:**
+- **Observed reasoning pattern:** people/symptom / mixed / mechanism
 - **Question ambiguity/friction:**
 
 > Baseline score and explanatory feedback must remain hidden from the participant until post-case submission.
 
-## Learning experience
+## M01 simulator trajectory
 
-### Lesson 1 — `project-system`
+### D1 — Diagnose
 
-- What appeared to change in where the participant looked for the problem?
-- Did they distinguish facts from interpretations?
-- Did the seven-flow model help or add noise?
-- Friction/ambiguity:
+- **First committed option:**
+- **Rationale (>=8 trimmed chars):**
+- **State before:** deadline / trust / capacity / risk
+- **State after:** deadline / trust / capacity / risk
+- **Consequence understood:** yes / partial / no
+- **Tools opened before commit:** none / Decision Timeline / Hypothesis Comparator / Change Condition
+- **Observed reasoning:**
+- **Friction/ambiguity:**
 
-### Decision Drill — `m01-drill-system`
+### D2 — Intervene
 
-- **First choice:**
-- **Why:**
-- **Did feedback change the rationale?** yes / no / unclear
-- **Misconception exposed:**
-- **Interaction useful?** yes / partial / no
-- **Reason:**
+- **First committed option:**
+- **State before:** deadline / trust / capacity / risk
+- **State after:** deadline / trust / capacity / risk
+- **Consequence understood:** yes / partial / no
+- **Tools opened before commit:**
+- **Observed reasoning:**
+- **Friction/ambiguity:**
 
-### Lesson 2 — `system-diagnostic`
+### D3 — Trade-off
 
-- Could the participant distinguish symptom → mechanism → system condition?
-- Did they move away from person-level explanations?
-- Could they connect intervention to mechanism?
-- Friction/ambiguity:
+- **First committed option:**
+- **State before:** deadline / trust / capacity / risk
+- **State after:** deadline / trust / capacity / risk
+- **Consequence understood:** yes / partial / no
+- **Tools opened before commit:**
+- **Observed reasoning:**
+- **Friction/ambiguity:**
 
-### Decision Drill — `m01-drill-diagnostic`
+### D4 — Revise
 
-- **First choice:**
-- **Why:**
-- **Did feedback change the rationale?** yes / no / unclear
-- **Misconception exposed:**
-- **Interaction useful?** yes / partial / no
-- **Reason:**
+- **First committed option:**
+- **Rationale / fact used (>=8 trimmed chars):**
+- **State before:** deadline / trust / capacity / risk
+- **State after:** deadline / trust / capacity / risk
+- **Diagnosis revised after new evidence:** yes / no / unclear
+- **Consequence understood:** yes / partial / no
+- **Tools opened before commit:**
+- **Observed reasoning:**
+- **Friction/ambiguity:**
+
+### Final trajectory review
+
+- **Final review reached:** yes / no
+- **Final deadline confidence:**
+- **Final stakeholder trust:**
+- **Final team capacity:**
+- **Final launch risk:**
+- **Tools opened during mission:**
+- **Participant can explain one important trade-off:** yes / partial / no
+- **Participant can name evidence that changed/would change diagnosis:** yes / partial / no
 
 ## Integrative post-case
 
 - **Post total (0–15):**
-- **Mechanism:**
-- **Evidence:**
-- **Trade-offs:**
-- **Intervention:**
-- **Change condition:**
+- **Mechanism /3:**
+- **Evidence /3:**
+- **Trade-offs /3:**
+- **Intervention /3:**
+- **Change condition /3:**
 - **Total delta:**
 - **Improved dimensions:**
-- **Prototype individual signal:** pass / not pass
+- **Prototype individual signal:** positive / absent
 - **Free-text diagnosis summary:**
+- **Free text supports scored result:** yes / partial / no
 - **What changed compared with baseline:**
 - **Question ambiguity/friction:**
 
-## Field application
+## Real-project transfer
 
 - **Real/recent project used:** yes / no
 - **Description sufficiently anonymized:** yes / no / n/a
-- **Mechanism credible:** yes / partial / no
-- **Intervention acts on mechanism:** yes / partial / no
-- **Early signal observable:** yes / partial / no
-- **Evidence actually observed:** yes / not yet / unclear
-- **Next decision follows from evidence:** yes / partial / no
+- **Primary hypothesis / mechanism:**
+- **Strong alternative:**
+- **Discriminating evidence:**
+- **Falsifier:**
+- **Decision / minimal intervention:**
+- **Early signal:**
+- **Revision / stop / reverse condition:**
+- **Observed evidence:** actual observation / not tested yet / unclear
+- **Next decision:**
 - **Overall transfer:** credible / partial / restatement only / not completed
 - **Facilitator notes:**
 
 ## Reflection
 
-Classify each item based on the participant's response.
-
 - **Changed diagnosis:** clear / partial / absent
 - **Changed planned action:** clear / partial / absent
 - **New evidence requirement:** clear / partial / absent
+- **Plausible alternative generated:** clear / partial / absent
+- **Falsifier stated:** clear / partial / absent
+- **Revision condition stated:** clear / partial / absent
 - **Remaining uncertainty made testable:** clear / partial / absent
-- **Mostly restated lesson content:** yes / no / mixed
+- **Mostly restated simulator/course language:** yes / no / mixed
 
 Key quote or paraphrased observation:
 
 ## Short interview
 
-### 1. What did you initially think the project problem was?
-
-Notes:
-
-### 2. What changed in your diagnosis after the module?
-
-Notes:
-
-### 3. Which part of the module caused that change?
-
-Notes:
-
-### 4. Which feedback felt obvious, misleading, or unconvincing?
-
-Notes:
-
-### 5. Could you use the model tomorrow without opening the course? Where?
-
-Notes:
-
-### 6. What information would you now request earlier on a real project?
-
-Notes:
-
-### 7. Where did the interface or wording interfere with your reasoning?
-
-Notes:
+1. **Что ты сначала считал главной проблемой?**
+   - Notes:
+2. **Что изменилось в диагнозе после симулятора?**
+   - Notes:
+3. **Какое решение или последствие сильнее всего изменило ход мысли?**
+   - Notes:
+4. **Какую сильную альтернативную гипотезу ты теперь видишь?**
+   - Notes:
+5. **Какой факт мог бы опровергнуть итоговый диагноз?**
+   - Notes:
+6. **При каких данных ты пересмотришь принятое решение?**
+   - Notes:
+7. **Где последствия, формулировки или интерфейс мешали?**
+   - Notes:
+8. **Где применишь этот способ мышления завтра без PMO01?**
+   - Notes:
 
 ## Reliability and UX observations
 
 - Any response/state loss: yes / no
 - Reload/navigation recovery worked: yes / no / not tested
 - Persistence error surfaced explicitly if applicable: yes / no / n/a
+- Route/navigation confusion: yes / no
+- Blocking readability issue: yes / no
 - Keyboard-critical path issue: yes / no / not tested
+- Simulator/post-case unlock behaved correctly: yes / no
+- Baseline contamination: yes / no
+- Material facilitator coaching: yes / no
 - Major abandonment/friction point:
 - Other prototype defect:
 
 ## Content-model observations
 
-Did the learner reveal any requirement that the current production content model cannot represent without a one-off exception?
+Did the learner reveal a requirement the current production content model cannot represent without a one-off exception?
 
 - yes / no / unclear
 
@@ -153,26 +179,22 @@ If yes, describe the requirement without proposing architecture prematurely:
 - **New case/domain:**
 - **Independent reconstruction of mechanism:** yes / partial / no
 - **Intervention matched diagnosis:** yes / partial / no
-- **Change condition/evidence stated:** yes / partial / no
+- **Alternative/falsifier/revision condition stated:** yes / partial / no
 - **Needed course terminology as prompt:** yes / no
 - **Transfer persisted:** yes / partial / no / unclear
 
 ## Session-level review
 
+- **Required evidence complete:** yes / no
 - **Learning signal:** positive / mixed / absent / uninterpretable
-- **Transfer evidence:** strong / partial / absent
-- **Interaction usefulness:** strong / mixed / weak
+- **Transfer evidence:** credible / partial / restatement only / absent
+- **Simulator interaction usefulness:** strong / mixed / weak
 - **Major friction:** none / manageable / blocking
 - **Rubric ambiguity:** none / manageable / blocking
-- **Recommended action for M01:** keep / revise / investigate / exclude session
+- **Session validity:** valid / exclude
+- **Recommended action for M01:** keep / revise / investigate
 - **Reason:**
 
 ## Data handling
 
-Do not store:
-
-- credentials or access tokens;
-- customer/person names when unnecessary;
-- confidential contract/commercial terms;
-- sensitive internal metrics when an abstract value or direction is sufficient;
-- personal data not required to interpret the learning result.
+Do not store credentials/access tokens, unnecessary names, confidential commercial terms, sensitive internal metrics when an abstract description is enough, or personal data not required to interpret the result.
