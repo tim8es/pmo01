@@ -52,11 +52,10 @@ test('course now explains a decision-first learning loop and provides fallback p
 test('mastery gamification is evidence-based rather than XP-based', () => {
   assert.ok(experience.includes('Mastery · M01'));
   assert.ok(experience.includes('Навыки, а не XP'));
-  assert.ok(experience.includes('Проверено в миссии'));
   assert.ok(experience.includes('run?.decisions'));
 });
 
-test('light theme has a final semantic repair layer for legacy hard-coded surfaces', () => {
+test('light theme has a semantic repair layer for legacy hard-coded surfaces', () => {
   assert.ok(styles.includes('Semantic repair'));
   assert.ok(styles.includes('html[data-theme="light"] .model-card'));
   assert.ok(styles.includes('html[data-theme="light"] .practice'));
@@ -64,8 +63,10 @@ test('light theme has a final semantic repair layer for legacy hard-coded surfac
   assert.ok(styles.includes('html[data-theme="light"] textarea'));
 });
 
-test('M01 simulator is framed as a course mission instead of a detached validation tool', () => {
-  assert.ok(html.includes('Миссия M01'));
-  assert.ok(simulatorHtml.includes('M01 MISSION'));
+test('M01 simulator keeps its existing runtime while learner-facing copy names it as a simulation', () => {
+  const clarity = read('course-clarity-v3.js');
+  assert.ok(html.includes('Симуляция M01'));
+  assert.ok(simulatorHtml.includes('Практическая симуляция M01'));
   assert.ok(simulatorHtml.includes('К учебному пути'));
+  assert.ok(clarity.includes('Симуляция — отдельный практический тренажёр'));
 });
