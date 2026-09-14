@@ -9,9 +9,9 @@
   const SKILL_ORDER = ['value', 'work', 'information', 'decisions', 'dependencies', 'uncertainty', 'feedback'];
 
   const COMPANY_PROFILES = Object.freeze({
-    small: Object.freeze({ label: 'Малый бизнес', scale: '20–80 человек', summary: 'Мало резервной мощности: решения проще по механике, но зависимость от конкретных людей выше.', lenses: Object.freeze({ d1: 'Параллельные варианты быстро съедают capacity.', d2: 'Явный decision contract снижает зависимость от памяти одного человека.', d3: 'Даже маленький late scope может перегрузить единственный QA-ресурс.', d4: 'Редкие внешние проверки делают поздний falsifier особенно дорогим.' }) }),
-    medium: Object.freeze({ label: 'Средний бизнес', scale: '200–1500 человек', summary: 'Несколько функций и backlog: основные потери возникают на handoff и ownership.', lenses: Object.freeze({ d1: 'Решение проходит через несколько функций и владельцев.', d2: 'Owner следующего обязательства важнее абстрактного owner проекта.', d3: 'Late scope создаёт downstream impact сразу в нескольких командах.', d4: 'Новый факт часто требует пересмотра межкомандной зависимости.' }) }),
-    large: Object.freeze({ label: 'Крупный бизнес', scale: '5000+ человек', summary: 'Governance, compliance и change windows повышают цену позднего изменения.', lenses: Object.freeze({ d1: 'Техническая готовность не равна формальному обязательству.', d2: 'Нужен явный интерфейс approvals и sign-off.', d3: 'Late scope способен заново открыть governance и потерять окно запуска.', d4: 'Falsifier может полностью изменить допустимый scope и цикл согласования.' }) }),
+    small: Object.freeze({ label: 'Малый бизнес', scale: '20–80 человек', summary: 'Мало резервной мощности: решения проще по механике, но зависимость от конкретных людей выше.', lenses: Object.freeze({ d1: 'Параллельные варианты быстро съедают резерв команды.', d2: 'Явный контракт решения снижает зависимость от памяти одного человека.', d3: 'Даже небольшое позднее расширение объёма может перегрузить единственный QA-ресурс.', d4: 'Редкие внешние проверки делают поздний опровергающий факт особенно дорогим.' }) }),
+    medium: Object.freeze({ label: 'Средний бизнес', scale: '200–1500 человек', summary: 'Несколько функций и очередей работ: основные потери возникают на передачах между командами и неясной ответственности.', lenses: Object.freeze({ d1: 'Решение проходит через несколько функций и владельцев.', d2: 'Владелец следующего обязательства важнее абстрактного владельца всего проекта.', d3: 'Позднее расширение объёма создаёт каскад последствий сразу в нескольких командах.', d4: 'Новый факт часто требует пересмотра межкомандной зависимости.' }) }),
+    large: Object.freeze({ label: 'Крупный бизнес', scale: '5000+ человек', summary: 'Формальные согласования, регуляторные требования и окна изменений повышают цену позднего решения.', lenses: Object.freeze({ d1: 'Техническая готовность не равна формальному обязательству.', d2: 'Нужен явный маршрут согласований и финального утверждения.', d3: 'Позднее расширение объёма способно заново открыть согласования и потерять окно запуска.', d4: 'Опровергающий факт может полностью изменить допустимый объём работ и цикл согласования.' }) }),
   });
 
   function readJson(key, fallback) {
@@ -95,18 +95,30 @@
   function currentCompanyId() {
     try { const value = localStorage.getItem(COMPANY_KEY); return COMPANY_PROFILES[value] ? value : 'medium'; } catch (_) { return 'medium'; }
   }
+  function simulatorContextLocked() {
+    const sim = simState();
+    return Boolean(sim?.reviewReachedAt || sim?.completedAt || (sim?.run?.decisions || []).length || Number(sim?.run?.decisionIndex || 0) > 0);
+  }
+  function invalidateCompanySurfaces() {
+    const page = document.querySelector('#main .page[data-v6-home="1"]');
+    if (page) page.removeAttribute('data-v6-home');
+    document.querySelector('.v6-sim-context')?.remove();
+    document.querySelector('.v6-context-lens')?.remove();
+  }
   function setCompany(id) {
     if (!COMPANY_PROFILES[id]) return;
+    if (document.querySelector('#main .sim-shell') && simulatorContextLocked()) return;
     try { localStorage.setItem(COMPANY_KEY, id); } catch (_) {}
     document.documentElement.dataset.companyContext = id;
+    invalidateCompanySurfaces();
     requestAnimationFrame(enhanceAll);
   }
-  function companyChoices() {
+  function companyChoices({ locked = false } = {}) {
     const selected = currentCompanyId();
-    return `<div class="v6-company-choices" role="group" aria-label="Контекст компании">${Object.entries(COMPANY_PROFILES).map(([id, profile]) => `<button type="button" class="v6-company-choice ${selected === id ? 'selected' : ''}" data-v6-company="${id}" aria-pressed="${selected === id}"><strong>${escapeHtml(profile.label)}</strong><span>${escapeHtml(profile.scale)}</span></button>`).join('')}</div>`;
+    return `<div class="v6-company-choices" role="group" aria-label="Контекст компании">${Object.entries(COMPANY_PROFILES).map(([id, profile]) => `<button type="button" class="v6-company-choice ${selected === id ? 'selected' : ''}" data-v6-company="${id}" aria-pressed="${selected === id}" ${locked ? 'disabled aria-disabled="true"' : ''}><strong>${escapeHtml(profile.label)}</strong><span>${escapeHtml(profile.scale)}</span></button>`).join('')}</div>`;
   }
   function bindCompany(root) {
-    root.querySelectorAll('[data-v6-company]').forEach(button => button.addEventListener('click', () => setCompany(button.dataset.v6Company)));
+    root.querySelectorAll('[data-v6-company]:not(:disabled)').forEach(button => button.addEventListener('click', () => setCompany(button.dataset.v6Company)));
   }
 
   function skillMapMarkup(derived) {
@@ -136,7 +148,7 @@
     const skill = primarySkill(step, derived);
     const profile = COMPANY_PROFILES[currentCompanyId()];
     page.dataset.v6Home = '1';
-    page.innerHTML = `<section class="course-home-v6"><div class="v6-home-grid"><div class="v6-next"><p class="eyebrow">Продолжить обучение</p><p class="v6-meta">${escapeHtml(stepMeta(step, state))}</p><h1>${escapeHtml(step.title)}</h1><p class="lead">${escapeHtml(step.kind === 'lesson' ? (step.lesson.learningLab?.mission || step.lesson.thesis) : step.kind === 'practice' ? 'Собери два урока модуля в одном решении и проверь перенос без подсказки.' : 'Все модули и итоговые практики пройдены. Карта ниже показывает, какие компетенции подтверждены evidence.')}</p><div class="v6-actions"><a class="button primary" href="${step.href}">${escapeHtml(step.action)}</a><a class="button subtle" href="#/course">Учебный путь</a></div></div><aside class="v6-focus"><p class="eyebrow">Навык сейчас</p><div class="v6-focus-state"><strong>${escapeHtml(skill.name)}</strong><span>${escapeHtml(skill.label)}</span></div><p>${escapeHtml(skill.question || '')}</p><div class="v6-evidence"><small>Следующее доказательство</small><strong>${escapeHtml(nextEvidence(step, skill, derived))}</strong></div></aside></div><section class="course-learning-loop"><div class="v6-section-head"><div><p class="eyebrow">Один учебный цикл</p><h2>Решение → разбор → инструмент → перенос → Итоговая практика</h2></div><p>Завершённый урок даёт применение. Уровень «Доказал» появляется только после итогового кейса модуля.</p></div><div class="v6-loop"><span>1 · Реши до объяснения</span><span>2 · Сверь механизм</span><span>3 · Заполни рабочий артефакт</span><span>4 · Перенеси на проект</span><span>5 · Докажи в новом кейсе</span></div></section><section class="v6-competencies"><div class="v6-section-head"><div><p class="eyebrow">Карта компетенций</p><h2>${derived.counts?.proved || 0}/7 доказано · ${derived.counts?.applied || 0}/7 применено</h2></div><p>Это не XP: уровень растёт только от решений и evidence.</p></div>${skillMapMarkup(derived)}</section><section class="v6-context"><div><p class="eyebrow">Контекст практики</p><h2>${escapeHtml(profile.label)} · ${escapeHtml(profile.scale)}</h2><p>${escapeHtml(profile.summary)} Выбор меняет организационную линзу, но не скрытую сложность кейса.</p></div>${companyChoices()}</section></section>`;
+    page.innerHTML = `<section class="course-home-v6"><div class="v6-home-grid"><div class="v6-next"><p class="eyebrow">Продолжить обучение</p><p class="v6-meta">${escapeHtml(stepMeta(step, state))}</p><h1>${escapeHtml(step.title)}</h1><p class="lead">${escapeHtml(step.kind === 'lesson' ? (step.lesson.learningLab?.mission || step.lesson.thesis) : step.kind === 'practice' ? 'Собери два урока модуля в одном решении и проверь перенос без подсказки.' : 'Все модули и итоговые практики пройдены. Карта ниже показывает, какие компетенции подтверждены доказательствами.')}</p><div class="v6-actions"><a class="button primary" href="${step.href}">${escapeHtml(step.action)}</a><a class="button subtle" href="#/course">Учебный путь</a></div></div><aside class="v6-focus"><p class="eyebrow">Навык сейчас</p><div class="v6-focus-state"><strong>${escapeHtml(skill.name)}</strong><span>${escapeHtml(skill.label)}</span></div><p>${escapeHtml(skill.question || '')}</p><div class="v6-evidence"><small>Следующее доказательство</small><strong>${escapeHtml(nextEvidence(step, skill, derived))}</strong></div></aside></div><section class="course-learning-loop"><div class="v6-section-head"><div><p class="eyebrow">Один учебный цикл</p><h2>Решение → разбор → инструмент → перенос → итоговая практика</h2></div><p>Завершённый урок даёт применение. Уровень «Доказал» появляется только после итогового кейса модуля.</p></div><div class="v6-loop"><span>1 · Реши до объяснения</span><span>2 · Сверь механизм</span><span>3 · Заполни рабочий артефакт</span><span>4 · Перенеси на проект</span><span>5 · Докажи в новом кейсе</span></div></section><section class="v6-competencies"><div class="v6-section-head"><div><p class="eyebrow">Карта компетенций</p><h2>${derived.counts?.proved || 0}/7 доказано · ${derived.counts?.applied || 0}/7 применено</h2></div><p>Это не очки: уровень растёт только от решений и доказательств.</p></div>${skillMapMarkup(derived)}</section><section class="v6-context"><div><p class="eyebrow">Контекст практики</p><h2>${escapeHtml(profile.label)} · ${escapeHtml(profile.scale)}</h2><p>${escapeHtml(profile.summary)} Выбор меняет организационную линзу, но не скрытую сложность кейса.</p></div>${companyChoices()}</section></section>`;
     bindCompany(page);
   }
 
@@ -237,7 +249,7 @@
       raw.lastLesson = lesson.id;
       if (!writeJson(COURSE_KEY, raw)) return;
       if (module.id === 'm01') location.href = targetHref;
-      else location.hash = targetHref.replace(/^#/, '');
+      else location.hash = targetHref;
     }, { capture: true });
   }
 
@@ -251,22 +263,29 @@
   function enhanceSimulator() {
     const host = document.querySelector('#main .sim-shell');
     if (!host) return;
+    const sim = simState();
     const profile = COMPANY_PROFILES[currentCompanyId()];
+    const locked = simulatorContextLocked();
     if (!host.querySelector('.v6-sim-context')) {
       const context = document.createElement('section');
       context.className = 'v6-sim-context';
-      context.innerHTML = `<div><p class="eyebrow">Контекст компании</p><h3>${escapeHtml(profile.label)} · ${escapeHtml(profile.scale)}</h3><p>${escapeHtml(profile.summary)}</p></div>${companyChoices()}`;
+      context.innerHTML = `<div><p class="eyebrow">Контекст компании</p><h3>${escapeHtml(profile.label)} · ${escapeHtml(profile.scale)}</h3><p>${escapeHtml(profile.summary)}</p>${locked ? '<small class="v6-context-lock">Контекст зафиксирован после первого решения, чтобы условия кейса не менялись по ходу прохождения.</small>' : '<small class="v6-context-lock">Выбери масштаб до первого решения. Он меняет организационную линзу, но не скрытые метрики.</small>'}</div>${companyChoices({ locked })}`;
       host.querySelector('.sim-header')?.insertAdjacentElement('afterend', context);
       bindCompany(context);
     }
     const situation = host.querySelector('.sim-situation');
-    if (situation && !situation.querySelector('.v6-context-lens')) {
-      const index = simState()?.run?.decisionIndex ?? 0;
+    if (situation) {
+      const index = sim?.run?.decisionIndex ?? 0;
       const decisionId = ['d1', 'd2', 'd3', 'd4'][index] || 'd4';
-      const lens = document.createElement('aside');
-      lens.className = 'v6-context-lens';
-      lens.innerHTML = `<strong>Что меняет масштаб</strong><p>${escapeHtml(profile.lenses[decisionId])}</p>`;
-      situation.appendChild(lens);
+      const existing = situation.querySelector('.v6-context-lens');
+      if (!existing || existing.dataset.decisionId !== decisionId) {
+        existing?.remove();
+        const lens = document.createElement('aside');
+        lens.className = 'v6-context-lens';
+        lens.dataset.decisionId = decisionId;
+        lens.innerHTML = `<strong>Что меняет масштаб</strong><p>${escapeHtml(profile.lenses[decisionId])}</p>`;
+        situation.appendChild(lens);
+      }
     }
   }
 
@@ -291,7 +310,7 @@
       }).observe(main, { childList: true, subtree: true });
     }
     window.addEventListener('hashchange', () => requestAnimationFrame(enhanceAll));
-    window.addEventListener('storage', event => { if ([COURSE_KEY, SIM_KEY, COMPANY_KEY, 'pm01-module-practice-v6'].includes(event.key)) requestAnimationFrame(enhanceAll); });
+    window.addEventListener('storage', event => { if ([COURSE_KEY, SIM_KEY, COMPANY_KEY, 'pm01-module-practice-v6'].includes(event.key)) { invalidateCompanySurfaces(); requestAnimationFrame(enhanceAll); } });
   }
 
   window.PM01ExperienceV6 = Object.freeze({ currentStep, moduleComplete, deriveMastery });
