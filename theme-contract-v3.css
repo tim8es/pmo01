@@ -1,0 +1,420 @@
+/* Final theme contract. Loaded after every legacy stylesheet so light mode is not
+   dependent on dark-era literal colors leaking through the cascade. */
+html[data-theme="light"] {
+  --tc-bg: #f4f0e6;
+  --tc-surface: #fffdf8;
+  --tc-surface-2: #e8e2d6;
+  --tc-text: #151713;
+  --tc-text-muted: #575c52;
+  --tc-text-secondary: #33372f;
+  --tc-border: rgba(21, 23, 19, .24);
+  --tc-border-strong: rgba(21, 23, 19, .42);
+  --tc-accent: #435700;
+  --tc-danger: #8b2f24;
+
+  --ink: var(--tc-text);
+  --ink-2: var(--tc-surface);
+  --panel: var(--tc-surface);
+  --paper: var(--tc-surface);
+  --paper-2: var(--tc-surface-2);
+  --muted: var(--tc-text-muted);
+  --text-secondary: var(--tc-text-secondary);
+  --text-tertiary: var(--tc-text-muted);
+  --accent: var(--tc-accent);
+  --accent-2: var(--tc-accent);
+  --blue: var(--tc-accent);
+  --green: var(--tc-accent);
+  --red: var(--tc-danger);
+  --line: var(--tc-border);
+  --line-strong: var(--tc-border-strong);
+  --paper-line: var(--tc-border);
+  --lx-bg: var(--tc-bg);
+  --lx-surface: var(--tc-surface);
+  --lx-surface-2: var(--tc-surface-2);
+  --lx-text: var(--tc-text);
+  --lx-text-2: var(--tc-text-secondary);
+  --lx-muted: var(--tc-text-muted);
+  --lx-border: var(--tc-border);
+  --lx-border-strong: var(--tc-border-strong);
+  --lx-accent: var(--tc-accent);
+
+  background: var(--tc-bg);
+  color: var(--tc-text);
+}
+
+html[data-theme="light"],
+html[data-theme="light"] body,
+html[data-theme="light"] main,
+html[data-theme="light"] .app-shell,
+html[data-theme="light"] .page,
+html[data-theme="light"] .sidebar,
+html[data-theme="light"] .mobile-header,
+html[data-theme="light"] .mobile-nav {
+  background: var(--tc-bg) !important;
+  color: var(--tc-text) !important;
+}
+
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] strong,
+html[data-theme="light"] legend,
+html[data-theme="light"] label {
+  color: var(--tc-text);
+}
+
+html[data-theme="light"] .lead,
+html[data-theme="light"] .lesson-block p,
+html[data-theme="light"] .lesson-block li,
+html[data-theme="light"] .module-row p,
+html[data-theme="light"] .module-card p,
+html[data-theme="light"] .section-heading p,
+html[data-theme="light"] .returning-context,
+html[data-theme="light"] .returning-progress > span,
+html[data-theme="light"] .returning-progress > p,
+html[data-theme="light"] .returning-next-grid span,
+html[data-theme="light"] .returning-next-grid small,
+html[data-theme="light"] .muted,
+html[data-theme="light"] .field-help,
+html[data-theme="light"] .practice-help {
+  color: var(--tc-text-muted) !important;
+}
+
+/* Navigation and controls: base CSS contains dark literal colors and a dark --ink-2. */
+html[data-theme="light"] .main-nav a,
+html[data-theme="light"] .main-nav a span,
+html[data-theme="light"] .toc a,
+html[data-theme="light"] .toc small,
+html[data-theme="light"] .sidebar-note,
+html[data-theme="light"] .sidebar-progress .label-row {
+  color: var(--tc-text-muted) !important;
+}
+
+html[data-theme="light"] .main-nav a:hover,
+html[data-theme="light"] .main-nav a.active,
+html[data-theme="light"] .toc a:hover,
+html[data-theme="light"] .mobile-nav a:hover,
+html[data-theme="light"] .mobile-nav a.active {
+  color: var(--tc-text) !important;
+  background: color-mix(in srgb, var(--tc-text) 5%, transparent) !important;
+}
+
+html[data-theme="light"] .mobile-nav a {
+  background: var(--tc-surface) !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .menu-button,
+html[data-theme="light"] .button,
+html[data-theme="light"] .theme-toggle {
+  border-color: var(--tc-border-strong) !important;
+  background: transparent;
+  color: var(--tc-text) !important;
+}
+
+html[data-theme="light"] .button:hover,
+html[data-theme="light"] .menu-button:hover {
+  border-color: var(--tc-text) !important;
+  background: var(--tc-text) !important;
+  color: var(--tc-surface) !important;
+}
+
+html[data-theme="light"] .button.primary {
+  border-color: var(--tc-accent) !important;
+  background: var(--tc-accent) !important;
+  color: #fffdf8 !important;
+}
+
+html[data-theme="light"] .button.primary:hover {
+  border-color: var(--tc-text) !important;
+  background: var(--tc-text) !important;
+  color: #fffdf8 !important;
+}
+
+html[data-theme="light"] .button.subtle:hover {
+  border-color: var(--tc-accent) !important;
+  background: transparent !important;
+  color: var(--tc-accent) !important;
+}
+
+html[data-theme="light"] .button:disabled {
+  opacity: 1;
+  border-color: var(--tc-border) !important;
+  background: var(--tc-surface-2) !important;
+  color: var(--tc-text-muted) !important;
+  cursor: not-allowed;
+}
+
+html[data-theme="light"] .progress-track,
+html[data-theme="light"] .returning-progress-track,
+html[data-theme="light"] .module-learning-progress {
+  background: color-mix(in srgb, var(--tc-text) 14%, transparent) !important;
+}
+
+/* Course and lesson surfaces. */
+html[data-theme="light"] .stat,
+html[data-theme="light"] .system-node,
+html[data-theme="light"] .module-card,
+html[data-theme="light"] .module-row,
+html[data-theme="light"] .course-metrics,
+html[data-theme="light"] .lesson-aside .toc,
+html[data-theme="light"] .path-note,
+html[data-theme="light"] .model-card,
+html[data-theme="light"] .learning-lab {
+  background: transparent !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .module-footer a,
+html[data-theme="light"] .module-row a,
+html[data-theme="light"] .model-card,
+html[data-theme="light"] .insight {
+  color: var(--tc-text) !important;
+}
+
+html[data-theme="light"] .eyebrow,
+html[data-theme="light"] .module-kicker,
+html[data-theme="light"] .module-status,
+html[data-theme="light"] .lab-step,
+html[data-theme="light"] .accent {
+  color: var(--tc-accent) !important;
+}
+
+/* The independent practice is intentionally a paper surface in both themes. */
+html[data-theme="light"] .practice,
+html[data-theme="light"] .lab-workbook {
+  background: var(--tc-surface) !important;
+  color: var(--tc-text) !important;
+}
+
+html[data-theme="light"] .practice h2,
+html[data-theme="light"] .practice h3,
+html[data-theme="light"] .practice .eyebrow,
+html[data-theme="light"] .lab-workbook h2,
+html[data-theme="light"] .lab-workbook .lab-step,
+html[data-theme="light"] .lab-field strong {
+  color: var(--tc-text) !important;
+}
+
+html[data-theme="light"] .criterion {
+  background: color-mix(in srgb, var(--tc-text) 4%, transparent) !important;
+  border-color: var(--tc-border) !important;
+  color: var(--tc-text) !important;
+}
+
+html[data-theme="light"] .criterion input,
+html[data-theme="light"] .lab-option input,
+html[data-theme="light"] input[type="radio"],
+html[data-theme="light"] input[type="checkbox"] {
+  accent-color: var(--tc-accent) !important;
+}
+
+html[data-theme="light"] textarea,
+html[data-theme="light"] input[type="text"],
+html[data-theme="light"] .notes,
+html[data-theme="light"] .lab-field textarea,
+html[data-theme="light"] .lab-finish .notes,
+html[data-theme="light"] .validation-reasoning,
+html[data-theme="light"] .validation-evidence textarea,
+html[data-theme="light"] .sim-rationale textarea {
+  background: #ffffff !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border-strong) !important;
+}
+
+html[data-theme="light"] textarea::placeholder,
+html[data-theme="light"] input::placeholder {
+  color: var(--tc-text-muted) !important;
+  opacity: 1;
+}
+
+html[data-theme="light"] .lab-option {
+  color: var(--tc-text-secondary) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .lab-option:hover,
+html[data-theme="light"] .lab-option:has(input:checked) {
+  color: var(--tc-text) !important;
+}
+
+html[data-theme="light"] .lab-feedback {
+  background: var(--tc-surface-2) !important;
+  color: var(--tc-text-secondary) !important;
+  border-color: var(--tc-border-strong) !important;
+}
+
+html[data-theme="light"] .lab-feedback strong,
+html[data-theme="light"] .lab-feedback p,
+html[data-theme="light"] .lab-purpose,
+html[data-theme="light"] .lab-situation,
+html[data-theme="light"] .lab-worked li,
+html[data-theme="light"] .lab-technique li,
+html[data-theme="light"] .lab-transfer p,
+html[data-theme="light"] .lab-workbook > p,
+html[data-theme="light"] .lab-field span {
+  color: var(--tc-text-secondary) !important;
+}
+
+/* Guided cases. */
+html[data-theme="light"] .guided-practice-v2,
+html[data-theme="light"] .gp-alternatives article,
+html[data-theme="light"] .gp-company-lens,
+html[data-theme="light"] .gp-result {
+  background: var(--tc-surface) !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .gp-option {
+  background: color-mix(in srgb, var(--tc-text) 3%, var(--tc-surface)) !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .gp-situation,
+html[data-theme="light"] .gp-result p,
+html[data-theme="light"] .gp-debrief > p,
+html[data-theme="light"] .gp-company-lens p,
+html[data-theme="light"] .gp-alternatives article p,
+html[data-theme="light"] .gp-hint,
+html[data-theme="light"] .gp-badge {
+  color: var(--tc-text-muted) !important;
+}
+
+/* Diagnostics, toolkit and validation previously inherit several dark literal backgrounds. */
+html[data-theme="light"] .question-card,
+html[data-theme="light"] .tool-card,
+html[data-theme="light"] .principle,
+html[data-theme="light"] .diagnostic-result,
+html[data-theme="light"] .validation-step,
+html[data-theme="light"] .validation-note,
+html[data-theme="light"] .validation-state {
+  background: transparent !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .diagnostic-result {
+  background: var(--tc-surface) !important;
+}
+
+html[data-theme="light"] .option,
+html[data-theme="light"] .validation-option {
+  background: var(--tc-surface) !important;
+  color: var(--tc-text-secondary) !important;
+  border-color: var(--tc-border-strong) !important;
+}
+
+html[data-theme="light"] .option:has(input:checked),
+html[data-theme="light"] .validation-option:has(input:checked) {
+  background: color-mix(in srgb, var(--tc-accent) 8%, var(--tc-surface)) !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-accent) !important;
+}
+
+html[data-theme="light"] .validation-scenario {
+  background: var(--tc-surface-2) !important;
+  color: var(--tc-text-secondary) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .result-empty,
+html[data-theme="light"] .tool-card p,
+html[data-theme="light"] .principle p,
+html[data-theme="light"] .validation-step > header p,
+html[data-theme="light"] .validation-feedback {
+  color: var(--tc-text-muted) !important;
+}
+
+/* Standalone simulator: keep its card model, but make the surrounding light mode coherent. */
+html[data-theme="light"] .sim-shell {
+  --sim-border: var(--tc-border);
+  --sim-soft: color-mix(in srgb, var(--tc-text) 6%, transparent);
+  --sim-text: var(--tc-text);
+  --sim-muted: var(--tc-text-muted);
+  --sim-accent-dark: var(--tc-accent);
+  color: var(--tc-text) !important;
+}
+
+html[data-theme="light"] .sim-situation,
+html[data-theme="light"] .sim-decision-card,
+html[data-theme="light"] .sim-tools,
+html[data-theme="light"] .sim-consequence,
+html[data-theme="light"] .sim-briefing-card,
+html[data-theme="light"] .sim-review-grid > *,
+html[data-theme="light"] .sim-reflection,
+html[data-theme="light"] .sim-blocked,
+html[data-theme="light"] .sim-meter {
+  background: var(--tc-surface) !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .sim-tool-drawer {
+  background: var(--tc-surface-2) !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border-strong) !important;
+}
+
+html[data-theme="light"] .sim-standalone-nav {
+  background: color-mix(in srgb, var(--tc-bg) 96%, transparent) !important;
+  color: var(--tc-text) !important;
+  border-color: var(--tc-border) !important;
+}
+
+html[data-theme="light"] .sim-standalone-nav .sim-back {
+  color: var(--tc-text-muted) !important;
+}
+
+/* Reference solution: intentionally calm and secondary to the learner's own attempt. */
+.practice-reference {
+  margin-top: 24px;
+  border-top: 1px solid rgba(17, 17, 17, .22);
+  color: #151713;
+}
+
+.practice-reference > summary {
+  padding: 18px 0;
+  cursor: pointer;
+  color: #151713;
+  font-weight: 800;
+}
+
+.practice-reference-body {
+  padding: 0 0 20px;
+}
+
+.practice-reference-intro,
+.practice-reference-check,
+.practice-reference-scale {
+  color: #444a40;
+  line-height: 1.55;
+}
+
+.practice-reference ol {
+  margin: 18px 0;
+  padding-left: 22px;
+}
+
+.practice-reference li {
+  margin: 10px 0;
+  line-height: 1.58;
+}
+
+.practice-reference-check,
+.practice-reference-scale {
+  padding: 14px 16px;
+  border-left: 3px solid #435700;
+  background: rgba(67, 87, 0, .06);
+}
+
+.practice-reference-scale {
+  margin-top: 10px;
+}
+
+.practice-reference strong {
+  color: #151713;
+}
