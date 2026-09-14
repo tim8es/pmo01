@@ -98,6 +98,22 @@ test('mastery v6 covers the full curriculum and never awards application from ra
   assert.equal(Math.max(...Object.values(rawOnly.skills).map(skill => skill.level)), 0);
 });
 
+test('earned final-practice proof survives a retry without granting unrelated skills', () => {
+  const course = loadCourseWithV6();
+  const context = { window: {} };
+  vm.runInNewContext(masterySource, context, { filename: 'mastery-domain-v6.js' });
+  const api = context.window.PM01MasteryV6;
+  const derived = api.derive({
+    courseState: {},
+    modules: course.modules,
+    practices: {},
+    practiceState: { modules: { m02: { completedAt: null, decisions: {}, proof: { value: true } } } },
+  });
+  assert.equal(derived.skills.value.level, 3);
+  assert.equal(derived.skills.value.label, 'Доказал');
+  assert.equal(derived.skills.uncertainty.level, 0);
+});
+
 test('every module from M02 to M10 has a deterministic final practice with one strongest option per decision', () => {
   assert.ok(practiceSource, 'module-practice-v6.js must exist');
   const context = { window: {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} }, document: { querySelector() { return null; }, readyState: 'complete' }, location: { hash: '' }, requestAnimationFrame() {} };
@@ -135,6 +151,15 @@ test('v6 home, path and lesson UX expose one coherent learning loop and evidence
   assert.match(experienceSource, /capture:\s*true/);
   assert.match(experienceCss, /@media\s*\(max-width:/);
   assert.match(experienceCss, /prefers-reduced-motion/);
+});
+
+test('M01 company context locks after the first decision and context surfaces can be rebuilt safely', () => {
+  assert.match(experienceSource, /function simulatorContextLocked\(\)/);
+  assert.match(experienceSource, /run\?\.decisions/);
+  assert.match(experienceSource, /disabled aria-disabled="true"/);
+  assert.match(experienceSource, /function invalidateCompanySurfaces\(\)/);
+  assert.match(experienceSource, /data-decision-id/);
+  assert.match(experienceSource, /Контекст зафиксирован после первого решения/);
 });
 
 test('theme runtime is isolated from course navigation and remains persistent', () => {
