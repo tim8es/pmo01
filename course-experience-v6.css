@@ -1,0 +1,552 @@
+.course-home-v6,
+.course-path-v6,
+.mp-shell {
+  --v6-surface: var(--tc-surface, var(--paper, #fffdf8));
+  --v6-surface-2: var(--tc-surface-2, var(--paper-2, #e8e2d6));
+  --v6-text: var(--tc-text, var(--ink, #151713));
+  --v6-muted: var(--tc-text-muted, var(--muted, #575c52));
+  --v6-line: var(--line, rgba(127, 127, 127, .28));
+  --v6-accent: var(--tc-accent, var(--accent, #435700));
+}
+
+.v6-home-grid,
+.v6-course-head,
+.v6-section-head,
+.v6-context,
+.v6-sim-context {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, .8fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.v6-next,
+.v6-focus,
+.course-learning-loop,
+.v6-competencies,
+.v6-context,
+.v6-module,
+.v6-lab-context,
+.v6-sim-context,
+.mp-decision,
+.mp-summary {
+  border: 1px solid var(--v6-line);
+  border-radius: 18px;
+  background: var(--v6-surface);
+}
+
+.v6-next,
+.v6-focus,
+.course-learning-loop,
+.v6-competencies,
+.v6-context,
+.v6-course-head,
+.v6-module,
+.mp-decision,
+.mp-summary {
+  padding: clamp(20px, 3vw, 34px);
+}
+
+.v6-next h1,
+.v6-course-head h1,
+.mp-header h1 {
+  margin-block: 8px 14px;
+}
+
+.v6-meta,
+.v6-focus-state span,
+.v6-sidebar-bars,
+.v6-module-steps small,
+.v6-module-skills span,
+.mp-header > span {
+  color: var(--v6-muted);
+  font-size: 13px;
+}
+
+.v6-actions,
+.mp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.v6-focus {
+  position: relative;
+  overflow: hidden;
+}
+
+.v6-focus::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--v6-accent);
+}
+
+.v6-focus-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+
+.v6-focus-state strong {
+  font-size: clamp(22px, 2.5vw, 30px);
+}
+
+.v6-focus-state span {
+  padding: 5px 9px;
+  border: 1px solid var(--v6-line);
+  border-radius: 999px;
+}
+
+.v6-evidence {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--v6-line);
+}
+
+.v6-evidence small {
+  color: var(--v6-muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.course-learning-loop,
+.v6-competencies,
+.v6-context {
+  margin-top: 22px;
+}
+
+.v6-section-head > p {
+  color: var(--v6-muted);
+  max-width: 46ch;
+  margin: 0;
+}
+
+.v6-section-head h2 {
+  margin: 5px 0 0;
+}
+
+.v6-loop {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.v6-loop span {
+  min-height: 82px;
+  padding: 14px;
+  border: 1px solid var(--v6-line);
+  border-radius: 12px;
+  background: var(--v6-surface-2);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.v6-skill-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.v6-skill {
+  position: relative;
+  padding: 15px;
+  border: 1px solid var(--v6-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.v6-skill::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: color-mix(in srgb, var(--v6-muted) 45%, transparent);
+}
+
+.v6-skill.level-1::before,
+.v6-skill.level-2::before,
+.v6-skill.level-3::before { background: var(--v6-accent); }
+
+.v6-skill > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.v6-skill > div strong {
+  font-size: 12px;
+  color: var(--v6-muted);
+}
+
+.v6-skill p {
+  margin: 8px 0 0;
+  color: var(--v6-muted);
+  font-size: 13px;
+}
+
+.v6-company-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.v6-company-choice {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--v6-line);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.v6-company-choice strong,
+.v6-company-choice span {
+  display: block;
+}
+
+.v6-company-choice span {
+  margin-top: 3px;
+  color: var(--v6-muted);
+  font-size: 12px;
+}
+
+.v6-company-choice.selected {
+  outline: 2px solid var(--v6-accent);
+  outline-offset: 1px;
+}
+
+.v6-course-head {
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--v6-line);
+}
+
+.v6-course-proof {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 10px;
+  align-items: baseline;
+}
+
+.v6-course-proof strong {
+  font-size: 28px;
+}
+
+.v6-course-proof span {
+  color: var(--v6-muted);
+  font-size: 13px;
+}
+
+.v6-module-list {
+  display: grid;
+  gap: 14px;
+}
+
+.v6-module.current {
+  border-color: var(--v6-accent);
+}
+
+.v6-module.complete {
+  opacity: .88;
+}
+
+.v6-module-top {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.v6-module-index {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 24px;
+  color: var(--v6-muted);
+}
+
+.v6-module-top h2 {
+  margin: 3px 0 7px;
+}
+
+.v6-module-top p:last-child {
+  margin-bottom: 0;
+  color: var(--v6-muted);
+}
+
+.v6-module-steps {
+  display: grid;
+  gap: 1px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.v6-module-steps li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 0;
+  border-top: 1px solid var(--v6-line);
+}
+
+.v6-module-steps li > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--v6-line);
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.v6-module-steps li.done > span:first-child {
+  border-color: var(--v6-accent);
+}
+
+.v6-module-steps a,
+.v6-module-steps strong {
+  color: inherit;
+  text-decoration: none;
+}
+
+.v6-module-steps a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.v6-module-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.v6-module-skills span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--v6-surface-2);
+}
+
+.v6-lesson-band {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: space-between;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border: 1px solid var(--v6-line);
+  border-radius: 12px;
+  background: var(--v6-surface-2);
+  font-size: 13px;
+}
+
+.v6-lesson-band span {
+  color: var(--v6-muted);
+}
+
+.v6-lab-context {
+  margin: 14px 0 22px;
+  padding: 16px;
+}
+
+.v6-mission p:last-child {
+  margin-bottom: 0;
+}
+
+.v6-lab-context details {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--v6-line);
+}
+
+.v6-lab-context summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.v6-lab-context dl {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+}
+
+.v6-lab-context dl > div {
+  display: grid;
+  grid-template-columns: minmax(120px, .7fr) minmax(0, 1.3fr);
+  gap: 12px;
+}
+
+.v6-lab-context dt { font-weight: 700; }
+.v6-lab-context dd { margin: 0; color: var(--v6-muted); }
+
+.v6-sidebar-bars {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.mp-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.mp-header > span {
+  white-space: nowrap;
+  padding: 7px 10px;
+  border: 1px solid var(--v6-line);
+  border-radius: 999px;
+}
+
+.mp-decision-list {
+  display: grid;
+  gap: 14px;
+}
+
+.mp-situation {
+  max-width: 72ch;
+}
+
+.mp-options {
+  display: grid;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.mp-option {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--v6-line);
+  border-radius: 11px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mp-option:hover,
+.mp-option:focus-visible {
+  border-color: var(--v6-accent);
+}
+
+.mp-result,
+.mp-reference {
+  padding: 15px;
+  margin-top: 14px;
+  border-radius: 11px;
+  background: var(--v6-surface-2);
+}
+
+.mp-result.strong {
+  box-shadow: inset 3px 0 0 var(--v6-accent);
+}
+
+.mp-result p:last-child,
+.mp-reference p:last-child {
+  margin-bottom: 0;
+}
+
+.mp-reference small,
+.mp-reference strong {
+  display: block;
+}
+
+.mp-reference small {
+  color: var(--v6-muted);
+  margin-bottom: 5px;
+}
+
+.mp-summary {
+  margin-top: 18px;
+}
+
+.v6-sim-context {
+  margin: 14px 0;
+  padding: 16px;
+}
+
+.v6-sim-context h3 {
+  margin: 3px 0 7px;
+}
+
+.v6-context-lens {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--v6-accent);
+  background: var(--v6-surface-2);
+}
+
+.v6-context-lens p {
+  margin: 5px 0 0;
+}
+
+@media (max-width: 900px) {
+  .v6-home-grid,
+  .v6-course-head,
+  .v6-section-head,
+  .v6-context,
+  .v6-sim-context {
+    grid-template-columns: 1fr;
+  }
+
+  .v6-loop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .v6-company-choices {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .v6-skill-map,
+  .v6-loop {
+    grid-template-columns: 1fr;
+  }
+
+  .v6-module-steps li {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .v6-module-steps small {
+    grid-column: 2;
+  }
+
+  .v6-lab-context dl > div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .mp-header {
+    display: grid;
+  }
+
+  .mp-header > span {
+    justify-self: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-home-v6 *,
+  .course-path-v6 *,
+  .mp-shell * {
+    scroll-behavior: auto !important;
+    transition-duration: .001ms !important;
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
