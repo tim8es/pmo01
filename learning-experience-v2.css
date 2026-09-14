@@ -1,0 +1,335 @@
+/* PMO01 Learning Experience v2 — course cockpit, guided practice and semantic theme repair. */
+
+:root {
+  --lx-bg: #0a0a0a;
+  --lx-surface: #141412;
+  --lx-surface-2: #1a1a17;
+  --lx-text: #f4f2eb;
+  --lx-text-2: #c9c8c1;
+  --lx-muted: #97978f;
+  --lx-border: rgba(244, 242, 235, .18);
+  --lx-border-strong: rgba(244, 242, 235, .34);
+  --lx-accent: #dfff3f;
+  --lx-accent-ink: #0a0a0a;
+}
+
+html[data-theme="light"] {
+  --lx-bg: #f3efe5;
+  --lx-surface: #fffdf7;
+  --lx-surface-2: #ebe5d8;
+  --lx-text: #171815;
+  --lx-text-2: #3d4039;
+  --lx-muted: #686b62;
+  --lx-border: rgba(23, 24, 21, .17);
+  --lx-border-strong: rgba(23, 24, 21, .34);
+  --lx-accent: #526800;
+  --lx-accent-ink: #fffdf7;
+}
+
+/* Semantic repair: older layers contain dark-theme literals. */
+html[data-theme="light"] body,
+html[data-theme="light"] main,
+html[data-theme="light"] .sidebar,
+html[data-theme="light"] .mobile-header,
+html[data-theme="light"] .mobile-nav,
+html[data-theme="light"] .page {
+  background: var(--lx-bg) !important;
+  color: var(--lx-text) !important;
+}
+
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] .brand strong,
+html[data-theme="light"] .module-row a,
+html[data-theme="light"] .module-footer a,
+html[data-theme="light"] .toc a,
+html[data-theme="light"] .lesson-block p,
+html[data-theme="light"] .lesson-block li,
+html[data-theme="light"] .lead,
+html[data-theme="light"] .module-card p,
+html[data-theme="light"] .module-row p,
+html[data-theme="light"] .section-heading p,
+html[data-theme="light"] .sidebar-note,
+html[data-theme="light"] .main-nav a,
+html[data-theme="light"] .lesson-header .meta,
+html[data-theme="light"] .practice-help,
+html[data-theme="light"] .field-help {
+  color: var(--lx-text-2) !important;
+}
+
+html[data-theme="light"] .main-nav a.active,
+html[data-theme="light"] .main-nav a:hover,
+html[data-theme="light"] .mobile-nav a,
+html[data-theme="light"] .button,
+html[data-theme="light"] .lesson-nav .button,
+html[data-theme="light"] .module-row h2,
+html[data-theme="light"] .module-card h3 {
+  color: var(--lx-text) !important;
+}
+
+html[data-theme="light"] .model-card,
+html[data-theme="light"] .question-card,
+html[data-theme="light"] .tool-card,
+html[data-theme="light"] .diagnostic-result,
+html[data-theme="light"] .lesson-aside .toc,
+html[data-theme="light"] .practice,
+html[data-theme="light"] .lab-drill,
+html[data-theme="light"] .lab-worked,
+html[data-theme="light"] .lab-technique,
+html[data-theme="light"] .lab-workbook,
+html[data-theme="light"] .lab-transfer,
+html[data-theme="light"] .lab-finish {
+  background: var(--lx-surface) !important;
+  color: var(--lx-text) !important;
+  border-color: var(--lx-border) !important;
+}
+
+html[data-theme="light"] .model-card {
+  background: #e8e1d3 !important;
+  color: #20231d !important;
+}
+
+html[data-theme="light"] .option,
+html[data-theme="light"] .criterion,
+html[data-theme="light"] .lab-option,
+html[data-theme="light"] .lab-field textarea,
+html[data-theme="light"] .notes,
+html[data-theme="light"] textarea {
+  background: #fffdf8 !important;
+  color: #1c1e1a !important;
+  border-color: rgba(23, 24, 21, .22) !important;
+}
+
+html[data-theme="light"] .option:has(input:checked),
+html[data-theme="light"] .lab-option:has(input:checked) {
+  background: rgba(82, 104, 0, .08) !important;
+  color: #1c1e1a !important;
+  border-color: var(--lx-accent) !important;
+}
+
+html[data-theme="light"] .progress-track,
+html[data-theme="light"] .returning-progress-track,
+html[data-theme="light"] .module-learning-progress {
+  background: rgba(23, 24, 21, .12) !important;
+}
+
+/* Fresh learner: make the value proposition about practice, not content volume. */
+.lx-learning-promise {
+  margin-top: 86px;
+  padding: 38px 0 0;
+  border-top: 1px solid var(--lx-border);
+}
+
+.lx-section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr);
+  gap: 32px 64px;
+  align-items: end;
+}
+
+.lx-section-head .eyebrow { grid-column: 1 / -1; margin-bottom: -10px; }
+.lx-section-head h2 { margin: 0; max-width: 760px; font-size: clamp(40px, 5vw, 76px); }
+.lx-section-head > p { margin: 0; color: var(--lx-text-2); font-size: 17px; line-height: 1.6; }
+
+.lx-loop-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 42px;
+  border-top: 1px solid var(--lx-border);
+  border-bottom: 1px solid var(--lx-border);
+}
+
+.lx-loop-grid article {
+  min-height: 190px;
+  padding: 20px 20px 24px 0;
+  border-right: 1px solid var(--lx-border);
+}
+.lx-loop-grid article + article { padding-left: 20px; }
+.lx-loop-grid article:last-child { border-right: 0; }
+.lx-loop-grid span { color: var(--lx-accent); font: 700 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.lx-loop-grid strong { display: block; margin-top: 48px; font-size: 21px; }
+.lx-loop-grid p { margin: 8px 0 0; color: var(--lx-text-2); line-height: 1.5; font-size: 14px; }
+
+.lx-company-strip,
+.lx-transfer-head {
+  display: grid;
+  grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr);
+  gap: 26px 40px;
+  align-items: center;
+  margin-top: 28px;
+  padding: 24px;
+  border: 1px solid var(--lx-border);
+  background: var(--lx-surface);
+}
+.lx-company-strip p,
+.lx-transfer-head p { margin: 5px 0 0; color: var(--lx-text-2); line-height: 1.5; }
+
+.lx-company-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.lx-company-choice {
+  min-height: 68px;
+  padding: 11px 12px;
+  border: 1px solid var(--lx-border);
+  background: transparent;
+  color: var(--lx-text);
+  text-align: left;
+  cursor: pointer;
+}
+.lx-company-choice strong,
+.lx-company-choice span { display: block; }
+.lx-company-choice strong { font-size: 12px; }
+.lx-company-choice span { margin-top: 5px; color: var(--lx-muted); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.lx-company-choice.selected { border-color: var(--lx-accent); box-shadow: inset 0 -3px 0 var(--lx-accent); }
+.lx-company-choice:disabled { cursor: default; opacity: .72; }
+
+/* Returning learner cockpit. */
+.lx-returning-home > .hero,
+.lx-returning-home > .section,
+.lx-returning-home > .returning-home { display: none !important; }
+
+.lx-cockpit { padding: 10px 0 70px; }
+.lx-cockpit-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, .55fr);
+  gap: clamp(34px, 6vw, 92px);
+  align-items: end;
+  padding-bottom: 54px;
+  border-bottom: 1px solid var(--lx-border);
+}
+.lx-cockpit-main h1 { max-width: 960px; margin: 18px 0 22px; font-size: clamp(58px, 8vw, 118px); }
+.lx-course-position { color: var(--lx-muted); font: 700 10px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .07em; text-transform: uppercase; }
+.lx-cockpit-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+
+.lx-mission-card {
+  padding: 24px;
+  border: 1px solid var(--lx-border);
+  background: var(--lx-surface);
+}
+.lx-mission-card h2 { margin: 12px 0 16px; font-size: clamp(30px, 3vw, 46px); }
+.lx-mission-card p:not(.eyebrow) { color: var(--lx-text-2); line-height: 1.55; }
+.lx-mission-card .button { margin-top: 18px; }
+
+.lx-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(220px, .5fr));
+  border-bottom: 1px solid var(--lx-border);
+}
+.lx-dashboard-panel {
+  min-height: 250px;
+  padding: 28px 26px;
+  border-right: 1px solid var(--lx-border);
+}
+.lx-dashboard-panel:first-child { padding-left: 0; }
+.lx-dashboard-panel:last-child { border-right: 0; }
+.lx-dashboard-panel h2 { margin: 8px 0 12px; font-size: 31px; }
+.lx-dashboard-panel > p:not(.eyebrow) { color: var(--lx-text-2); line-height: 1.55; }
+.lx-dashboard-panel > a { display: inline-block; margin-top: 20px; color: var(--lx-text); font-weight: 700; text-decoration: none; }
+.lx-dashboard-panel > a:hover { color: var(--lx-accent); }
+
+.lx-skills { min-width: 0; }
+.lx-panel-head { display: flex; justify-content: space-between; gap: 20px; align-items: end; }
+.lx-panel-head small { max-width: 260px; color: var(--lx-muted); line-height: 1.45; }
+.lx-mastery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 24px; background: var(--lx-border); border: 1px solid var(--lx-border); }
+.lx-mastery-card { min-height: 158px; padding: 18px; background: var(--lx-bg); }
+.lx-mastery-card h3 { margin: 22px 0 7px; font-size: 16px; }
+.lx-mastery-card p { margin: 0; color: var(--lx-text-2); font-size: 12px; line-height: 1.45; }
+.lx-mastery-card small { display: block; margin-top: 16px; color: var(--lx-muted); font: 700 9px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+.lx-mastery-pips { display: flex; gap: 6px; }
+.lx-mastery-pips span { width: 30px; height: 4px; background: color-mix(in srgb, var(--lx-text) 12%, transparent); }
+.lx-mastery-pips span.filled { background: var(--lx-accent); }
+
+.lx-journal-list { display: grid; gap: 1px; margin-top: 16px; background: var(--lx-border); }
+.lx-journal-list a { display: grid; gap: 5px; padding: 11px 12px; background: var(--lx-bg); color: inherit; text-decoration: none; }
+.lx-journal-list a:hover { background: var(--lx-surface); }
+.lx-journal-list strong { font-size: 11px; }
+.lx-journal-list span { color: var(--lx-muted); font-size: 11px; line-height: 1.4; }
+
+/* Lesson loop and guided transfer. */
+.lx-lesson-flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: -20px 0 44px;
+  border-top: 1px solid var(--lx-border);
+  border-bottom: 1px solid var(--lx-border);
+}
+.lx-lesson-flow span { display: flex; flex-direction: column; gap: 6px; padding: 13px 12px; border-right: 1px solid var(--lx-border); color: var(--lx-text-2); font-size: 11px; }
+.lx-lesson-flow span:last-child { border-right: 0; }
+.lx-lesson-flow b { color: var(--lx-accent); font: 700 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.lx-transfer-practice,
+.lx-legacy-context {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--lx-border);
+}
+.lx-transfer-practice > ol { margin: 18px 0 0; padding-left: 22px; }
+.lx-transfer-practice > ol li { margin: 8px 0; line-height: 1.5; }
+.lx-case-card {
+  margin-top: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--lx-border);
+  background: color-mix(in srgb, var(--lx-accent) 5%, var(--lx-surface));
+}
+.lx-case-card span { color: var(--lx-accent); font: 700 10px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+.lx-case-card p { margin: 10px 0 0 !important; color: var(--lx-text) !important; line-height: 1.6; }
+
+.lx-mission-badge { display: grid; gap: 3px; margin-top: 14px; padding-left: 12px; border-left: 2px solid var(--lx-accent); }
+.lx-mission-badge strong { color: var(--lx-text); font-size: 11px; }
+.lx-mission-badge span { color: var(--lx-muted); font-size: 10px; }
+
+/* Simulation company context: framing only; base evidence and meter mechanics stay unchanged. */
+.lx-sim-context {
+  display: grid;
+  grid-template-columns: minmax(240px, .8fr) minmax(380px, 1.2fr);
+  gap: 18px 28px;
+  align-items: center;
+  margin: 0 0 22px;
+  padding: 18px 20px;
+  border: 1px solid var(--lx-border);
+  background: var(--lx-surface);
+  color: var(--lx-text);
+}
+.lx-sim-context h3 { margin: 0 0 7px; color: var(--lx-text); }
+.lx-sim-context p:not(.eyebrow) { margin: 0; color: var(--lx-text-2); line-height: 1.45; }
+.lx-sim-context > small { grid-column: 1 / -1; color: var(--lx-muted); line-height: 1.4; }
+.lx-context-lens { margin-top: 18px; padding: 14px 16px; border-left: 3px solid var(--lx-accent); background: color-mix(in srgb, var(--lx-accent) 6%, transparent); }
+.lx-context-lens strong { display: block; color: #07121d !important; }
+.lx-context-lens p { margin: 6px 0 0 !important; color: #24323b !important; line-height: 1.5; }
+
+@media (max-width: 1050px) {
+  .lx-loop-grid { grid-template-columns: repeat(2, 1fr); }
+  .lx-loop-grid article:nth-child(2) { border-right: 0; }
+  .lx-loop-grid article:nth-child(-n+2) { border-bottom: 1px solid var(--lx-border); }
+  .lx-cockpit-top { grid-template-columns: 1fr; }
+  .lx-dashboard-grid { grid-template-columns: 1fr 1fr; }
+  .lx-skills { grid-column: 1 / -1; padding-left: 0; border-bottom: 1px solid var(--lx-border); }
+  .lx-sim-context { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .lx-section-head,
+  .lx-company-strip,
+  .lx-transfer-head { grid-template-columns: 1fr; }
+  .lx-company-choices { grid-template-columns: 1fr; }
+  .lx-company-choice { min-height: 54px; }
+  .lx-loop-grid { grid-template-columns: 1fr; }
+  .lx-loop-grid article,
+  .lx-loop-grid article:nth-child(2) { padding: 16px 0 20px; border-right: 0; border-bottom: 1px solid var(--lx-border); }
+  .lx-loop-grid article:last-child { border-bottom: 0; }
+  .lx-loop-grid strong { margin-top: 20px; }
+  .lx-dashboard-grid { grid-template-columns: 1fr; }
+  .lx-dashboard-panel,
+  .lx-dashboard-panel:first-child { padding: 24px 0; border-right: 0; border-bottom: 1px solid var(--lx-border); }
+  .lx-dashboard-panel:last-child { border-bottom: 0; }
+  .lx-mastery-grid { grid-template-columns: 1fr; }
+  .lx-panel-head { display: block; }
+  .lx-panel-head small { display: block; margin-top: 8px; }
+  .lx-lesson-flow { grid-template-columns: repeat(3, 1fr); }
+  .lx-lesson-flow span:nth-child(3) { border-right: 0; }
+  .lx-lesson-flow span:nth-child(-n+3) { border-bottom: 1px solid var(--lx-border); }
+  .lx-sim-context { padding: 16px; }
+}
