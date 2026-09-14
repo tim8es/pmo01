@@ -8,17 +8,21 @@ function read(path) {
 }
 
 const index = read('index.html');
+const simulator = read('simulator.html');
 const labSource = read('course-learning-labs-v6.js');
 const masterySource = read('mastery-domain-v6.js');
 const practiceSource = read('module-practice-v6.js');
 const experienceSource = read('course-experience-v6.js');
 const experienceCss = read('course-experience-v6.css');
+const themeSource = read('theme-runtime-v6.js');
 
 function loadCourseWithV6() {
   const context = { window: {} };
   for (const file of [
     'course-data.js',
     'content-overrides.js',
+    'm01-validation-data.js',
+    'm01-learning-lab-data.js',
     'm02-learning-lab-data-v5.js',
     'practice-scenarios-v2.js',
     'practice-reference-v3.js',
@@ -31,6 +35,7 @@ function loadCourseWithV6() {
 
 test('v6 is the single presentation layer in the main course runtime', () => {
   for (const asset of [
+    'theme-runtime-v6.js',
     'course-learning-labs-v6.js',
     'mastery-domain-v6.js',
     'module-practice-v6.js',
@@ -39,6 +44,8 @@ test('v6 is the single presentation layer in the main course runtime', () => {
   ]) assert.match(index, new RegExp(asset.replaceAll('.', '\\.')));
 
   for (const retired of [
+    'ux-enhancements.js',
+    'ux-enhancements.css',
     'learning-experience-v2.js',
     'guided-practice-v2.js',
     'course-clarity-v3.js',
@@ -50,6 +57,9 @@ test('v6 is the single presentation layer in the main course runtime', () => {
     'm02-challenge-v5.css',
   ]) assert.doesNotMatch(index, new RegExp(retired.replaceAll('.', '\\.')), `${retired} must be retired from runtime`);
 
+  assert.match(simulator, /theme-runtime-v6\.js/);
+  assert.match(simulator, /course-experience-v6\.js/);
+  assert.doesNotMatch(simulator, /learning-experience-v2|ux-enhancements/);
   assert.ok(index.indexOf('practice-reference-v3.js') < index.indexOf('course-learning-labs-v6.js'));
   assert.ok(index.indexOf('course-learning-labs-v6.js') < index.indexOf('app.js'));
   assert.ok(index.indexOf('mastery-domain-v6.js') < index.indexOf('course-experience-v6.js'));
@@ -90,11 +100,13 @@ test('mastery v6 covers the full curriculum and never awards application from ra
 
 test('every module from M02 to M10 has a deterministic final practice with one strongest option per decision', () => {
   assert.ok(practiceSource, 'module-practice-v6.js must exist');
-  const context = { window: {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} }, document: { querySelector() { return null; } }, location: { hash: '' } };
+  const context = { window: {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} }, document: { querySelector() { return null; }, readyState: 'complete' }, location: { hash: '' }, requestAnimationFrame() {} };
   context.window.localStorage = context.localStorage;
   context.window.document = context.document;
   context.window.location = context.location;
   context.window.addEventListener = () => {};
+  context.window.scrollTo = () => {};
+  context.window.requestAnimationFrame = context.requestAnimationFrame;
   vm.runInNewContext(practiceSource, context, { filename: 'module-practice-v6.js' });
   const api = context.window.PM01ModulePracticeV6;
   assert.ok(api);
@@ -125,8 +137,15 @@ test('v6 home, path and lesson UX expose one coherent learning loop and evidence
   assert.match(experienceCss, /prefers-reduced-motion/);
 });
 
+test('theme runtime is isolated from course navigation and remains persistent', () => {
+  assert.match(themeSource, /pm01-theme-v1/);
+  assert.match(themeSource, /prefers-color-scheme: light/);
+  assert.match(themeSource, /root\.dataset\.theme/);
+  assert.doesNotMatch(themeSource, /returning-home|module-learning-meta|courseState|lastLesson/);
+});
+
 test('v6 remains local-only and keeps the pinned M01 treatment untouched', () => {
-  const combined = labSource + masterySource + practiceSource + experienceSource;
+  const combined = labSource + masterySource + practiceSource + experienceSource + themeSource;
   assert.equal(/\bfetch\s*\(|XMLHttpRequest|sendBeacon\s*\(|WebSocket\s*\(/.test(combined), false);
   const simulatorData = read('m01-simulator-data.js');
   assert.match(simulatorData, /m01-mission-partner-launch-v1/);
