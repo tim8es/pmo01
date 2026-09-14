@@ -8,6 +8,7 @@ function read(path) {
 }
 
 const html = read('index.html');
+const simulatorHtml = read('simulator.html');
 const experience = read('learning-experience-v2.js');
 const clarity = read('course-clarity-v3.js');
 const simulatorApp = read('m01-simulator-app.js');
@@ -65,7 +66,8 @@ test('all four simulator decisions define an instructional debrief without chang
 });
 
 test('final case briefing and review explain learning value instead of validation mechanics', () => {
-  assert.match(simulatorApp, /Итоговый кейс M01/);
+  assert.match(simulatorHtml, /Итоговый кейс M01/);
+  assert.match(simulatorApp, /M01 · Итоговый кейс/);
   assert.match(simulatorApp, /Что проверяет кейс/);
   assert.match(simulatorApp, /Эталонный ход/);
   assert.match(simulatorApp, /Почему это сильнее/);
