@@ -106,7 +106,7 @@
     }
 
     if (m02Progress.complete && !m02ChallengeComplete()) {
-      return { kind: 'm02-challenge', module: m02, title: 'Итоговый challenge M02', href: '#/challenge/m02', action: 'Доказать навыки M02 →' };
+      return { kind: 'm02-challenge', module: m02, title: 'Итоговая практика M02', href: '#/challenge/m02', action: 'Перейти к итоговой практике →' };
     }
 
     const all = lessons();
@@ -138,15 +138,15 @@
     if (step?.kind === 'm02-challenge') {
       return skillId === 'uncertainty'
         ? 'Выбери неизвестное по цене ошибки и близости необратимого решения.'
-        : 'Свяжи output с изменением поведения и проверь слабейшую причинную связь.';
+        : 'Свяжи результат разработки с изменением поведения и проверь слабейшую причинную связь.';
     }
     if (step?.kind === 'm01-case') return 'Пройди четыре решения M01 и открой финальный разбор траектории.';
     return window.PM01MasteryV5?.nextEvidence?.(skillId, derived) || 'Заверши практику текущего урока.';
   }
 
   function currentLead(step) {
-    if (step.kind === 'm01-case') return 'Собери навыки M01 в одном запуске: диагностируй механизм, зафиксируй решение и пересмотри модель при новом evidence.';
-    if (step.kind === 'm02-challenge') return 'Два решения без общего балла: отдельно докажи, что умеешь проверять цепочку ценности и приоритизировать неизвестность до commitment.';
+    if (step.kind === 'm01-case') return 'Собери навыки M01 в одном запуске: диагностируй механизм, зафиксируй решение и пересмотри модель при новом доказательстве.';
+    if (step.kind === 'm02-challenge') return 'Два решения без общего балла: отдельно докажи, что умеешь проверять цепочку ценности и выбирать неизвестность для проверки до дорогого обязательства.';
     return step.lesson?.learningLab?.mission || step.lesson?.thesis || step.module?.outcome || '';
   }
 
@@ -196,7 +196,7 @@
 
     const skillId = stepSkill(step, derived);
     const skill = derived.skills?.[skillId] || { name: skillId, label: 'Не встречал', level: 0, question: '' };
-    const supporting = step.kind === 'm02-challenge' ? 'В challenge связаны два навыка: Ценность + Неопределённость.' : skill.question;
+    const supporting = step.kind === 'm02-challenge' ? 'В итоговой практике связаны два навыка: Ценность + Неопределённость.' : skill.question;
 
     const home = document.createElement('section');
     home.className = 'lx-course-home skill-first-home-v5';
@@ -216,7 +216,7 @@
           <div class="sf-next-evidence"><small>Следующее доказательство</small><strong>${escapeHtml(nextEvidence(skillId, derived, step))}</strong></div>
         </aside>
       </div>
-      <section class="sf-map-section"><div class="sf-section-head"><div><p class="eyebrow">Карта навыков</p><h2>Не сколько страниц пройдено, а что уже доказано</h2></div><p>Уровень растёт только от decision evidence, рабочего артефакта и итоговой практики.</p></div>${skillMapMarkup(derived)}</section>`;
+      <section class="sf-map-section"><div class="sf-section-head"><div><p class="eyebrow">Карта навыков</p><h2>Не сколько страниц пройдено, а что уже доказано</h2></div><p>Уровень растёт только от решений, рабочего артефакта и итоговой практики.</p></div>${skillMapMarkup(derived)}</section>`;
     page.insertBefore(home, page.firstChild);
   }
 
@@ -273,7 +273,7 @@
     const label = done ? 'Доказательство получено' : ready ? 'Готов к прохождению' : 'После 2/2 уроков';
     const card = document.createElement('div');
     card.className = 'sf-m02-challenge-step';
-    card.innerHTML = `<span>3 · Итоговый challenge M02</span><strong>${escapeHtml(label)}</strong><small>Ценность + неопределённость в одном launch-case.</small>${ready || done ? `<a href="#/challenge/m02">${done ? 'Повторить challenge' : 'Доказать навыки'} →</a>` : ''}`;
+    card.innerHTML = `<span>3 · Итоговая практика M02</span><strong>${escapeHtml(label)}</strong><small>Ценность + неопределённость в одном кейсе запуска.</small>${ready || done ? `<a href="#/challenge/m02">${done ? 'Повторить итоговую практику' : 'Доказать навыки'} →</a>` : ''}`;
     (row.querySelector('div') || row).appendChild(card);
   }
 
