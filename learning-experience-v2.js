@@ -4,6 +4,8 @@
   const COURSE_STATE_KEY = 'pm01-state-v1';
   const SIM_STATE_KEY = 'pm01-sim-m01-v1';
   const COMPANY_KEY = 'pm01-company-context-v1';
+  const FINAL_CASE_TREATMENT_ID = 'm01-mission-partner-launch-v1';
+  const FINAL_CASE_VERSION = 1;
 
   const COMPANY_PROFILES = {
     small: {
@@ -65,12 +67,8 @@
 
   function simulationComplete() {
     const sim = simState();
-    return Boolean(
-      sim?.completedAt ||
-      sim?.reviewReachedAt ||
-      sim?.run?.completedAt ||
-      (Array.isArray(sim?.run?.decisions) && sim.run.decisions.length >= 4)
-    );
+    const validTreatment = sim?.treatmentId === FINAL_CASE_TREATMENT_ID && sim?.missionVersion === FINAL_CASE_VERSION;
+    return Boolean(validTreatment && (sim?.reviewReachedAt || sim?.completedAt));
   }
 
   function currentCompanyId() {
@@ -379,6 +377,7 @@
   }
 
   function refreshDynamicCompanyContent() {
+    document.querySelector('.lx-learning-promise')?.remove();
     document.querySelectorAll('.lx-company-choices').forEach((node) => node.remove());
     document.querySelectorAll('.lx-sim-context, .lx-context-lens').forEach((node) => node.remove());
     document.querySelectorAll('.lx-transfer-practice, .lx-legacy-context').forEach((node) => node.remove());
