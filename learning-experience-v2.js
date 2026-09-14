@@ -210,8 +210,6 @@
 
     const model = nextLessonModel(state);
     if (!model) return;
-    const old = page.querySelector('.returning-home');
-    if (old) old.remove();
     page.classList.add('lx-returning-home');
     if (page.querySelector('.lx-cockpit')) return;
 
@@ -254,7 +252,6 @@
     if (!match) return;
     const page = document.querySelector('#main .lesson-layout');
     if (!page) return;
-    const article = page.querySelector('article');
     const header = page.querySelector('.lesson-header');
     if (header && !page.querySelector('.lx-lesson-flow')) {
       const rail = document.createElement('nav');
