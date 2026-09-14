@@ -158,7 +158,7 @@ test('M01 company context locks after the first decision and context surfaces ca
   assert.match(experienceSource, /run\?\.decisions/);
   assert.match(experienceSource, /disabled aria-disabled="true"/);
   assert.match(experienceSource, /function invalidateCompanySurfaces\(\)/);
-  assert.match(experienceSource, /data-decision-id/);
+  assert.match(experienceSource, /dataset\.decisionId/);
   assert.match(experienceSource, /Контекст зафиксирован после первого решения/);
 });
 
