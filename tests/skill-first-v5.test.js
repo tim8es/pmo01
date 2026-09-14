@@ -9,10 +9,10 @@ function read(path) {
 
 const index = read('index.html');
 const app = read('app.js');
-const experience = read('learning-experience-v2.js');
 const masterySource = read('mastery-domain-v5.js');
 const m02LabSource = read('m02-learning-lab-data-v5.js');
 const challengeSource = read('m02-challenge-v5.js');
+const skillUiSource = read('skill-first-ui-v5.js');
 
 function loadCourse(extraSource = '') {
   const context = { window: {} };
@@ -37,8 +37,10 @@ test('v5 assets load in dependency order without becoming global navigation dest
   assert.match(index, /mastery-domain-v5\.js/);
   assert.match(index, /m02-learning-lab-data-v5\.js/);
   assert.match(index, /m02-challenge-v5\.js/);
-  assert.ok(index.indexOf('mastery-domain-v5.js') < index.indexOf('learning-experience-v2.js'));
+  assert.match(index, /skill-first-ui-v5\.js/);
   assert.ok(index.indexOf('m02-learning-lab-data-v5.js') < index.indexOf('app.js'));
+  assert.ok(index.indexOf('mastery-domain-v5.js') < index.indexOf('skill-first-ui-v5.js'));
+  assert.ok(index.indexOf('m02-challenge-v5.js') < index.indexOf('skill-first-ui-v5.js'));
 
   const mainNav = index.match(/<nav class="main-nav">([\s\S]*?)<\/nav>/)?.[1] || '';
   assert.doesNotMatch(mainNav, /challenge\/m02|Итоговый challenge M02/);
@@ -77,8 +79,8 @@ test('M02 lessons use the canonical Learning Lab contract with mission terms dec
     assert.ok(lesson.learningLab.workbookFields.filter(field => field.required !== false).length >= 6, `${id} needs substantial workbook evidence`);
   }
 
-  assert.match(app, /lab\.mission/);
-  assert.match(app, /lab\.terms/);
+  assert.match(skillUiSource, /learningLab\.mission/);
+  assert.match(skillUiSource, /learningLab\.terms/);
   assert.match(app, /lesson\.learningLab \? labReady\(lesson\)\.ready/);
 });
 
@@ -86,11 +88,12 @@ test('M02 challenge completion and proof are deterministic and skill-specific', 
   assert.ok(challengeSource, 'm02-challenge-v5.js must exist');
   const localStorage = fakeStorage();
   const document = { querySelector() { return null; } };
+  const location = { hash: '' };
   const context = {
-    window: { localStorage, document, location: { hash: '' }, addEventListener() {} },
+    window: { localStorage, document, location, addEventListener() {} },
     localStorage,
     document,
-    location: { hash: '' },
+    location,
     addEventListener() {},
     setTimeout,
     clearTimeout,
@@ -106,19 +109,21 @@ test('M02 challenge completion and proof are deterministic and skill-specific', 
   assert.ok(localStorage._data.has('pm01-m02-challenge-v5'));
 });
 
-test('returning home makes skill and next evidence more prominent than completion percentage', () => {
-  assert.match(experience, /PM01MasteryV5/);
-  assert.match(experience, /Навык сейчас/);
-  assert.match(experience, /Следующее доказательство/);
-  assert.match(experience, /Карта навыков/);
+test('skill-first home makes current skill and next evidence prominent', () => {
+  assert.ok(skillUiSource, 'skill-first-ui-v5.js must exist');
+  assert.match(skillUiSource, /PM01MasteryV5/);
+  assert.match(skillUiSource, /PM01M02ChallengeV5/);
+  assert.match(skillUiSource, /Навык сейчас/);
+  assert.match(skillUiSource, /Следующее доказательство/);
+  assert.match(skillUiSource, /Карта навыков/);
   for (const id of ['value', 'work', 'information', 'decisions', 'dependencies', 'uncertainty', 'feedback']) {
-    assert.match(experience, new RegExp(`data-skill=["']?\\$\\{?[^\\n]*${id}|${id}`), `missing skill ${id}`);
+    assert.match(skillUiSource, new RegExp(id), `missing skill ${id}`);
   }
-  assert.doesNotMatch(experience, /XP|streak|leaderboard|монет|коин/i);
+  assert.doesNotMatch(skillUiSource, /XP|streak|leaderboard|монет|коин/i);
 });
 
 test('v5 remains local-only and does not change M01 treatment identifiers', () => {
-  const combined = masterySource + m02LabSource + challengeSource + experience;
+  const combined = masterySource + m02LabSource + challengeSource + skillUiSource;
   assert.equal(/\bfetch\s*\(|XMLHttpRequest|sendBeacon\s*\(|WebSocket\s*\(/.test(combined), false);
   const simulatorData = read('m01-simulator-data.js');
   assert.match(simulatorData, /m01-mission-partner-launch-v1/);
