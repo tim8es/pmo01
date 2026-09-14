@@ -99,17 +99,17 @@ test('reference solution UI is optional, explicit and adapts to company context'
   assert.equal(/\bfetch\s*\(|XMLHttpRequest|sendBeacon\s*\(/.test(clarity), false);
 });
 
-test('simulation status cannot be confused with module completion', () => {
-  const clarity = read('course-clarity-v3.js');
+test('final case completion stays separate from M01 lesson completion', () => {
+  const experience = read('learning-experience-v2.js');
   const html = read('index.html');
   const simulator = read('simulator.html');
-  assert.ok(clarity.includes('moduleComplete'));
-  assert.ok(clarity.includes('simulationComplete'));
-  assert.ok(clarity.includes('Симуляция пройдена · модуль ещё не завершён'));
-  assert.ok(clarity.includes('Симуляция — отдельный практический тренажёр'));
-  assert.ok(clarity.includes('Проверено в симуляции'));
-  assert.ok(html.includes('Симуляция M01'));
-  assert.equal(html.includes('>Миссия M01</a>'), false);
-  assert.ok(simulator.includes('Практическая симуляция M01'));
+  assert.ok(experience.includes('function simulationComplete()'));
+  assert.ok(experience.includes('function moduleProgress('));
+  assert.ok(experience.includes('m01Progress.complete && !caseComplete'));
+  assert.ok(experience.includes('Доступен после 2/2 уроков'));
+  assert.ok(experience.includes('Готов к прохождению'));
+  assert.ok(experience.includes('Итоговый кейс M01'));
+  assert.equal((html.match(/simulator\.html#\/mission\/m01/g) || []).length, 0, 'final case must not be a global-nav destination');
+  assert.ok(simulator.includes('Итоговый кейс M01'));
   assert.equal(simulator.includes('M01 MISSION'), false);
 });
