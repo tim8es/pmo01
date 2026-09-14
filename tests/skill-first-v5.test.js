@@ -67,6 +67,38 @@ test('mastery domain derives levels from evidence rather than page visits or raw
   assert.equal(rawCompletedOnly.skills.value.level, 0, 'raw completion must not award application mastery without lab evidence');
 });
 
+test('M02 application evidence reaches Применил and proof promotes only the matching skill', () => {
+  const context = { window: {} };
+  vm.runInNewContext(read('course-data.js'), context);
+  vm.runInNewContext(m02LabSource, context);
+  vm.runInNewContext(masterySource, context);
+  const modules = context.window.PM01.modules;
+  const api = context.window.PM01MasteryV5;
+  const m02Lessons = modules.find(module => module.id === 'm02').lessons;
+  const courseState = { completed: m02Lessons.map(lesson => lesson.id), lab: {} };
+
+  for (const lesson of m02Lessons) {
+    courseState.lab[lesson.id] = {
+      drillAnswers: Object.fromEntries(lesson.learningLab.drills.map(drill => [drill.id, drill.options[0].id])),
+      workbook: Object.fromEntries(lesson.learningLab.workbookFields.map(field => [field.id, 'evidence'])),
+    };
+  }
+
+  const applied = api.derive({ courseState, challengeState: {}, modules });
+  assert.equal(applied.skills.value.level, 2);
+  assert.equal(applied.skills.value.label, 'Применил');
+  assert.equal(applied.skills.uncertainty.level, 2);
+
+  const partialProof = api.derive({
+    courseState,
+    challengeState: { decisions: { 'value-chain': 'strong-value', 'assumption-priority': 'weak-assumption' } },
+    modules,
+  });
+  assert.equal(partialProof.skills.value.level, 3);
+  assert.equal(partialProof.skills.value.label, 'Доказал');
+  assert.equal(partialProof.skills.uncertainty.level, 2, 'weak challenge decision must not grant proof to uncertainty');
+});
+
 test('M02 lessons use the canonical Learning Lab contract with mission terms decisions and workbook evidence', () => {
   assert.ok(m02LabSource, 'm02-learning-lab-data-v5.js must exist');
   const course = loadCourse(m02LabSource);
