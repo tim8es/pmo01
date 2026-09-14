@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0a0a0a" />
     <meta
       name="description"
-      content="Практический курс по управлению проектами: один понятный путь, короткая теория и практика на реальных задачах."
+      content="Практический курс по управлению проектами: решения, последствия, симуляции и перенос навыков на реальную работу."
     />
     <title>PM 0.1 — Практика управления проектами</title>
     <script src="ux-enhancements.js"></script>
@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="m01-simulator.css" />
     <link rel="stylesheet" href="art-direction.css" />
     <link rel="stylesheet" href="ux-enhancements.css" />
+    <link rel="stylesheet" href="learning-experience-v2.css" />
   </head>
   <body>
     <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -27,12 +28,12 @@
         <nav class="main-nav">
           <a href="#/" data-route="home"><span>01</span>Главная</a>
           <a href="#/course" data-route="course"><span>02</span>Учебный путь</a>
-          <a href="simulator.html#/mission/m01" data-route="mission"><span>03</span>Симулятор M01</a>
+          <a href="simulator.html#/mission/m01" data-route="mission" aria-label="Симулятор M01 · Миссия M01"><span>03</span>Миссия M01</a>
           <a href="#/diagnostic" data-route="diagnostic"><span>04</span>Самопроверка</a>
-          <a href="#/toolkit" data-route="toolkit"><span>05</span>Шаблоны</a>
+          <a href="#/toolkit" data-route="toolkit"><span>05</span>Инструменты</a>
         </nav>
         <div class="sidebar-progress" id="sidebar-progress"></div>
-        <p class="sidebar-note">Один путь.<br />Практика в каждом уроке.</p>
+        <p class="sidebar-note">Решение → последствия → разбор → перенос.</p>
       </aside>
 
       <div class="mobile-header">
@@ -41,7 +42,7 @@
       </div>
       <nav class="mobile-nav" id="mobile-nav" aria-label="Мобильная навигация">
         <a href="#/">Главная</a><a href="#/course">Учебный путь</a>
-        <a href="simulator.html#/mission/m01">Симулятор M01</a><a href="#/diagnostic">Самопроверка</a><a href="#/toolkit">Шаблоны</a>
+        <a href="simulator.html#/mission/m01" aria-label="Симулятор M01 · Миссия M01">Миссия M01</a><a href="#/diagnostic">Самопроверка</a><a href="#/toolkit">Инструменты</a>
       </nav>
 
       <main id="main" tabindex="-1"></main>
@@ -60,5 +61,6 @@
     <script src="m01-simulator-routing.js"></script>
     <script src="m01-validation-simulator-gate.js"></script>
     <script src="m01-validation-app.js"></script>
+    <script src="learning-experience-v2.js"></script>
   </body>
 </html>
