@@ -26,9 +26,10 @@ test('dedicated simulator entrypoint bypasses legacy app router and loads simula
 
 test('desktop and mobile navigation point to dedicated simulator entrypoint', () => {
   const html = read('index.html');
-  const missionLinks = html.match(/href="simulator\.html#\/mission\/m01"/g) || [];
-  assert.ok(missionLinks.length >= 2, 'expected dedicated mission links in desktop and mobile navigation');
-  assert.match(html, /Симулятор M01/);
+  const simulationLinks = html.match(/href="simulator\.html#\/mission\/m01"/g) || [];
+  assert.ok(simulationLinks.length >= 2, 'expected dedicated simulation links in desktop and mobile navigation');
+  assert.match(html, /Симуляция M01/);
+  assert.doesNotMatch(html, />Миссия M01<\/a>/);
 });
 
 test('M01 routing adapter sends course and validation entries to dedicated simulator entrypoint', () => {
