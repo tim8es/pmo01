@@ -1,0 +1,259 @@
+.skill-first-home-v5 {
+  display: grid;
+  gap: 28px;
+}
+
+.sf-home-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, .8fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.sf-mission,
+.sf-skill-focus,
+.sf-map-section,
+.sf-lab-context,
+.sf-m02-challenge-step {
+  border: 1px solid var(--lx-border);
+  border-radius: 14px;
+  background: var(--lx-surface);
+  color: var(--lx-text);
+}
+
+.sf-mission {
+  padding: 30px;
+}
+
+.sf-course-meta {
+  margin-bottom: 14px;
+  color: var(--lx-muted);
+  font: 500 12px "IBM Plex Mono", monospace;
+}
+
+.sf-mission h1 {
+  margin-bottom: 14px;
+  font-size: clamp(34px, 4.6vw, 62px);
+}
+
+.sf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.sf-skill-focus {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.sf-skill-focus > p:not(.eyebrow) {
+  color: var(--lx-text-2);
+  line-height: 1.55;
+}
+
+.sf-skill-state {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--lx-border);
+}
+
+.sf-skill-state strong {
+  font-size: 24px;
+}
+
+.sf-skill-state span {
+  color: var(--lx-accent);
+  font: 600 12px "IBM Plex Mono", monospace;
+}
+
+.sf-next-evidence {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--lx-surface-2);
+}
+
+.sf-next-evidence small {
+  color: var(--lx-muted);
+  font: 600 10px "IBM Plex Mono", monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.sf-next-evidence strong {
+  line-height: 1.45;
+}
+
+.sf-map-section {
+  padding: 24px;
+}
+
+.sf-section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+}
+
+.sf-section-head > p {
+  max-width: 470px;
+  margin-bottom: 0;
+  color: var(--lx-muted);
+  line-height: 1.5;
+}
+
+.sf-skill-map {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sf-skill-item {
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--lx-border);
+  border-radius: 10px;
+  background: var(--lx-surface-2);
+}
+
+.sf-skill-item span {
+  color: var(--lx-text-2);
+  font-size: 13px;
+}
+
+.sf-skill-item strong {
+  color: var(--lx-muted);
+  font: 600 10px/1.3 "IBM Plex Mono", monospace;
+}
+
+.sf-skill-item.level-1 strong,
+.sf-skill-item.level-2 strong,
+.sf-skill-item.level-3 strong {
+  color: var(--lx-accent);
+}
+
+.sf-skill-item.level-3 {
+  border-color: color-mix(in srgb, var(--lx-accent) 55%, var(--lx-border));
+}
+
+.sf-sidebar-evidence {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  color: var(--lx-muted);
+  font: 500 11px "IBM Plex Mono", monospace;
+}
+
+.sf-lab-context {
+  margin: 0 0 18px;
+  overflow: hidden;
+}
+
+.sf-lab-mission,
+.sf-lab-terms {
+  padding: 20px 22px;
+}
+
+.sf-lab-mission {
+  border-bottom: 1px solid var(--lx-border);
+}
+
+.sf-lab-mission > p:last-child {
+  margin-bottom: 0;
+  color: var(--lx-text-2);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.sf-lab-terms dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.sf-lab-terms dl > div {
+  padding: 13px 14px;
+  border-radius: 9px;
+  background: var(--lx-surface-2);
+}
+
+.sf-lab-terms dt {
+  margin-bottom: 5px;
+  color: var(--lx-text);
+  font-weight: 800;
+}
+
+.sf-lab-terms dd {
+  margin: 0;
+  color: var(--lx-text-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sf-m02-challenge-step {
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 12px 14px;
+}
+
+.sf-m02-challenge-step > span,
+.sf-m02-challenge-step > small {
+  color: var(--lx-muted);
+  font-size: 11px;
+}
+
+.sf-m02-challenge-step > strong {
+  font-size: 13px;
+}
+
+.sf-m02-challenge-step a {
+  width: max-content;
+  margin-top: 3px;
+  color: var(--lx-accent);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 1050px) {
+  .sf-skill-map {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .sf-home-main,
+  .sf-lab-terms dl {
+    grid-template-columns: 1fr;
+  }
+
+  .sf-section-head {
+    display: grid;
+  }
+
+  .sf-skill-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sf-mission,
+  .sf-skill-focus,
+  .sf-map-section {
+    padding: 18px;
+  }
+}
