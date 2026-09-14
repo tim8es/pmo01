@@ -48,6 +48,20 @@ test('M01 learning path frames the final case as step three of the module', () =
   assert.doesNotMatch(clarity, /Практическая симуляция · M01/);
 });
 
+test('final case is completed only after final review is reached', () => {
+  const body = experience.match(/function simulationComplete\(\) \{([\s\S]*?)\n  \}/)?.[1] || '';
+  assert.match(body, /reviewReachedAt/);
+  assert.match(body, /completedAt/);
+  assert.doesNotMatch(body, /decisions\.length/);
+  assert.match(experience, /m01-mission-partner-launch-v1/);
+});
+
+test('changing company context can rebuild the fresh-home selector', () => {
+  const body = experience.match(/function refreshDynamicCompanyContent\(\) \{([\s\S]*?)\n  \}/)?.[1] || '';
+  assert.match(body, /lx-learning-promise/);
+  assert.match(body, /remove\(\)/);
+});
+
 test('all four simulator decisions define an instructional debrief without changing treatment identity', () => {
   const context = { window: {} };
   vm.runInNewContext(simulatorData, context);
