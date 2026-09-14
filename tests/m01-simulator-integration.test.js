@@ -24,21 +24,25 @@ test('dedicated simulator entrypoint bypasses legacy app router and loads simula
   assert.ok(data >= 0 && domain > data && app > domain);
 });
 
-test('desktop and mobile navigation point to dedicated simulator entrypoint', () => {
+test('global navigation does not promote the M01 final case as a top-level destination', () => {
   const html = read('index.html');
-  const simulationLinks = html.match(/href="simulator\.html#\/mission\/m01"/g) || [];
-  assert.ok(simulationLinks.length >= 2, 'expected dedicated simulation links in desktop and mobile navigation');
-  assert.match(html, /Симуляция M01/);
-  assert.doesNotMatch(html, />Миссия M01<\/a>/);
+  const experience = read('learning-experience-v2.js');
+  const globalLinks = html.match(/href="simulator\.html#\/mission\/m01"/g) || [];
+  assert.equal(globalLinks.length, 0);
+  assert.doesNotMatch(html.match(/<nav class="main-nav">([\s\S]*?)<\/nav>/)?.[1] || '', /Итоговый кейс|Симуляц|Мисси/);
+  assert.match(experience, /simulator\.html#\/mission\/m01/);
+  assert.match(experience, /Итоговый кейс M01/);
 });
 
-test('M01 routing adapter sends course and validation entries to dedicated simulator entrypoint', () => {
+test('M01 routing adapter preserves normal lessons and rewrites only the validation treatment entry', () => {
   const routing = read('m01-simulator-routing.js');
   assert.match(routing, /simulator\.html#\/mission\/m01/);
+  assert.match(routing, /validation\/m01/);
   assert.match(routing, /project-system/);
   assert.match(routing, /system-diagnostic/);
-  assert.match(routing, /Открыть симулятор/);
+  assert.match(routing, /Открыть итоговый кейс/);
   assert.match(routing, /7–10 минут/);
+  assert.doesNotMatch(routing, /rewriteCourseEntries/);
 });
 
 test('simulator app owns mission route, isolated storage, semantic choices and focusable progression', () => {
