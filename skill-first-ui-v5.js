@@ -34,6 +34,10 @@
     try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch (_) { return fallback; }
   }
 
+  function writeJson(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; }
+  }
+
   function courseState() {
     const raw = readJson(COURSE_KEY, {});
     return {
@@ -249,17 +253,40 @@
     return moduleProgress(m02, state).complete;
   }
 
+  function m02LessonReadyForCompletion(lesson, rawState) {
+    const evidence = window.PM01MasteryV5?.labEvidence?.(lesson, rawState);
+    return Boolean(
+      evidence
+      && evidence.requiredDrills > 0
+      && evidence.answeredDrills === evidence.requiredDrills
+      && evidence.requiredFields > 0
+      && evidence.completedFields === evidence.requiredFields
+    );
+  }
+
   function enhanceM02CompletionFlow() {
     const lesson = currentLesson();
     if (lesson?.id !== 'assumption-map') return;
     const button = document.querySelector('#complete-lesson');
     if (!button || button.dataset.sfM02Bound === '1') return;
     button.dataset.sfM02Bound = '1';
-    button.addEventListener('click', () => {
-      setTimeout(() => {
-        if (m02Ready() && !m02ChallengeComplete()) location.hash = '#/challenge/m02';
-      }, 0);
-    });
+    button.addEventListener('click', (event) => {
+      const raw = readJson(COURSE_KEY, {});
+      if (!m02LessonReadyForCompletion(lesson, raw)) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      raw.completed = Array.isArray(raw.completed) ? raw.completed : [];
+      if (!raw.completed.includes(lesson.id)) raw.completed = [...raw.completed, lesson.id];
+      raw.notes = raw.notes && typeof raw.notes === 'object' ? raw.notes : {};
+      raw.notes[lesson.id] = document.querySelector('#lesson-notes')?.value || raw.notes[lesson.id] || '';
+      raw.lastLesson = lesson.id;
+      if (!writeJson(COURSE_KEY, raw)) return;
+
+      const derived = mastery(courseState());
+      enhanceSidebar(derived);
+      location.hash = '#/challenge/m02';
+    }, { capture: true });
   }
 
   function enhanceCoursePath() {
