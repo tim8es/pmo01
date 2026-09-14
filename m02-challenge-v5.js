@@ -8,37 +8,37 @@
 
   const CHALLENGE = {
     title: 'Запуск AI-отчётности: доказать ценность до ставки',
-    premise: 'B2B-команда через шесть недель запускает AI-assisted отчётность. Dashboard почти готов, Sales уже обещает снижение ручной работы, но никто не проверил изменение рабочего поведения. Одновременно остаются неизвестными willingness-to-pay, стоимость модели на реальном объёме и нагрузка поддержки.',
+    premise: 'B2B-команда через шесть недель запускает функцию AI-отчётности. Панель почти готова, отдел продаж уже обещает снижение ручной работы, но никто не проверил, изменится ли рабочее поведение пользователей. Одновременно неизвестны готовность платить, стоимость модели на реальном объёме и нагрузка на поддержку.',
     decisions: [
       {
         id: 'value-chain',
         skillId: 'value',
         lessonId: 'outcome-tree',
         lessonLabel: 'M02.1 · Outcome до output',
-        title: 'D1 · Что проверять до расширения scope?',
-        prompt: 'У команды есть две недели свободной capacity до freeze. Какой первый ход лучше всего уменьшит риск выпустить убедительный output без полезного outcome?',
+        title: 'D1 · Что проверять до расширения объёма?',
+        prompt: 'У команды есть две недели свободной мощности до фиксации объёма. Какой первый ход лучше всего уменьшит риск выпустить убедительный результат разработки без полезного эффекта?',
         strongOptionId: 'strong-value',
         options: [
-          { id: 'ship-more', label: 'Использовать capacity, чтобы добавить ещё два типа AI-отчётов.', grade: 'weak', feedback: 'Ты усиливаешь output до проверки механизма ценности. Если пользовательское поведение не изменится, стоимость ошибки только вырастет.' },
-          { id: 'ask-kpi', label: 'Зафиксировать KPI “минус 30% ручного времени” и продолжить delivery.', grade: 'partial', feedback: 'KPI делает обещание измеримым, но не доказывает причинную связь между dashboard и реальным изменением workflow.' },
-          { id: 'strong-value', label: 'Восстановить цепь feature → новая способность → изменение поведения → бизнес-эффект и проверить слабейшую связь на реальных пользователях.', grade: 'strong', feedback: 'Ты проверяешь механизм ценности до следующего крупного commitment: не “нравится ли dashboard”, а меняет ли сигнал реальное решение и трудозатраты.' },
-          { id: 'wait-release', label: 'Довести текущий scope до релиза и измерять outcome только после запуска.', grade: 'weak', feedback: 'Это откладывает главное обучение до момента, когда продуктовая и коммерческая ставка уже дороже в изменении.' },
+          { id: 'ship-more', label: 'Использовать свободную мощность, чтобы добавить ещё два типа AI-отчётов.', grade: 'weak', feedback: 'Ты увеличиваешь объём разработки до проверки механизма ценности. Если пользовательское поведение не изменится, цена ошибки только вырастет.' },
+          { id: 'ask-kpi', label: 'Зафиксировать KPI «минус 30% ручного времени» и продолжить разработку.', grade: 'partial', feedback: 'KPI делает обещание измеримым, но сам по себе не доказывает, почему новая функция должна изменить этот показатель.' },
+          { id: 'strong-value', label: 'Восстановить цепь функция → новая способность → изменение поведения → бизнес-эффект и проверить слабейшую связь на реальных пользователях.', grade: 'strong', feedback: 'Ты проверяешь механизм ценности до следующего дорогого обязательства: не «нравится ли панель», а меняет ли она реальное решение и трудозатраты.' },
+          { id: 'wait-release', label: 'Довести текущий объём до релиза и измерять эффект только после запуска.', grade: 'weak', feedback: 'Это откладывает главное обучение до момента, когда продуктовая и коммерческая ставка уже дороже в изменении.' },
         ],
-        principle: 'Output получает ценность только через проверяемую причинную цепочку до поведения и эффекта.',
+        principle: 'Результат разработки получает ценность только через проверяемую причинную цепочку до поведения и эффекта.',
       },
       {
         id: 'assumption-priority',
         skillId: 'uncertainty',
         lessonId: 'assumption-map',
         lessonLabel: 'M02.2 · Карта допущений',
-        title: 'D2 · Какое неизвестное покупать первым?',
-        prompt: 'Через десять дней Sales хочет объявить цену и дату запуска. Как определить, какое неизвестное проверить первым?',
+        title: 'D2 · Какое неизвестное проверять первым?',
+        prompt: 'Через десять дней отдел продаж хочет объявить цену и дату запуска. Как определить, какое неизвестное проверить первым?',
         strongOptionId: 'strong-assumption',
         options: [
-          { id: 'all-in-parallel', label: 'Параллельно исследовать цену, model cost и support load одинаково глубоко.', grade: 'partial', feedback: 'Параллельность выглядит безопасно, но размазывает ограниченное время и не связывает исследование с ценой конкретной ошибки.' },
-          { id: 'weak-assumption', label: 'Начать с model cost: его проще всего точно посчитать.', grade: 'weak', feedback: 'Простота проверки не делает неизвестное приоритетным. Можно идеально измерить дешёвую ошибку и пропустить дорогую ставку.' },
-          { id: 'strong-assumption', label: 'Ранжировать допущения по низкой уверенности × цене ошибки × близости необратимости и купить минимальное evidence для верхнего риска до публичного обещания.', grade: 'strong', feedback: 'Ты покупаешь информацию там, где она способна изменить дорогое решение до того, как обещание станет трудно откатить.' },
-          { id: 'add-buffer', label: 'Добавить две недели к дате и оставить проверки на период после анонса.', grade: 'weak', feedback: 'Буфер защищает срок от вариативности, но не делает ложное ценностное или коммерческое допущение менее ложным.' },
+          { id: 'all-in-parallel', label: 'Параллельно исследовать цену, стоимость модели и нагрузку на поддержку одинаково глубоко.', grade: 'partial', feedback: 'Параллельность выглядит безопасно, но размазывает ограниченное время и не связывает исследование с ценой конкретной ошибки.' },
+          { id: 'weak-assumption', label: 'Начать со стоимости модели: её проще всего точно посчитать.', grade: 'weak', feedback: 'Простота проверки не делает неизвестное приоритетным. Можно идеально измерить дешёвую ошибку и пропустить дорогую ставку.' },
+          { id: 'strong-assumption', label: 'Ранжировать допущения по низкой уверенности × цене ошибки × близости необратимости и получить минимально достаточное доказательство для верхнего риска до публичного обещания.', grade: 'strong', feedback: 'Ты получаешь информацию там, где она способна изменить дорогое решение до того, как обещание станет трудно откатить.' },
+          { id: 'add-buffer', label: 'Добавить две недели к дате и оставить проверки на период после анонса.', grade: 'weak', feedback: 'Запас времени защищает срок от вариативности, но не делает ложное ценностное или коммерческое допущение менее ложным.' },
         ],
         principle: 'Проверяй неизвестность не по удобству, а по ожидаемой цене неправильного необратимого решения.',
       },
@@ -46,9 +46,9 @@
   };
 
   const CONTEXT_LENS = {
-    small: 'В малом бизнесе ошибка быстро бьёт по ограниченной capacity: не строй отдельный research-процесс, но не трать единственную команду на недоказанный scope.',
-    medium: 'В среднем бизнесе price, product, support и platform имеют разных владельцев: evidence должно прийти к конкретному decision owner до handoff.',
-    large: 'В крупном бизнесе публичное обещание, procurement и governance делают откат дороже: точку необратимости нужно назвать явно до формального commitment.',
+    small: 'В малом бизнесе ошибка быстро бьёт по ограниченной мощности: не строй отдельный исследовательский процесс, но и не трать единственную команду на недоказанный объём.',
+    medium: 'В среднем бизнесе цена, продукт, поддержка и платформа имеют разных владельцев: доказательство должно прийти к конкретному владельцу решения до передачи ответственности.',
+    large: 'В крупном бизнесе публичное обещание, закупки и согласования делают откат дороже: точку необратимости нужно назвать до формального обязательства.',
   };
 
   function readJson(key, fallback) {
@@ -157,7 +157,7 @@
   }
 
   function lockedView() {
-    return `<div class="page m02-challenge-v5"><section class="m02c-hero"><p class="eyebrow">M02 · Итоговый challenge</p><h1>Сначала докажи применение в двух уроках</h1><p class="lead">Challenge проверяет перенос двух навыков вместе, поэтому открывается после заполненного evidence в M02.1 и M02.2.</p><div class="m02c-actions"><a class="button primary" href="#/lesson/outcome-tree">M02.1 · Outcome до output</a><a class="button" href="#/lesson/assumption-map">M02.2 · Карта допущений</a></div></section></div>`;
+    return `<div class="page m02-challenge-v5"><section class="m02c-hero"><p class="eyebrow">M02 · Итоговая практика</p><h1>Сначала примени навыки в двух уроках</h1><p class="lead">Итоговая практика проверяет перенос двух навыков вместе, поэтому открывается после обязательных решений и рабочей карты в M02.1 и M02.2.</p><div class="m02c-actions"><a class="button primary" href="#/lesson/outcome-tree">M02.1 · Outcome до output</a><a class="button" href="#/lesson/assumption-map">M02.2 · Карта допущений</a></div></section></div>`;
   }
 
   function reviewView(state) {
@@ -174,13 +174,13 @@
       : `<p>${escapeHtml(empty)}</p>`;
 
     return `<div class="page m02-challenge-v5">
-      <header class="m02c-hero"><p class="eyebrow">M02 · Challenge завершён</p><h1>Что ты доказал решениями</h1><p class="lead">Здесь нет общего балла. Каждый навык получает уровень только по evidence конкретного решения.</p></header>
+      <header class="m02c-hero"><p class="eyebrow">M02 · Итоговая практика завершена</p><h1>Что подтверждают твои решения</h1><p class="lead">Здесь нет общего балла. Каждый навык получает уровень только по конкретным решениям и сохранённым доказательствам.</p></header>
       <div class="m02c-review-grid">
-        <section><p class="eyebrow">Что доказано</p><h2>${proven.length}/2 навыка</h2>${list(proven, 'Пока ни один навык не получил proof-level evidence. Это нормально: используй разбор как deliberate practice.')}</section>
+        <section><p class="eyebrow">Что доказано</p><h2>${proven.length}/2 навыка</h2>${list(proven, 'Пока ни один навык не получил уровень «Доказал». Используй разбор как тренировку и попробуй ещё раз.')}</section>
         <section><p class="eyebrow">Что усилить</p><h2>${improve.length ? 'Есть следующий шаг' : 'Оба навыка подтверждены'}</h2>${list(improve, 'Сильные решения по обоим навыкам подтверждены.')}</section>
       </div>
       <section class="m02c-path">${CHALLENGE.decisions.map((decision) => debrief(decision, state.decisions[decision.id])).join('')}</section>
-      <div class="m02c-actions"><a class="button primary" href="#/">Вернуться на главную →</a><a class="button" href="#/lesson/outcome-tree">Повторить M02.1</a><a class="button" href="#/lesson/assumption-map">Повторить M02.2</a><button class="button subtle" type="button" data-m02c-reset>Пройти challenge заново</button></div>
+      <div class="m02c-actions"><a class="button primary" href="#/">Вернуться на главную →</a><a class="button" href="#/lesson/outcome-tree">Повторить M02.1</a><a class="button" href="#/lesson/assumption-map">Повторить M02.2</a><button class="button subtle" type="button" data-m02c-reset>Пройти итоговую практику заново</button></div>
     </div>`;
   }
 
@@ -190,8 +190,8 @@
     const second = CHALLENGE.decisions[1];
     const firstDone = Boolean(state.decisions[first.id]);
     return `<div class="page m02-challenge-v5">
-      <header class="m02c-hero"><p class="eyebrow">M02 · Итоговый challenge</p><h1>${escapeHtml(CHALLENGE.title)}</h1><p class="lead">${escapeHtml(CHALLENGE.premise)}</p></header>
-      <section class="m02c-purpose"><div><span>01</span><strong>Ценность</strong><p>Отделить убедительный output от доказанного изменения поведения.</p></div><div><span>02</span><strong>Неопределённость</strong><p>Купить правильное evidence до дорогого commitment.</p></div></section>
+      <header class="m02c-hero"><p class="eyebrow">M02 · Итоговая практика</p><h1>${escapeHtml(CHALLENGE.title)}</h1><p class="lead">${escapeHtml(CHALLENGE.premise)}</p></header>
+      <section class="m02c-purpose"><div><span>01</span><strong>Ценность</strong><p>Отделить убедительный результат разработки от доказанного изменения поведения.</p></div><div><span>02</span><strong>Неопределённость</strong><p>Получить нужное доказательство до дорогого обязательства.</p></div></section>
       <aside class="m02c-lens"><strong>Линза масштаба.</strong> ${escapeHtml(CONTEXT_LENS[companyId] || CONTEXT_LENS.medium)}</aside>
       ${firstDone ? debrief(first, state.decisions[first.id]) : decisionForm(first, 0)}
       ${firstDone ? (state.decisions[second.id] ? debrief(second, state.decisions[second.id]) : decisionForm(second, 1)) : ''}
