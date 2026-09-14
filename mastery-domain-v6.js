@@ -96,8 +96,13 @@
   }
 
   function practiceProof(skills, practiceState, definitions) {
-    const modules = practiceState?.modules || practiceState || {};
-    Object.entries(modules).forEach(([moduleId, state]) => {
+    const moduleStates = practiceState?.modules || practiceState || {};
+    Object.entries(moduleStates).forEach(([moduleId, state]) => {
+      const historicalProof = state?.proof && typeof state.proof === 'object' ? state.proof : {};
+      Object.entries(historicalProof).forEach(([skillId, proved]) => {
+        if (proved) applyLevel(skills, skillId, 3, { type: 'proof-history', moduleId });
+      });
+
       if (!state?.completedAt) return;
       const definition = definitions?.[moduleId];
       if (!definition) return;
