@@ -36,23 +36,28 @@ test('company context supports small, medium and large business without mutating
   assert.ok(experience.includes('Средний бизнес'));
   assert.ok(experience.includes('Крупный бизнес'));
   assert.ok(experience.includes('pm01-company-context-v1'));
-  assert.ok(experience.includes('не влияет на базовые метрики миссии'));
+  assert.ok(experience.includes('не влияет на базовые метрики итогового кейса'));
   assert.ok(simulatorData.includes("id: 'm01-mission-partner-launch-v1'"));
   assert.ok(simulatorData.includes('version: 1'));
 });
 
-test('course now explains a decision-first learning loop and provides fallback practice context', () => {
+test('course explains a decision-first loop and gives a fallback practice context', () => {
   for (const label of ['Решение', 'Последствие', 'Разбор', 'Перенос']) assert.ok(experience.includes(label));
   assert.ok(experience.includes('Нет своего проекта? Используй учебный.'));
   assert.ok(experience.includes('Можно работать на своём проекте — или на готовом учебном.'));
-  assert.ok(experience.includes('Decision Journal'));
-  assert.ok(experience.includes('Project Map'));
+  assert.ok(experience.includes('Заметка к решению · необязательно'));
+  assert.ok(experience.includes('Итоговый кейс M01'));
 });
 
-test('mastery gamification is evidence-based rather than XP-based', () => {
-  assert.ok(experience.includes('Mastery · M01'));
-  assert.ok(experience.includes('Навыки, а не XP'));
-  assert.ok(experience.includes('run?.decisions'));
+test('returning home prioritizes one next learning action over mastery dashboards', () => {
+  assert.ok(experience.includes('lx-course-home'));
+  assert.ok(experience.includes('lx-course-roadmap'));
+  assert.ok(experience.includes('Что дальше'));
+  assert.ok(experience.includes('Продолжить обучение'));
+  assert.equal(experience.includes('Mastery · M01'), false);
+  assert.equal(experience.includes('Навыки, а не XP'), false);
+  assert.equal(experience.includes('class="lx-dashboard-grid"'), false);
+  assert.equal(experience.includes('class="lx-mission-card"'), false);
 });
 
 test('light theme has a semantic repair layer for legacy hard-coded surfaces', () => {
@@ -63,10 +68,11 @@ test('light theme has a semantic repair layer for legacy hard-coded surfaces', (
   assert.ok(styles.includes('html[data-theme="light"] textarea'));
 });
 
-test('M01 simulator keeps its existing runtime while learner-facing copy names it as a simulation', () => {
+test('M01 final case keeps existing runtime but is framed as part of the module', () => {
   const clarity = read('course-clarity-v3.js');
-  assert.ok(html.includes('Симуляция M01'));
-  assert.ok(simulatorHtml.includes('Практическая симуляция M01'));
-  assert.ok(simulatorHtml.includes('К учебному пути'));
-  assert.ok(clarity.includes('Симуляция — отдельный практический тренажёр'));
+  assert.equal(html.includes('Симуляция M01'), false);
+  assert.equal((html.match(/simulator\.html#\/mission\/m01/g) || []).length, 0);
+  assert.ok(simulatorHtml.includes('Итоговый кейс M01'));
+  assert.ok(simulatorHtml.includes('К M01'));
+  assert.ok(clarity.includes('Итоговый кейс M01'));
 });

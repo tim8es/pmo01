@@ -4,6 +4,8 @@
   const COURSE_STATE_KEY = 'pm01-state-v1';
   const SIM_STATE_KEY = 'pm01-sim-m01-v1';
   const COMPANY_KEY = 'pm01-company-context-v1';
+  const FINAL_CASE_TREATMENT_ID = 'm01-mission-partner-launch-v1';
+  const FINAL_CASE_VERSION = 1;
 
   const COMPANY_PROFILES = {
     small: {
@@ -63,6 +65,12 @@
 
   function simState() { return safeParse(SIM_STATE_KEY, null); }
 
+  function simulationComplete() {
+    const sim = simState();
+    const validTreatment = sim?.treatmentId === FINAL_CASE_TREATMENT_ID && sim?.missionVersion === FINAL_CASE_VERSION;
+    return Boolean(validTreatment && (sim?.reviewReachedAt || sim?.completedAt));
+  }
+
   function currentCompanyId() {
     try {
       const value = localStorage.getItem(COMPANY_KEY);
@@ -90,6 +98,21 @@
     return modules.flatMap((module) => module.lessons.map((lesson) => ({ ...lesson, moduleId: module.id, moduleTitle: module.title })));
   }
 
+  function lessonEvidenceReady(lesson, state) {
+    if (!lesson?.learningLab) return true;
+    const stored = state.lab?.[lesson.id] || {};
+    const drillAnswers = stored.drillAnswers || {};
+    const workbook = stored.workbook || {};
+    const requiredDrills = lesson.learningLab.drills.filter((drill) => drill.required !== false);
+    const requiredFields = lesson.learningLab.workbookFields.filter((field) => field.required !== false);
+    return requiredDrills.every((drill) => Boolean(drillAnswers[drill.id]))
+      && requiredFields.every((field) => String(workbook[field.id] || '').trim().length > 0);
+  }
+
+  function lessonComplete(lesson, state) {
+    return Boolean(lesson && state.completed.includes(lesson.id) && lessonEvidenceReady(lesson, state));
+  }
+
   function companyChoices(locked) {
     const selected = currentCompanyId();
     return `<div class="lx-company-choices" role="group" aria-label="Тип компании">${Object.values(COMPANY_PROFILES).map((profile) => `
@@ -110,73 +133,66 @@
     return Boolean(state.lastLesson || state.completed.length || Object.keys(state.notes || {}).length || Object.keys(state.lab || {}).length);
   }
 
-  function masteryModel(state) {
-    const sim = simState();
-    const decisions = sim?.run?.decisions || [];
-    const d1 = decisions.some((item) => item.decisionId === 'd1');
-    const d4 = decisions.find((item) => item.decisionId === 'd4');
-    const projectLab = state.lab?.['project-system'] || {};
-    const diagnosticLab = state.lab?.['system-diagnostic'] || {};
-    const hasProjectLab = Object.keys(projectLab.workbook || {}).some((key) => String(projectLab.workbook[key] || '').trim());
-    const hasDiagnosticLab = Object.keys(diagnosticLab.workbook || {}).some((key) => String(diagnosticLab.workbook[key] || '').trim());
-    return [
-      {
-        name: 'Системный диагноз',
-        level: d1 ? 3 : state.completed.includes('project-system') ? 2 : hasProjectLab ? 1 : 0,
-        detail: 'От симптома к проверяемому механизму'
-      },
-      {
-        name: 'Конкурирующие гипотезы',
-        level: d4 ? 3 : state.completed.includes('system-diagnostic') ? 2 : hasDiagnosticLab ? 1 : 0,
-        detail: 'Сравнивать объяснения по evidence'
-      },
-      {
-        name: 'Пересмотр решения',
-        level: d4?.rationale ? 3 : decisions.length >= 2 ? 2 : state.completed.includes('system-diagnostic') ? 1 : 0,
-        detail: 'Менять модель, когда меняются факты'
-      }
-    ];
+  function moduleProgress(module, state) {
+    const done = module.lessons.filter((lesson) => lessonComplete(lesson, state)).length;
+    return { done, total: module.lessons.length, complete: done === module.lessons.length };
   }
 
-  function masteryCard(skill) {
-    const labels = ['Не начато', 'Разобрано', 'Отработано', 'Проверено в миссии'];
-    return `<article class="lx-mastery-card">
-      <div class="lx-mastery-pips" aria-label="${escapeHtml(labels[skill.level])}">${[1,2,3].map((n) => `<span class="${n <= skill.level ? 'filled' : ''}"></span>`).join('')}</div>
-      <h3>${escapeHtml(skill.name)}</h3><p>${escapeHtml(skill.detail)}</p><small>${escapeHtml(labels[skill.level])}</small>
-    </article>`;
-  }
-
-  function journalEntries(state) {
+  function nextUnfinishedLesson(state, afterLessonId) {
     const all = lessons();
-    return Object.entries(state.notes || {})
-      .filter(([, value]) => String(value || '').trim())
-      .map(([id, value]) => ({ lesson: all.find((item) => item.id === id), value: String(value).trim() }))
-      .filter((entry) => entry.lesson)
-      .slice(-3).reverse();
+    const start = afterLessonId ? Math.max(0, all.findIndex((lesson) => lesson.id === afterLessonId) + 1) : 0;
+    return all.slice(start).find((lesson) => !lessonComplete(lesson, state))
+      || all.find((lesson) => !lessonComplete(lesson, state))
+      || all.at(-1);
   }
 
-  function projectMapProgress(state) {
-    const labs = ['project-system', 'system-diagnostic'];
-    let completed = 0; let total = 0;
-    labs.forEach((id) => {
-      const workbook = state.lab?.[id]?.workbook || {};
-      const lesson = lessons().find((item) => item.id === id);
-      const fields = lesson?.learningLab?.workbookFields || [];
-      total += fields.length;
-      completed += fields.filter((field) => String(workbook[field.id] || '').trim()).length;
-    });
-    return { completed, total };
-  }
+  function learningStep(state) {
+    const modules = window.PM01?.modules || [];
+    const m01 = modules.find((module) => module.id === 'm01');
+    const m01Progress = m01 ? moduleProgress(m01, state) : { done: 0, total: 0, complete: false };
+    const caseComplete = simulationComplete();
 
-  function nextLessonModel(state) {
+    if (m01 && m01Progress.complete && !caseComplete) {
+      return { kind: 'final-case', module: m01, m01Progress, caseComplete };
+    }
+
     const all = lessons();
-    if (!all.length) return null;
-    const done = new Set(state.completed);
-    const last = state.lastLesson ? all.find((item) => item.id === state.lastLesson) : null;
-    const next = last && !done.has(last.id) ? last : all.find((item) => !done.has(item.id)) || all.at(-1);
-    const module = window.PM01.modules.find((item) => item.id === next.moduleId);
-    const index = all.findIndex((item) => item.id === next.id);
-    return { next, module, index, all, done };
+    const last = state.lastLesson ? all.find((lesson) => lesson.id === state.lastLesson) : null;
+    const next = last && !lessonComplete(last, state) ? last : nextUnfinishedLesson(state);
+    const module = modules.find((item) => item.id === next?.moduleId) || modules.at(-1);
+    return { kind: 'lesson', lesson: next, module, m01Progress, caseComplete };
+  }
+
+  function afterCurrent(step, state) {
+    if (step.kind === 'final-case') {
+      const next = nextUnfinishedLesson(state, 'system-diagnostic');
+      return next && next.moduleId !== 'm01'
+        ? { title: next.title, meta: `${next.moduleTitle} · ${next.minutes || ''} мин` }
+        : { title: 'Следующий модуль', meta: 'После разбора итогового кейса' };
+    }
+
+    const module = step.module;
+    const index = module?.lessons?.findIndex((lesson) => lesson.id === step.lesson?.id) ?? -1;
+    const nextInModule = index >= 0 ? module.lessons[index + 1] : null;
+    if (nextInModule && !lessonComplete(nextInModule, state)) {
+      return { title: nextInModule.title, meta: `${module.title} · следующий урок` };
+    }
+    if (module?.id === 'm01' && moduleProgress(module, state).done + (lessonComplete(step.lesson, state) ? 0 : 1) >= module.lessons.length) {
+      return { title: 'Итоговый кейс M01', meta: 'Применить оба навыка · 7–10 минут' };
+    }
+    const next = nextUnfinishedLesson(state, step.lesson?.id);
+    return next && next.id !== step.lesson?.id
+      ? { title: next.title, meta: `${next.moduleTitle} · ${next.minutes || ''} мин` }
+      : { title: 'Следующий шаг откроется после урока', meta: 'Сохрани evidence практики' };
+  }
+
+  function roadmap(state) {
+    const modules = window.PM01?.modules || [];
+    return `<div class="path-note" aria-label="Прогресс по модулям"><strong>Учебный путь</strong>${modules.map((module, index) => {
+      const progress = moduleProgress(module, state);
+      const marker = progress.complete ? '✓' : `${progress.done}/${progress.total}`;
+      return `<span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(module.title)} · ${marker}</span>`;
+    }).join('')}</div>`;
   }
 
   function enhanceHome() {
@@ -193,14 +209,14 @@
       const promise = document.createElement('section');
       promise.className = 'lx-learning-promise';
       promise.innerHTML = `
-        <div class="lx-section-head"><p class="eyebrow">Как устроено обучение</p><h2>Не читать про PM. Тренировать решения.</h2><p>Каждый сильный урок начинается с ситуации, в которой нужно выбрать ход до объяснения теории. Затем ты видишь последствия, разбираешь модель и пробуешь ещё раз.</p></div>
+        <div class="lx-section-head"><p class="eyebrow">Как устроено обучение</p><h2>Не читать про PM. Тренировать решения.</h2><p>Урок даёт ситуацию, попытку, разбор и рабочую технику. В конце модуля — итоговый кейс, где нужно применить несколько навыков вместе.</p></div>
         <div class="lx-loop-grid">
           <article><span>01</span><strong>Решение</strong><p>Сначала выбери действие на реалистичном кейсе.</p></article>
           <article><span>02</span><strong>Последствие</strong><p>Увидь trade-off и то, что твой ход изменил в системе.</p></article>
-          <article><span>03</span><strong>Разбор</strong><p>Сравни гипотезы и получи модель, а не “правильный ответ”.</p></article>
-          <article><span>04</span><strong>Перенос</strong><p>Применяй навык на своём проекте или готовом учебном контексте.</p></article>
+          <article><span>03</span><strong>Разбор</strong><p>Сверь мышление с сильным вариантом и моделью.</p></article>
+          <article><span>04</span><strong>Перенос</strong><p>Примени навык к своему проекту или готовому контексту.</p></article>
         </div>
-        <div class="lx-company-strip"><div><strong>Нет подходящего рабочего проекта?</strong><p>Выбери масштаб компании — упражнения и симуляции дадут готовый контекст.</p></div>${companyChoices(false)}</div>`;
+        <div class="lx-company-strip"><div><strong>Нет подходящего рабочего проекта?</strong><p>Выбери масштаб компании — упражнения и итоговый кейс дадут готовый контекст.</p></div>${companyChoices(false)}</div>`;
       hero.insertAdjacentElement('afterend', promise);
       const nextCard = page.querySelector('.next-card');
       if (nextCard) promise.insertAdjacentElement('afterend', nextCard);
@@ -208,43 +224,49 @@
       return;
     }
 
-    const model = nextLessonModel(state);
-    if (!model) return;
     page.classList.add('lx-returning-home');
-    if (page.querySelector('.lx-cockpit')) return;
+    if (page.querySelector('.lx-course-home')) return;
 
-    const progress = Math.round((state.completed.filter((id) => model.all.some((lesson) => lesson.id === id)).length / model.all.length) * 100);
-    const moduleDone = model.module.lessons.filter((lesson) => state.completed.includes(lesson.id)).length;
-    const mastery = masteryModel(state);
-    const journal = journalEntries(state);
-    const projectMap = projectMapProgress(state);
-    const company = currentCompany();
-    const sim = simState();
-    const simComplete = Boolean(sim?.completedAt || sim?.reviewReachedAt || sim?.run?.decisions?.length >= 4);
+    const step = learningStep(state);
+    if (!step?.module) return;
+    const all = lessons();
+    const completedLessons = all.filter((lesson) => lessonComplete(lesson, state)).length;
+    const overallProgress = all.length ? Math.round((completedLessons / all.length) * 100) : 0;
+    const moduleIndex = window.PM01.modules.indexOf(step.module);
+    const moduleState = moduleProgress(step.module, state);
+    const next = afterCurrent(step, state);
 
-    const cockpit = document.createElement('section');
-    cockpit.className = 'lx-cockpit';
-    cockpit.innerHTML = `
-      <div class="lx-cockpit-top">
-        <div class="lx-cockpit-main">
-          <p class="eyebrow">Твоя следующая задача</p>
-          <div class="lx-course-position">Модуль ${String(window.PM01.modules.indexOf(model.module) + 1).padStart(2, '0')} · ${moduleDone}/${model.module.lessons.length} уроков · общий прогресс ${progress}%</div>
-          <h1>${escapeHtml(model.next.title)}</h1>
-          <p class="lead">${escapeHtml(model.next.thesis)}</p>
-          <div class="lx-cockpit-actions"><a class="button primary" href="#/lesson/${encodeURIComponent(model.next.id)}">Продолжить обучение →</a><a class="button subtle" href="#/course">Весь путь</a></div>
+    const title = step.kind === 'final-case' ? 'Итоговый кейс M01' : step.lesson.title;
+    const lead = step.kind === 'final-case'
+      ? 'Применить оба навыка M01 в одном запуске: найти механизм проблемы, сделать решение явным и пересмотреть диагноз при новом факте.'
+      : step.lesson.thesis;
+    const href = step.kind === 'final-case' ? 'simulator.html#/mission/m01' : `#/lesson/${encodeURIComponent(step.lesson.id)}`;
+    const action = step.kind === 'final-case' ? 'Начать итоговый кейс →' : 'Продолжить обучение →';
+
+    const home = document.createElement('section');
+    home.className = 'lx-course-home lx-cockpit';
+    home.innerHTML = `
+      <div class="returning-home-main">
+        <div class="returning-home-copy">
+          <p class="eyebrow">Продолжить обучение</p>
+          <p class="returning-context">Модуль ${String(moduleIndex + 1).padStart(2, '0')} из ${window.PM01.modules.length} · ${moduleState.done}/${moduleState.total} уроков · общий прогресс ${overallProgress}%</p>
+          <h1>${escapeHtml(title)}</h1>
+          <p class="lead">${escapeHtml(lead)}</p>
+          <div class="returning-actions"><a class="button primary" href="${href}">${action}</a><a class="button subtle" href="#/course">Учебный путь</a></div>
         </div>
-        <aside class="lx-mission-card">
-          <p class="eyebrow">Module Mission · M01</p><h2>${simComplete ? 'Миссия завершена' : 'Пять дней до запуска'}</h2>
-          <p>${escapeHtml(company.label)} · ${escapeHtml(company.summary)}</p>
-          <a class="button ${simComplete ? 'subtle' : 'primary'}" href="simulator.html#/mission/m01">${simComplete ? 'Повторить миссию' : 'Открыть миссию'} →</a>
+        <aside class="returning-progress" aria-label="Текущий модуль">
+          <strong>${moduleState.done}/${moduleState.total}</strong>
+          <span>уроков в модуле</span>
+          <div class="returning-progress-track" aria-hidden="true"><span style="width:${moduleState.total ? Math.round(moduleState.done / moduleState.total * 100) : 0}%"></span></div>
+          <p>${escapeHtml(step.module.outcome || step.module.title)}</p>
         </aside>
       </div>
-      <div class="lx-dashboard-grid">
-        <section class="lx-dashboard-panel lx-skills"><div class="lx-panel-head"><div><p class="eyebrow">Mastery · M01</p><h2>Навыки, а не XP</h2></div><small>Уровень растёт только когда есть evidence из упражнения или миссии.</small></div><div class="lx-mastery-grid">${mastery.map(masteryCard).join('')}</div></section>
-        <section class="lx-dashboard-panel"><p class="eyebrow">Project Map</p><h2>${projectMap.total ? `${projectMap.completed}/${projectMap.total}` : '0'} полей</h2><p>Структурированные ответы из практики. Это рабочая карта, а не конспект.</p><a href="#/lesson/project-system">Продолжить карту →</a></section>
-        <section class="lx-dashboard-panel"><p class="eyebrow">Decision Journal</p><h2>${journal.length ? `${journal.length} последних записи` : 'Пока пусто'}</h2>${journal.length ? `<div class="lx-journal-list">${journal.map((entry) => `<a href="#/lesson/${entry.lesson.id}"><strong>${escapeHtml(entry.lesson.title)}</strong><span>${escapeHtml(entry.value.slice(0, 92))}${entry.value.length > 92 ? '…' : ''}</span></a>`).join('')}</div>` : '<p>Не конспектируй всё. Сохраняй только решение, вывод или вопрос, к которому реально хочешь вернуться.</p>'}</section>
-      </div>`;
-    page.insertBefore(cockpit, page.firstChild);
+      <div class="returning-next-grid">
+        <div><span>Сейчас</span><strong>${escapeHtml(step.module.title)}</strong><small>${step.kind === 'final-case' ? '2/2 уроков завершено · финальная практика модуля' : `${moduleState.done}/${moduleState.total} уроков завершено`}</small></div>
+        <div><span>Что дальше</span><strong>${escapeHtml(next.title)}</strong><small>${escapeHtml(next.meta)}</small></div>
+      </div>
+      <section class="section lx-course-roadmap"><div class="section-heading"><div><p class="eyebrow">Карта курса</p><h2>10 модулей, один маршрут</h2></div><a class="button subtle" href="#/course">Открыть весь путь</a></div>${roadmap(state)}</section>`;
+    page.insertBefore(home, page.firstChild);
   }
 
   function enhanceM01Lesson() {
@@ -278,7 +300,7 @@
       const label = finish.querySelector('label[for="lesson-notes"] strong');
       const help = finish.querySelector('label[for="lesson-notes"] .field-help');
       const textarea = finish.querySelector('#lesson-notes');
-      if (label) label.textContent = 'Decision Journal · необязательно';
+      if (label) label.textContent = 'Заметка к решению · необязательно';
       if (help) help.textContent = 'Сохрани только решение, вывод или вопрос, к которому хочешь вернуться позже.';
       if (textarea) textarea.placeholder = 'Например: “В следующий раз сначала восстановлю timeline решения, а не добавлю буфер к сроку”.';
     }
@@ -298,19 +320,29 @@
 
     const label = practice.querySelector('label[for="lesson-notes"] strong');
     const help = practice.querySelector('label[for="lesson-notes"] .field-help');
-    if (label) label.textContent = 'Decision Journal · необязательно';
+    if (label) label.textContent = 'Заметка к решению · необязательно';
     if (help) help.textContent = 'Не пересказывай урок. Сохрани только то, что изменит следующее решение.';
   }
 
   function enhanceLearningPath() {
     if (!(location.hash || '').startsWith('#/course')) return;
     const firstRow = document.querySelector('#main .module-row');
-    if (!firstRow || firstRow.querySelector('.lx-mission-badge')) return;
+    if (!firstRow || firstRow.querySelector('.lx-final-case-step')) return;
     const target = firstRow.querySelector('h2')?.parentElement;
     if (!target) return;
+
+    const state = courseState();
+    const m01 = window.PM01?.modules?.find((module) => module.id === 'm01');
+    const progress = m01 ? moduleProgress(m01, state) : { done: 0, total: 2, complete: false };
+    const done = simulationComplete();
+    const status = done ? 'Пройден' : progress.complete ? 'Готов к прохождению' : 'Доступен после 2/2 уроков';
+    const action = progress.complete || done
+      ? `<a href="simulator.html#/mission/m01">${done ? 'Повторить кейс' : 'Открыть кейс'} →</a>`
+      : '';
+
     const badge = document.createElement('div');
-    badge.className = 'lx-mission-badge';
-    badge.innerHTML = '<strong>Финал блока: интерактивная миссия</strong><span>4 решения · последствия · разбор траектории</span>';
+    badge.className = 'lx-final-case-step lx-mission-badge';
+    badge.innerHTML = `<strong>3. Итоговый кейс M01 · ${status}</strong><span>Применить оба навыка в одном реалистичном запуске: 4 решения, последствия и разбор.</span>${action}`;
     target.appendChild(badge);
   }
 
@@ -327,7 +359,7 @@
     if (!host.querySelector('.lx-sim-context')) {
       const context = document.createElement('section');
       context.className = 'lx-sim-context';
-      context.innerHTML = `<div><p class="eyebrow">Контекст компании</p><h3>${escapeHtml(profile.label)} · ${escapeHtml(profile.scale)}</h3><p>${escapeHtml(profile.summary)}</p></div>${companyChoices(locked)}${locked ? '<small>Тип компании зафиксирован на время текущего run, чтобы контекст не менялся посреди решений.</small>' : '<small>Выбор меняет организационный контекст, но не скрытую “сложность” и не влияет на базовые метрики миссии.</small>'}`;
+      context.innerHTML = `<div><p class="eyebrow">Контекст компании</p><h3>${escapeHtml(profile.label)} · ${escapeHtml(profile.scale)}</h3><p>${escapeHtml(profile.summary)}</p></div>${companyChoices(locked)}${locked ? '<small>Тип компании зафиксирован на время текущего прохождения, чтобы контекст не менялся посреди решений.</small>' : '<small>Выбор меняет организационный контекст, но не скрытую “сложность” и не влияет на базовые метрики итогового кейса.</small>'}`;
       const header = host.querySelector('.sim-briefing, .sim-header');
       header?.insertAdjacentElement('afterend', context);
       bindCompanyChoices(context);
@@ -345,11 +377,10 @@
   }
 
   function refreshDynamicCompanyContent() {
+    document.querySelector('.lx-learning-promise')?.remove();
     document.querySelectorAll('.lx-company-choices').forEach((node) => node.remove());
     document.querySelectorAll('.lx-sim-context, .lx-context-lens').forEach((node) => node.remove());
     document.querySelectorAll('.lx-transfer-practice, .lx-legacy-context').forEach((node) => node.remove());
-    const cockpit = document.querySelector('.lx-cockpit');
-    if (cockpit) cockpit.remove();
     requestAnimationFrame(enhanceAll);
   }
 
