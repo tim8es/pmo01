@@ -7,12 +7,10 @@
     <base href="./index.html" />
     <title>PM 0.1 — Итоговый кейс M01</title>
     <meta name="description" content="Итоговый кейс M01: четыре управленческих решения, последствия и разбор мышления в контексте малого, среднего или крупного бизнеса." />
-    <script src="ux-enhancements.js"></script>
+    <script src="theme-runtime-v6.js"></script>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="art-direction.css" />
     <link rel="stylesheet" href="m01-simulator.css" />
-    <link rel="stylesheet" href="ux-enhancements.css" />
-    <link rel="stylesheet" href="learning-experience-v2.css" />
     <style>
       main { margin-left: 0 !important; }
       .sim-standalone-nav {
@@ -28,6 +26,7 @@
         background: rgba(10, 10, 10, .96);
         backdrop-filter: blur(10px);
       }
+      [data-theme="light"] .sim-standalone-nav { background: rgba(245, 241, 231, .96); }
       .sim-standalone-nav strong { color: var(--ink); }
       .sim-standalone-nav a { text-decoration: none; }
       .sim-standalone-nav .sim-back { color: var(--text-secondary, #c9c8c1); font-size: 13px; }
@@ -37,6 +36,7 @@
       }
     </style>
     <link rel="stylesheet" href="theme-contract-v3.css" />
+    <link rel="stylesheet" href="course-experience-v6.css" />
   </head>
   <body>
     <header class="sim-standalone-nav">
@@ -48,6 +48,6 @@
     <script src="m01-simulator-data.js"></script>
     <script src="m01-simulator-domain.js"></script>
     <script src="m01-simulator-app.js"></script>
-    <script src="learning-experience-v2.js"></script>
+    <script src="course-experience-v6.js"></script>
   </body>
 </html>
