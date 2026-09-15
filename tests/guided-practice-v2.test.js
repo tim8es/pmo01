@@ -17,21 +17,22 @@ function loadCourse() {
 }
 
 const html = read('index.html');
-const legacyUi = read('guided-practice-v2.js');
-const normalizer = read('course-learning-labs-v6.js');
+const ui = read('guided-practice-v2.js');
+const css = read('guided-practice-v2.css');
 
-test('guided practice survives as data and is normalized before the base app without loading legacy UI', () => {
+test('guided practice data loads after course data and before base app', () => {
   const courseIndex = html.indexOf('src="course-data.js"');
   const caseIndex = html.indexOf('src="practice-scenarios-v2.js"');
-  const normalizeIndex = html.indexOf('src="course-learning-labs-v6.js"');
   const appIndex = html.indexOf('src="app.js"');
+  const experienceIndex = html.indexOf('src="learning-experience-v2.js"');
+  const uiIndex = html.indexOf('src="guided-practice-v2.js"');
   assert.ok(courseIndex >= 0 && caseIndex > courseIndex);
-  assert.ok(normalizeIndex > caseIndex && normalizeIndex < appIndex);
-  assert.equal(html.includes('src="guided-practice-v2.js"'), false);
-  assert.equal(html.includes('href="guided-practice-v2.css"'), false);
+  assert.ok(caseIndex < appIndex);
+  assert.ok(uiIndex > experienceIndex);
+  assert.ok(html.includes('href="guided-practice-v2.css"'));
 });
 
-test('all 18 non-M01 lessons retain one specific guided decision case as source content', () => {
+test('all 18 non-M01 lessons receive one specific guided decision case', () => {
   const data = loadCourse();
   const lessons = data.modules.flatMap((module) => module.lessons.map((lesson) => ({ ...lesson, moduleId: module.id })));
   const legacy = lessons.filter((lesson) => lesson.moduleId !== 'm01');
@@ -61,7 +62,7 @@ test('every guided case uses four plausible options with one strongest option an
   }
 });
 
-test('M01 validated learning labs remain separate from guided-case source data', () => {
+test('M01 validated learning labs remain separate from legacy guided cases', () => {
   const data = loadCourse();
   const m01 = data.modules.find((module) => module.id === 'm01');
   assert.ok(m01);
@@ -70,16 +71,23 @@ test('M01 validated learning labs remain separate from guided-case source data',
   assert.equal(Object.hasOwn(data.guidedPracticeCases, 'system-diagnostic'), false);
 });
 
-test('v6 normalizer consumes guided choices as the canonical cold decision', () => {
-  assert.doesNotThrow(() => new Function(normalizer));
-  assert.match(normalizer, /lesson\.guidedPractice/);
-  assert.match(normalizer, /stage:\s*'cold'/);
-  assert.match(normalizer, /feedback:\s*option\.feedback/);
-  assert.match(normalizer, /score:\s*Number\(option\.score\)/);
+test('guided UI fixes first choice, shows immediate feedback and lets learner compare alternatives', () => {
+  assert.doesNotThrow(() => new Function(ui));
+  assert.ok(ui.includes('pm01-guided-practice-v2'));
+  assert.ok(ui.includes('Решение зафиксировано'));
+  assert.ok(ui.includes('Что здесь нужно заметить'));
+  assert.ok(ui.includes('Сравнить все четыре хода'));
+  assert.ok(ui.includes('Линза масштаба компании'));
+  assert.ok(ui.includes('optionId'));
+  assert.ok(ui.includes('answeredAt'));
 });
 
-test('retired guided UI remains local-only as historical compatibility code', () => {
-  assert.equal(/\bfetch\s*\(|XMLHttpRequest|sendBeacon\s*\(/.test(legacyUi), false);
-  assert.equal(legacyUi.includes('pm01-state-v1'), false);
-  assert.equal(html.includes('pm01-guided-practice-v2'), false);
+test('guided practice remains local-only and does not change completion or telemetry', () => {
+  assert.equal(/\bfetch\s*\(|XMLHttpRequest|sendBeacon\s*\(/.test(ui), false);
+  assert.equal(ui.includes('pm01-state-v1'), false, 'guided case must not mutate lesson completion state');
+  assert.equal(ui.includes('pm01-sim-m01-v1'), false, 'guided case must not mutate simulator evidence');
+  assert.ok(css.includes('.guided-practice-v2'));
+  assert.ok(css.includes('.gp-result'));
+  assert.ok(css.includes('.gp-alternatives'));
+  assert.ok(css.includes('@media (max-width: 720px)'));
 });

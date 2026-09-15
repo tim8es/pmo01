@@ -33,19 +33,18 @@ function lightToken(css, name) {
   return match[1];
 }
 
-test('v3 reference data and theme contract remain inputs to unified v6 without their legacy presentation layer', () => {
+test('v3 assets are loaded after legacy theme and learning layers', () => {
   const html = read('index.html');
   const simulator = read('simulator.html');
   assert.ok(html.includes('theme-contract-v3.css'));
   assert.ok(html.includes('practice-reference-v3.js'));
-  assert.ok(html.includes('course-learning-labs-v6.js'));
-  assert.equal(html.includes('course-clarity-v3.js'), false);
-  assert.equal(html.includes('guided-practice-v2.js'), false);
-  assert.ok(html.indexOf('practice-reference-v3.js') < html.indexOf('course-learning-labs-v6.js'));
-  assert.ok(html.indexOf('course-learning-labs-v6.js') < html.indexOf('app.js'));
+  assert.ok(html.includes('course-clarity-v3.js'));
+  assert.ok(html.indexOf('theme-contract-v3.css') > html.indexOf('guided-practice-v2.css'));
+  assert.ok(html.indexOf('practice-reference-v3.js') > html.indexOf('practice-scenarios-v2.js'));
+  assert.ok(html.indexOf('practice-reference-v3.js') < html.indexOf('app.js'));
+  assert.ok(html.indexOf('course-clarity-v3.js') > html.indexOf('guided-practice-v2.js'));
   assert.ok(simulator.includes('theme-contract-v3.css'));
-  assert.ok(simulator.includes('course-experience-v6.css'));
-  assert.equal(simulator.includes('learning-experience-v2.css'), false);
+  assert.ok(simulator.indexOf('theme-contract-v3.css') > simulator.indexOf('learning-experience-v2.css'));
 });
 
 test('light theme contract uses readable semantic tokens and repairs legacy surfaces', () => {
@@ -66,7 +65,7 @@ test('light theme contract uses readable semantic tokens and repairs legacy surf
   ]) assert.ok(css.includes(selector), `light contract does not cover ${selector}`);
 });
 
-test('every non-M01 lesson has a substantial reference solution reused by v6 learning labs', () => {
+test('every non-M01 lesson has a substantial reference solution for platform practice', () => {
   const context = { window: {} };
   vm.createContext(context);
   vm.runInContext(read('course-data.js'), context);
@@ -85,21 +84,30 @@ test('every non-M01 lesson has a substantial reference solution reused by v6 lea
     assert.ok(reference.steps.join(' ').length >= 180, `${lesson.id} reference solution is too thin`);
     assert.ok(reference.check.length >= 50, `${lesson.id} needs a concrete quality check`);
   }
-  const normalizer = read('course-learning-labs-v6.js');
-  assert.match(normalizer, /lesson\.referenceSolution/);
-  assert.match(normalizer, /workedExample/);
 });
 
-test('company context and final-case framing are owned by v6 while M01 completion remains separate', () => {
-  const experience = read('course-experience-v6.js');
+test('reference solution UI is optional, explicit and adapts to company context', () => {
+  const clarity = read('course-clarity-v3.js');
+  assert.doesNotThrow(() => new Function(clarity));
+  assert.ok(clarity.includes('Эталонный вариант решения'));
+  assert.ok(clarity.includes('Сначала попробуй сам'));
+  assert.ok(clarity.includes('data-reference-solution'));
+  assert.ok(clarity.includes('pm01-company-context-v1'));
+  assert.ok(clarity.includes('Малый бизнес'));
+  assert.ok(clarity.includes('Средний бизнес'));
+  assert.ok(clarity.includes('Крупный бизнес'));
+  assert.equal(/\bfetch\s*\(|XMLHttpRequest|sendBeacon\s*\(/.test(clarity), false);
+});
+
+test('final case completion stays separate from M01 lesson completion', () => {
+  const experience = read('learning-experience-v2.js');
   const html = read('index.html');
   const simulator = read('simulator.html');
-  assert.ok(experience.includes('pm01-company-context-v1'));
-  assert.ok(experience.includes('Малый бизнес'));
-  assert.ok(experience.includes('Средний бизнес'));
-  assert.ok(experience.includes('Крупный бизнес'));
-  assert.ok(experience.includes('function m01CaseComplete()'));
-  assert.ok(experience.includes("module.id === 'm01'"));
+  assert.ok(experience.includes('function simulationComplete()'));
+  assert.ok(experience.includes('function moduleProgress('));
+  assert.ok(experience.includes('m01Progress.complete && !caseComplete'));
+  assert.ok(experience.includes('Доступен после 2/2 уроков'));
+  assert.ok(experience.includes('Готов к прохождению'));
   assert.ok(experience.includes('Итоговый кейс M01'));
   assert.equal((html.match(/simulator\.html#\/mission\/m01/g) || []).length, 0, 'final case must not be a global-nav destination');
   assert.ok(simulator.includes('Итоговый кейс M01'));
