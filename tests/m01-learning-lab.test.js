@@ -3,31 +3,24 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+const app=fs.readFileSync(path.join(__dirname,'..','app.js'),'utf8');
+const index=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 
-test('base state remains backward compatible while adding isolated lab state', () => {
-  assert.equal(app.includes('lab: {}'), true, 'default state must include an empty lab object');
-  assert.equal(app.includes('pm01-state-v1'), true, 'existing storage key must remain unchanged');
+test('base state remains backward compatible while adding canonical lab and practice state', () => {
+  assert.ok(app.includes('lab: {}')); assert.ok(app.includes('practice: {}')); assert.ok(app.includes('pm01-state-v1'));
 });
 
-test('M01 lesson renderer exposes a decision-training sequence and workbook', () => {
-  assert.equal(app.includes('lesson.learningLab'), true, 'lesson renderer must branch on optional learningLab metadata');
-  assert.equal(app.includes('class="learning-lab"'), true, 'learning lab wrapper missing');
-  assert.equal(app.includes('data-lab-drill'), true, 'decision drill controls missing');
-  assert.equal(app.includes('class="lab-feedback"'), true, 'immediate feedback region missing');
-  assert.equal(app.includes('data-lab-field'), true, 'workbook persistence controls missing');
-  assert.equal(app.includes('class="lab-transfer"'), true, 'real-project transfer section missing');
+test('canonical lesson renderer exposes decision feedback workbook and transfer', () => {
+  for (const token of ['lesson.learningLab','class="learning-lab"','data-lab-drill','class="lab-feedback"','data-lab-field','class="lab-transfer"']) assert.ok(app.includes(token),token);
 });
 
-test('M01 completion uses substantive lab readiness while legacy lessons keep criteria gate', () => {
-  assert.equal(app.includes('function labReady'), true, 'lab readiness helper missing');
-  assert.equal(app.includes('requiredDrills'), true, 'lab readiness must account for required drills');
-  assert.equal(app.includes('requiredFields'), true, 'lab readiness must account for required workbook fields');
-  assert.equal(app.includes('data-criterion'), true, 'legacy criteria gate must remain available for M02-M10');
+test('all lessons use substantive lab readiness instead of legacy checkbox criteria', () => {
+  assert.ok(app.includes('function labReady')); assert.ok(app.includes('requiredDrills')); assert.ok(app.includes('requiredFields'));
+  assert.ok(app.includes('state.completed.includes(lesson.id) && labReady(lesson).ready'));
+  assert.equal(app.includes('data-criterion'),false);
+  assert.ok(index.includes('course-learning-labs-v7.js')); assert.ok(index.indexOf('course-learning-labs-v7.js') < index.indexOf('app.js'));
 });
 
-test('lab interactions persist drill answers and workbook values in the existing lesson state', () => {
-  assert.equal(app.includes('drillAnswers'), true, 'drill answers must be persisted');
-  assert.equal(app.includes('workbook'), true, 'workbook values must be persisted');
-  assert.equal(app.includes('updateLabCompletionGate'), true, 'lab completion gate must refresh after interaction');
+test('lab interactions persist drill answers and workbook values in existing course state', () => {
+  assert.ok(app.includes('drillAnswers')); assert.ok(app.includes('workbook')); assert.ok(app.includes('updateLabCompletionGate'));
 });
