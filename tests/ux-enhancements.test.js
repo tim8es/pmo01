@@ -3,48 +3,22 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-function read(name) {
-  return fs.readFileSync(path.join(__dirname, '..', name), 'utf8');
-}
+function read(name){ return fs.readFileSync(path.join(__dirname,'..',name),'utf8'); }
+const index=read('index.html'); const simulator=read('simulator.html'); const theme=read('theme-runtime-v7.js'); const css=read('canonical-runtime-v7.css'); const app=read('app.js');
 
-const indexHtml = read('index.html');
-const simulatorHtml = read('simulator.html');
-const uxJs = read('ux-enhancements.js');
-const uxCss = read('ux-enhancements.css');
-
-test('main course and standalone simulator load the shared UX theme layer', () => {
-  for (const html of [indexHtml, simulatorHtml]) {
-    assert.equal(html.includes('href="ux-enhancements.css"'), true, 'shared UX stylesheet missing');
-    assert.equal(html.includes('src="ux-enhancements.js"'), true, 'shared UX script missing');
-  }
+test('course and simulator share isolated v7 theme runtime, not UX overlay', () => {
+  for (const html of [index,simulator]) { assert.ok(html.includes('theme-runtime-v7.js')); assert.ok(html.includes('canonical-runtime-v7.css')); assert.equal(html.includes('ux-enhancements.js'),false); assert.equal(html.includes('ux-enhancements.css'),false); }
 });
 
-test('theme contract supports light/dark preference and persistence', () => {
-  assert.equal(uxJs.includes('pm01-theme-v1'), true, 'theme storage key missing');
-  assert.equal(uxJs.includes('prefers-color-scheme: light'), true, 'system theme fallback missing');
-  assert.equal(uxJs.includes('root.dataset.theme'), true, 'theme must be applied on document root');
-  assert.equal(uxCss.includes(':root[data-theme="light"]'), true, 'light theme token set missing');
-  assert.equal(uxCss.includes('.theme-toggle'), true, 'visible theme control styling missing');
+test('theme supports system preference, persistence and root data-theme', () => {
+  assert.ok(theme.includes('pm01-theme-v1')); assert.ok(theme.includes('prefers-color-scheme: light')); assert.ok(theme.includes('root.dataset.theme')); assert.ok(css.includes('.theme-toggle'));
+  assert.doesNotMatch(theme,/courseState|lastLesson|homeView|courseView|MutationObserver/);
 });
 
-test('learning path exposes lesson count and per-module progress from module lessons', () => {
-  assert.equal(uxJs.includes('module.lessons.length'), true, 'module lesson count must come from course data');
-  assert.equal(uxJs.includes('module-learning-meta'), true, 'module learning metadata hook missing');
-  assert.equal(uxJs.includes('module-learning-progress'), true, 'module progress indicator missing');
-  assert.equal(uxCss.includes('.module-learning-meta'), true, 'module metadata styles missing');
+test('learning path and returning home are owned directly by app state', () => {
+  assert.ok(app.includes('completedStepCount')); assert.ok(app.includes('module.lessons')); assert.ok(app.includes('v7-module-steps')); assert.ok(app.includes('nextStep()')); assert.ok(app.includes('Продолжить обучение'));
 });
 
-test('returning learner home is driven by existing course state and exposes a continuation CTA', () => {
-  assert.equal(uxJs.includes('pm01-state-v1'), true, 'must reuse existing course state');
-  assert.equal(uxJs.includes('lastLesson'), true, 'last lesson state missing');
-  assert.equal(uxJs.includes('completed'), true, 'completion state missing');
-  assert.equal(uxJs.includes('returning-home'), true, 'returning learner dashboard missing');
-  assert.equal(uxJs.includes('Продолжить урок'), true, 'primary continuation CTA missing');
-  assert.equal(uxCss.includes('.home-returning > .hero'), true, 'marketing hero must yield to returning dashboard');
-});
-
-test('UX layer remains local-only and does not add telemetry or network calls', () => {
-  assert.equal(uxJs.includes('fetch('), false, 'UX layer must not add network fetches');
-  assert.equal(uxJs.includes('XMLHttpRequest'), false, 'UX layer must not add network requests');
-  assert.equal(uxJs.includes('navigator.sendBeacon'), false, 'UX layer must not add telemetry');
+test('canonical UI remains local-only', () => {
+  assert.equal(/\bfetch\s*\(|XMLHttpRequest|sendBeacon\s*\(|WebSocket\s*\(/.test(theme+app),false);
 });
