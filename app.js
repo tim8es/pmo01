@@ -1,91 +1,83 @@
 (function () {
-  "use strict";
+  'use strict';
 
   const DATA = window.PM01;
-  const allLessons = DATA.modules.flatMap((module) =>
-    module.lessons.map((lesson) => ({ ...lesson, moduleId: module.id, moduleTitle: module.title }))
+  const MASTERY = window.PM01MasteryV7;
+  const PRACTICE = window.PM01ModulePracticeV7;
+  const STORAGE_KEY = 'pm01-state-v1';
+  const SIM_STORAGE_KEY = 'pm01-sim-m01-v1';
+  const SIM_TREATMENT = 'm01-mission-partner-launch-v1';
+
+  const allLessons = DATA.modules.flatMap((module, moduleIndex) =>
+    module.lessons.map((lesson, lessonIndex) => ({
+      ...lesson,
+      moduleId: module.id,
+      moduleTitle: module.title,
+      moduleIndex,
+      lessonIndex,
+    }))
   );
-  const storageKey = "pm01-state-v1";
-  const defaultState = { completed: [], notes: {}, criteria: {}, lastLesson: null, diagnostic: {}, lab: {} };
+
+  const defaultState = {
+    completed: [],
+    notes: {},
+    criteria: {},
+    lastLesson: null,
+    diagnostic: {},
+    lab: {},
+    practice: {},
+  };
+
   let state = loadState();
+
+  function parseJson(value, fallback) {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' ? parsed : fallback;
+    } catch (_) { return fallback; }
+  }
 
   function loadState() {
     try {
-      const stored = JSON.parse(localStorage.getItem(storageKey)) || {};
-      return { ...defaultState, ...stored, lab: stored.lab || {} };
+      const stored = parseJson(localStorage.getItem(STORAGE_KEY), {});
+      return {
+        ...defaultState,
+        ...stored,
+        completed: Array.isArray(stored.completed) ? stored.completed : [],
+        notes: stored.notes || {},
+        diagnostic: stored.diagnostic || {},
+        lab: stored.lab || {},
+        practice: stored.practice || {},
+      };
     } catch (_) {
       return { ...defaultState };
     }
   }
 
   function saveState() {
-    localStorage.setItem(storageKey, JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     renderSidebarProgress();
   }
 
+  function readSimState() {
+    try { return parseJson(localStorage.getItem(SIM_STORAGE_KEY), null); } catch (_) { return null; }
+  }
+
   function escapeHtml(value) {
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
   }
 
-  function isLessonComplete(lesson) {
-    if (!lesson || !state.completed.includes(lesson.id)) return false;
-    return lesson.learningLab ? labReady(lesson).ready : true;
+  function moduleById(id) {
+    return DATA.modules.find((module) => module.id === id) || null;
   }
 
-  function completedCount() {
-    return allLessons.filter((lesson) => isLessonComplete(lesson)).length;
-  }
-
-  function progress() {
-    return allLessons.length ? Math.round((completedCount() / allLessons.length) * 100) : 0;
-  }
-
-  function renderSidebarProgress() {
-    const target = document.querySelector("#sidebar-progress");
-    if (!target) return;
-    const done = completedCount();
-    target.innerHTML = `
-      <div class="label-row"><span>Прогресс</span><strong>${progress()}%</strong></div>
-      <div class="progress-track" aria-label="Пройдено ${progress()}%"><div class="progress-fill" style="width:${progress()}%"></div></div>
-      <div class="label-row" style="margin-top:9px"><span>${done} из ${allLessons.length} уроков</span></div>`;
-  }
-
-  function setActiveNav(route) {
-    document.querySelectorAll(".main-nav a").forEach((link) => {
-      const expected = link.dataset.route;
-      const active = expected === "home" ? route === "home" : route === expected || (expected === "course" && route === "lesson");
-      link.classList.toggle("active", active);
-    });
-  }
-
-  function showToast(message) {
-    const toast = document.querySelector("#toast");
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add("show");
-    clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
-  }
-
-  function moduleCompletion(module) {
-    const done = module.lessons.filter((lesson) => isLessonComplete(lesson)).length;
-    const total = module.lessons.length;
-    return { done, total, percent: total ? Math.round((done / total) * 100) : 0 };
-  }
-
-  function nextLesson() {
-    const lastLesson = state.lastLesson ? allLessons.find((lesson) => lesson.id === state.lastLesson) : null;
-    if (lastLesson && !isLessonComplete(lastLesson)) return lastLesson;
-    return allLessons.find((lesson) => !isLessonComplete(lesson)) || allLessons.at(-1);
-  }
-
-  function moduleTargetLesson(module) {
-    return module.lessons.find((lesson) => !isLessonComplete(lesson)) || module.lessons.at(-1);
+  function lessonById(id) {
+    return allLessons.find((lesson) => lesson.id === id) || null;
   }
 
   function ensureLabState(id) {
@@ -99,12 +91,12 @@
   function labReady(lesson) {
     if (!lesson?.learningLab) return { ready: false, answeredDrills: 0, requiredDrills: 0, completedFields: 0, requiredFields: 0 };
     const lessonState = ensureLabState(lesson.id);
-    const requiredDrills = lesson.learningLab.drills.filter((drill) => drill.required !== false);
-    const requiredFields = lesson.learningLab.workbookFields.filter((field) => field.required !== false);
+    const requiredDrills = (lesson.learningLab.drills || []).filter((drill) => drill.required !== false);
+    const requiredFields = (lesson.learningLab.workbookFields || []).filter((field) => field.required !== false);
     const answeredDrills = requiredDrills.filter((drill) => Boolean(lessonState.drillAnswers[drill.id])).length;
-    const completedFields = requiredFields.filter((field) => String(lessonState.workbook[field.id] || "").trim().length > 0).length;
+    const completedFields = requiredFields.filter((field) => String(lessonState.workbook[field.id] || '').trim()).length;
     return {
-      ready: answeredDrills === requiredDrills.length && completedFields === requiredFields.length,
+      ready: requiredDrills.length > 0 && requiredFields.length > 0 && answeredDrills === requiredDrills.length && completedFields === requiredFields.length,
       answeredDrills,
       requiredDrills: requiredDrills.length,
       completedFields,
@@ -112,370 +104,434 @@
     };
   }
 
-  function homeView() {
-    const next = nextLesson();
-    const nextIndex = allLessons.findIndex((lesson) => lesson.id === next.id) + 1;
-    return `
-      <div class="page">
-        <section class="hero">
-          <p class="eyebrow">Практика управления проектами · senior+</p>
-          <h1>Управляй системой,<br><span class="accent">а не списком задач</span></h1>
-          <p class="lead">Курс учит находить причину проблем проекта, принимать решения и проверять их на реальной работе. Иди по урокам по порядку — практика встроена в каждый шаг.</p>
-          <div class="hero-actions">
-            <a class="button primary" href="#/lesson/${next.id}">${progress() ? "Продолжить" : "Начать обучение"}</a>
-            <a class="button" href="#/course">Посмотреть путь</a>
-            <a class="button subtle" href="#/diagnostic">Самопроверка · необязательно</a>
-          </div>
-          <div class="stat-grid">
-            <div class="stat"><strong>10</strong><span>модулей по порядку</span></div>
-            <div class="stat"><strong>20</strong><span>уроков с практикой</span></div>
-            <div class="stat"><strong>8</strong><span>рабочих шаблонов</span></div>
-            <div class="stat"><strong>1</strong><span>итоговая работа</span></div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading"><div><p class="eyebrow">Модель курса</p><h2>Семь потоков проекта</h2></div><p>Это семь мест, где чаще всего ломается работа проекта. В каждом модуле ты научишься замечать один из таких разрывов и исправлять его.</p></div>
-          <div class="system-map">${DATA.flows.map((flow, i) => `<div class="system-node" style="--node:${flow.color}"><span>0${i + 1}</span><strong>${flow.name}</strong></div>`).join("")}</div>
-        </section>
-
-        <section class="section next-card">
-          <div>
-            <p class="eyebrow" style="color:var(--ink)">Твой следующий шаг · урок ${String(nextIndex).padStart(2, "0")}</p>
-            <h2>${next.title}</h2>
-            <p>${next.thesis}</p>
-          </div>
-          <div class="next-meta">
-            <span class="mono">${next.minutes} минут · ${next.moduleTitle}</span>
-            <a class="button" href="#/lesson/${next.id}">Продолжить →</a>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading"><div><p class="eyebrow">Основной путь</p><h2>Один маршрут: урок → практика → следующий урок</h2></div><a class="button subtle" href="#/course">Все 10 модулей</a></div>
-          <div class="module-grid">${DATA.modules.slice(0, 4).map(moduleCard).join("")}</div>
-        </section>
-      </div>`;
+  function isLessonComplete(lesson) {
+    return Boolean(lesson && state.completed.includes(lesson.id) && labReady(lesson).ready);
   }
 
-  function moduleCard(module, index = DATA.modules.indexOf(module)) {
-    const completion = moduleCompletion(module);
-    const target = moduleTargetLesson(module);
-    return `<article class="module-card" data-number="${String(index + 1).padStart(2, "0")}">
-      <span class="module-kicker">МОДУЛЬ ${String(index + 1).padStart(2, "0")} · ${module.duration}</span>
-      <h3>${module.title}</h3><p>${module.outcome}</p>
-      <div class="module-footer"><span class="mono muted">${completion.done}/${completion.total}</span><a href="#/lesson/${target.id}">${completion.done === completion.total ? "Повторить" : "Продолжить"} →</a></div>
-    </article>`;
+  function m01PracticeComplete() {
+    const envelope = readSimState();
+    if (!envelope || envelope.treatmentId !== SIM_TREATMENT || envelope.missionVersion !== 1) return false;
+    const decisions = envelope.run?.decisions;
+    return Boolean(
+      Array.isArray(decisions) && decisions.length === 4 &&
+      envelope.completedAt && envelope.reviewReachedAt && envelope.screen === 'review'
+    );
+  }
+
+  function ensurePracticeState(moduleId) {
+    state.practice ||= {};
+    state.practice[moduleId] ||= { decisions: {}, proof: {}, completedAt: null };
+    state.practice[moduleId].decisions ||= {};
+    state.practice[moduleId].proof ||= {};
+    return state.practice[moduleId];
+  }
+
+  function isPracticeComplete(moduleId) {
+    if (moduleId === 'm01') return m01PracticeComplete();
+    return Boolean(state.practice?.[moduleId]?.completedAt);
+  }
+
+  function moduleLessonsComplete(module) {
+    return (module?.lessons || []).every((lesson) => isLessonComplete(lessonById(lesson.id)));
+  }
+
+  function moduleComplete(module) {
+    return moduleLessonsComplete(module) && isPracticeComplete(module.id);
+  }
+
+  function moduleProgress(module) {
+    const lessonsDone = module.lessons.filter((lesson) => isLessonComplete(lessonById(lesson.id))).length;
+    const practiceDone = isPracticeComplete(module.id) ? 1 : 0;
+    return { done: lessonsDone + practiceDone, total: module.lessons.length + 1 };
+  }
+
+  function completedCount() {
+    return allLessons.filter(isLessonComplete).length;
+  }
+
+  function completedStepCount() {
+    return completedCount() + DATA.modules.filter((module) => isPracticeComplete(module.id)).length;
+  }
+
+  function progress() {
+    const total = allLessons.length + DATA.modules.length;
+    return total ? Math.round((completedStepCount() / total) * 100) : 0;
+  }
+
+  function mastery() {
+    return MASTERY.derive({ courseState: state, modules: DATA.modules, simState: readSimState() });
+  }
+
+  function skillIdForStep(step) {
+    if (!step) return 'work';
+    if (step.type === 'lesson') return MASTERY.LESSON_SKILLS[step.lesson.id]?.[0] || step.lesson.learningLab?.skillId || 'work';
+    if (step.type === 'practice') return PRACTICE.definition(step.module.id)?.decisions?.[0]?.skillId || 'feedback';
+    return 'work';
+  }
+
+  function nextStep() {
+    for (const module of DATA.modules) {
+      for (const lessonData of module.lessons) {
+        const lesson = lessonById(lessonData.id);
+        if (!isLessonComplete(lesson)) {
+          return { type: 'lesson', module, lesson, href: `#/lesson/${lesson.id}`, title: lesson.title };
+        }
+      }
+      if (!isPracticeComplete(module.id)) {
+        if (module.id === 'm01') {
+          return { type: 'm01-practice', module, href: 'simulator.html#/mission/m01', title: 'Итоговая практика M01' };
+        }
+        return { type: 'practice', module, href: `#/practice/${module.id}`, title: `Итоговая практика ${module.id.toUpperCase()}` };
+      }
+    }
+    const last = DATA.modules.at(-1);
+    return { type: 'complete', module: last, href: '#/course', title: 'Курс завершён' };
+  }
+
+  function afterLessonHref(lesson) {
+    const module = moduleById(lesson.moduleId);
+    const isLast = lesson.lessonIndex === module.lessons.length - 1;
+    if (!isLast) return `#/lesson/${module.lessons[lesson.lessonIndex + 1].id}`;
+    return module.id === 'm01' ? 'simulator.html#/mission/m01' : `#/practice/${module.id}`;
+  }
+
+  function afterPracticeHref(moduleId) {
+    const index = DATA.modules.findIndex((module) => module.id === moduleId);
+    const nextModule = DATA.modules[index + 1];
+    return nextModule ? `#/lesson/${nextModule.lessons[0].id}` : '#/course';
+  }
+
+  function showToast(message) {
+    const toast = document.querySelector('#toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function setActiveNav(route) {
+    document.querySelectorAll('.main-nav a').forEach((link) => {
+      const expected = link.dataset.route;
+      const active = expected === 'home'
+        ? route === 'home'
+        : expected === route || (expected === 'course' && ['lesson', 'practice'].includes(route));
+      link.classList.toggle('active', active);
+    });
+  }
+
+  function renderSidebarProgress() {
+    const target = document.querySelector('#sidebar-progress');
+    if (!target || !MASTERY) return;
+    const derived = mastery();
+    target.innerHTML = `
+      <div class="label-row"><span>Компетенции</span><strong>${derived.counts.proved}/7</strong></div>
+      <div class="progress-track" aria-label="Доказано ${derived.counts.proved} из 7 компетенций"><div class="progress-fill" style="width:${Math.round(derived.counts.proved / 7 * 100)}%"></div></div>
+      <div class="v7-sidebar-levels"><span>Понял ${derived.counts.understood}</span><span>Применил ${derived.counts.applied}</span><span>Доказал ${derived.counts.proved}</span></div>
+      <div class="label-row v7-course-percent"><span>Путь курса</span><strong>${progress()}%</strong></div>`;
+  }
+
+  function skillMap(derived) {
+    return Object.values(MASTERY.SKILLS).map((meta) => {
+      const item = derived.skills[meta.id];
+      return `<article class="v7-skill level-${item.level}">
+        <div><span>${escapeHtml(meta.name)}</span><strong>${escapeHtml(item.label)}</strong></div>
+        <p>${escapeHtml(MASTERY.nextEvidence(meta.id, derived))}</p>
+      </article>`;
+    }).join('');
+  }
+
+  function homeView() {
+    const step = nextStep();
+    const derived = mastery();
+    const skillId = skillIdForStep(step);
+    const currentSkill = derived.skills[skillId] || derived.skills.work;
+    const moduleIndex = DATA.modules.findIndex((module) => module.id === step.module?.id);
+    const complete = step.type === 'complete';
+
+    return `<div class="page v7-home">
+      <section class="v7-home-hero">
+        <div class="v7-next-card">
+          <p class="eyebrow">${complete ? 'Маршрут завершён' : `Следующий шаг · M${String(moduleIndex + 1).padStart(2, '0')}`}</p>
+          <h1>${complete ? 'Курс пройден. Теперь закрепляй решения в работе.' : escapeHtml(step.title)}</h1>
+          <p class="lead">${complete ? 'Карта компетенций показывает, какие навыки уже подтверждены практикой, а где ещё нужен перенос.' : escapeHtml(step.module?.outcome || '')}</p>
+          <div class="v7-actions"><a class="button primary" href="${step.href}">${complete ? 'Открыть учебный путь' : 'Продолжить обучение →'}</a><a class="button subtle" href="#/course">Весь путь</a></div>
+        </div>
+        <aside class="v7-skill-focus">
+          <p class="eyebrow">Навык сейчас</p>
+          <h2>${escapeHtml(currentSkill.name)}</h2>
+          <div class="v7-level"><strong>${escapeHtml(currentSkill.label)}</strong><span>${currentSkill.level}/3</span></div>
+          <div class="v7-next-evidence"><small>Следующее доказательство</small><p>${escapeHtml(MASTERY.nextEvidence(skillId, derived))}</p></div>
+        </aside>
+      </section>
+
+      <section class="v7-learning-loop">
+        <div class="v7-section-head"><div><p class="eyebrow">Как учимся</p><h2>Решение важнее чтения</h2></div><p>Каждый урок начинается с выбора, затем показывает механизм, даёт рабочий инструмент и требует evidence на своём проекте.</p></div>
+        <div class="v7-loop"><span>1 · Реши</span><span>2 · Увидь последствия</span><span>3 · Разбери механизм</span><span>4 · Примени</span><span>5 · Докажи</span></div>
+      </section>
+
+      <section class="v7-competencies">
+        <div class="v7-section-head"><div><p class="eyebrow">Карта компетенций</p><h2>Не проценты, а доказанные навыки</h2></div><p>Уровень растёт только от решений, заполненной рабочей карты и итоговой практики.</p></div>
+        <div class="v7-skill-map">${skillMap(derived)}</div>
+      </section>
+    </div>`;
+  }
+
+  function stepStatus(done, available) {
+    if (done) return 'Готово';
+    if (available) return 'Сейчас';
+    return 'Дальше';
   }
 
   function courseView() {
-    const hours = DATA.modules.reduce((sum, module) => {
-      const values = module.duration.match(/\d+/g)?.map(Number) || [0, 0];
-      const min = values[0] || 0;
-      const max = values[1] ?? min;
-      return [sum[0] + min, sum[1] + max];
-    }, [0, 0]);
-    const currentModuleIndex = DATA.modules.findIndex((module) => moduleCompletion(module).done < module.lessons.length);
-    return `<div class="page">
-      <section class="course-intro">
-        <div><p class="eyebrow">Основной путь</p><h1>10 модулей.<br>Иди по порядку.</h1><p class="lead">Начни с первого незавершённого урока. В M01 решения и рабочая карта проверяются прямо внутри урока. Проверки и диагностика дополняют путь, но не создают второй курс.</p></div>
-        <div class="course-metrics"><strong>${hours[0]}–${hours[1]} ч</strong><p>ориентир по времени</p><strong>${progress()}%</strong><p>пройдено</p><strong>${completedCount()}/${allLessons.length}</strong><p>уроков завершено</p></div>
+    const derived = mastery();
+    const current = nextStep();
+    return `<div class="page v7-course">
+      <section class="v7-course-head">
+        <div><p class="eyebrow">Учебный путь</p><h1>10 модулей.<br>Тридцать реальных шагов.</h1><p class="lead">В каждом модуле два урока и одна итоговая практика. Урок учит технике, практика проверяет перенос без подсказки.</p></div>
+        <div class="v7-course-proof"><strong>${derived.counts.proved}/7</strong><span>компетенций доказано</span><strong>${completedStepCount()}/30</strong><span>шагов завершено</span></div>
       </section>
-      <div class="path-note"><strong>Как двигаться:</strong><span>1. Разбери кейс</span><span>2. Примени технику</span><span>3. Заполни рабочий инструмент</span><span>4. Проверь перенос на проект</span></div>
-      <div class="module-list">${DATA.modules.map((module, index) => {
-        const completion = moduleCompletion(module);
-        const target = moduleTargetLesson(module);
-        const finished = completion.done === completion.total;
-        const current = !finished && (currentModuleIndex === index || currentModuleIndex === -1);
-        const status = finished ? "Завершено" : current ? "Сейчас" : "Дальше";
-        return `<article class="module-row ${finished ? "completed" : current ? "current" : "upcoming"}"><span class="module-index">${String(index + 1).padStart(2, "0")}</span><div><span class="module-status">${status}</span><h2>${module.title}</h2></div><p>${module.outcome}</p><a href="#/lesson/${target.id}">${finished ? "Повторить" : current ? "Продолжить" : "Открыть"} →</a></article>`;
-      }).join("")}</div>
+      <div class="v7-module-list">${DATA.modules.map((module, moduleIndex) => {
+        const moduleDone = moduleComplete(module);
+        const lessonsDone = module.lessons.map((lesson) => isLessonComplete(lessonById(lesson.id)));
+        const practiceDone = isPracticeComplete(module.id);
+        const practiceReady = lessonsDone.every(Boolean);
+        const isCurrent = current.module?.id === module.id;
+        const practiceHref = module.id === 'm01' ? 'simulator.html#/mission/m01' : `#/practice/${module.id}`;
+        const skills = [...new Set(module.lessons.flatMap((lesson) => MASTERY.LESSON_SKILLS[lesson.id] || []))];
+        return `<article class="v7-module ${moduleDone ? 'complete' : isCurrent ? 'current' : ''}">
+          <div class="v7-module-top"><span class="v7-module-index">${String(moduleIndex + 1).padStart(2, '0')}</span><div><p class="eyebrow">${moduleDone ? 'Завершено' : isCurrent ? 'Текущий модуль' : 'Модуль'}</p><h2>${escapeHtml(module.title)}</h2><p>${escapeHtml(module.outcome)}</p></div></div>
+          <ol class="v7-module-steps">
+            ${module.lessons.map((lesson, lessonIndex) => `<li class="${lessonsDone[lessonIndex] ? 'done' : ''}"><span>${lessonsDone[lessonIndex] ? '✓' : lessonIndex + 1}</span><a href="#/lesson/${lesson.id}">${escapeHtml(lesson.title)}</a><small>${stepStatus(lessonsDone[lessonIndex], isCurrent && current.type === 'lesson' && current.lesson?.id === lesson.id)}</small></li>`).join('')}
+            <li class="${practiceDone ? 'done' : ''}"><span>${practiceDone ? '✓' : '3'}</span>${practiceReady ? `<a href="${practiceHref}">Итоговая практика</a>` : `<strong>Итоговая практика</strong>`}<small>${practiceReady ? stepStatus(practiceDone, isCurrent && ['practice', 'm01-practice'].includes(current.type)) : 'После 2 уроков'}</small></li>
+          </ol>
+          <div class="v7-module-skills">${skills.map((id) => `<span>${escapeHtml(MASTERY.SKILLS[id]?.name || id)}</span>`).join('')}</div>
+        </article>`;
+      }).join('')}</div>
     </div>`;
   }
 
   function renderLabFeedback(drill, answerId) {
-    const option = drill.options?.find((item) => item.id === answerId);
-    if (!option) return `<div class="lab-feedback" aria-live="polite" data-lab-feedback="${drill.id}"><span>Выбери вариант, чтобы получить разбор.</span></div>`;
-    const label = Number(option.score) >= 3 ? "Сильный ход" : Number(option.score) >= 2 ? "Неполный диагноз" : "Слабый ход";
-    return `<div class="lab-feedback ${Number(option.score) >= 3 ? "strong" : "needs-work"}" aria-live="polite" data-lab-feedback="${drill.id}"><strong>${label}</strong><p>${escapeHtml(option.feedback)}</p></div>`;
+    const option = drill?.options?.find((item) => item.id === answerId);
+    if (!option) return `<div class="lab-feedback" aria-live="polite" data-lab-feedback="${escapeHtml(drill?.id || '')}"><span>Сначала выбери вариант.</span></div>`;
+    const score = Number(option.score || 0);
+    const label = score >= 3 ? 'Сильный ход' : score >= 2 ? 'Рабочий, но неполный' : 'Рискованный ход';
+    return `<div class="lab-feedback ${score >= 3 ? 'strong' : 'needs-work'}" aria-live="polite" data-lab-feedback="${escapeHtml(drill.id)}"><strong>${label}</strong><p>${escapeHtml(option.feedback || '')}</p></div>`;
   }
 
-  function renderLabDrill(drill, lessonState, isCold = false) {
-    if (!drill) return "";
+  function renderLabDrill(drill, lessonState, index) {
+    if (!drill) return '';
     const answer = lessonState.drillAnswers[drill.id];
-    return `<section class="lab-drill" ${isCold ? 'id="lab-cold"' : ""}>
-      <p class="lab-step">${isCold ? "01 · Сначала реши" : "04 · Exit check"}</p>
-      <h2>${escapeHtml(drill.title || "Decision drill")}</h2>
-      <p class="lab-situation">${escapeHtml(drill.situation || "")}</p>
-      <fieldset>
-        <legend>${escapeHtml(drill.prompt || "Что сделаешь?")}</legend>
-        <div class="lab-options">${(drill.options || []).map((option) => `<label class="lab-option"><input type="radio" name="lab-${drill.id}" value="${option.id}" data-lab-drill="${drill.id}" ${answer === option.id ? "checked" : ""}><span>${escapeHtml(option.label)}</span></label>`).join("")}</div>
-      </fieldset>
+    const cold = drill.stage === 'cold' || index === 0;
+    const frozen = Boolean(cold && answer);
+    return `<section class="lab-drill" id="${cold ? 'lab-cold' : `lab-drill-${index + 1}`}">
+      <p class="lab-step">${cold ? '01 · Сначала реши' : `0${Math.min(index + 4, 9)} · Повторная попытка`}</p>
+      <h2>${escapeHtml(drill.title || 'Решение')}</h2>
+      <p class="lab-situation">${escapeHtml(drill.situation || '')}</p>
+      <fieldset><legend>${escapeHtml(drill.prompt || 'Что сделаешь?')}</legend><div class="lab-options">${(drill.options || []).map((option) => `<label class="lab-option ${answer === option.id ? 'selected' : ''}"><input type="radio" name="lab-${drill.id}" value="${option.id}" data-lab-drill="${drill.id}" ${answer === option.id ? 'checked' : ''} ${frozen ? 'disabled' : ''}><span>${escapeHtml(option.label)}</span></label>`).join('')}</div></fieldset>
       ${renderLabFeedback(drill, answer)}
+      ${frozen ? '<p class="v7-frozen-note">Первое решение зафиксировано. Это сохраняет честность тренировки.</p>' : ''}
     </section>`;
   }
 
-  function renderLearningLab(lesson, next, done) {
+  function renderTerms(terms) {
+    if (!terms?.length) return '';
+    return `<details class="v7-terms"><summary>Ключевые термины · ${terms.length}</summary><dl>${terms.map((item) => `<div><dt>${escapeHtml(item.term)}</dt><dd>${escapeHtml(item.meaning)}</dd></div>`).join('')}</dl></details>`;
+  }
+
+  function renderLearningLab(lesson, done) {
     const lab = lesson.learningLab;
     const lessonState = ensureLabState(lesson.id);
     const readiness = labReady(lesson);
-    const coldDrill = lab.drills.find((drill) => drill.stage === "cold") || lab.drills[0];
-    const laterDrills = lab.drills.filter((drill) => drill !== coldDrill);
     return `<section class="learning-lab" id="practice">
-      <header class="lab-intro">
-        <p class="eyebrow">Learning Lab</p>
-        <h2>Навык урока</h2>
-        <p>${escapeHtml(lab.skill)}</p>
-      </header>
-
-      ${renderLabDrill(coldDrill, lessonState, true)}
-
-      <section class="lab-worked" id="lab-worked">
-        <p class="lab-step">02 · Сверь мышление</p>
-        <h2>${escapeHtml(lab.workedExample.title)}</h2>
-        <ol>${lab.workedExample.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
-      </section>
-
-      <section class="lab-technique" id="lab-technique">
-        <p class="lab-step">03 · Техника</p>
-        <h2>${escapeHtml(lab.technique.name)}</h2>
-        <p class="lab-purpose">${escapeHtml(lab.technique.purpose)}</p>
-        <ol>${lab.technique.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
-        <div class="lab-model">${escapeHtml(lab.technique.model)}</div>
-      </section>
-
-      ${laterDrills.map((drill) => renderLabDrill(drill, lessonState)).join("")}
-
-      <section class="lab-workbook" id="lab-workbook">
-        <p class="lab-step">05 · Рабочий инструмент</p>
-        <h2>${escapeHtml(lab.workbookTitle)}</h2>
-        <p>Заполни поля фактами. Ответы сохраняются в этом браузере автоматически.</p>
-        <div class="lab-fields">${lab.workbookFields.map((field) => `<label class="lab-field"><strong>${escapeHtml(field.label)}</strong><span>${escapeHtml(field.prompt)}</span><textarea data-lab-field="${field.id}" rows="3">${escapeHtml(lessonState.workbook[field.id] || "")}</textarea></label>`).join("")}</div>
-      </section>
-
-      <section class="lab-transfer">
-        <p class="lab-step">06 · Перенос</p>
-        <h2>Примени к реальному проекту</h2>
-        <p>${escapeHtml(lab.transferPrompt)}</p>
-      </section>
-
-      <section class="lab-finish">
-        <p class="completion-status ${readiness.ready ? "ready" : ""}" id="completion-status">${readiness.answeredDrills}/${readiness.requiredDrills} решений · ${readiness.completedFields}/${readiness.requiredFields} полей${readiness.ready ? " · можно завершать урок" : " · заверши обязательные решения и рабочую карту"}</p>
-        <label for="lesson-notes"><strong>Личные заметки</strong><span class="field-help">Необязательно: вывод, вопрос или решение, которое хочешь сохранить.</span></label>
-        <textarea class="notes" id="lesson-notes" placeholder="Что изменилось в твоём понимании?">${escapeHtml(state.notes[lesson.id] || "")}</textarea>
-        <div class="lesson-actions">
-          ${done
-            ? `<a class="button primary" href="${next ? `#/lesson/${next.id}` : "#/course"}">${next ? "Продолжить к следующему уроку" : "Вернуться к программе"} →</a>`
-            : `<button class="button primary" id="complete-lesson" ${readiness.ready ? "" : "disabled"}>Завершить урок и продолжить →</button>`}
-          <button class="button" id="save-notes">Сохранить заметки</button>
-        </div>
-      </section>
-    </section>`;
-  }
-
-  function renderLegacyPractice(lesson, next, done, checked, ready) {
-    const required = lesson.criteria.length;
-    return `<section class="practice" id="practice">
-      <p class="eyebrow">Практика</p><h2>Примени к своему проекту</h2>
-      <ol>${lesson.practice.map((step) => `<li>${step}</li>`).join("")}</ol>
-      <h3>Проверь результат</h3>
-      <p class="practice-help">Отметь пункт только если действительно сделал его. Это не тест — чекбоксы просто помогают понять, готов ли ты идти дальше.</p>
-      <div class="criteria">${lesson.criteria.map((criterion, criterionIndex) => `<label class="criterion"><input type="checkbox" data-criterion="${criterionIndex}" ${checked.includes(criterionIndex) ? "checked" : ""}><span>${criterion}</span></label>`).join("")}</div>
-      <p class="completion-status ${ready ? "ready" : ""}" id="completion-status">${checked.length}/${required} выполнено${ready ? " · можно завершать урок" : " · выполни все пункты, чтобы открыть следующий шаг"}</p>
-      <label for="lesson-notes"><strong>Заметки</strong><span class="field-help">Можно сохранить примеры, решения или выводы.</span></label>
-      <textarea class="notes" id="lesson-notes" placeholder="Что заметил? Что решил? Что изменилось?">${escapeHtml(state.notes[lesson.id] || "")}</textarea>
-      <div class="lesson-actions">
-        ${done
-          ? `<a class="button primary" href="${next ? `#/lesson/${next.id}` : "#/course"}">${next ? "Продолжить к следующему уроку" : "Вернуться к программе"} →</a>`
-          : `<button class="button primary" id="complete-lesson" ${ready ? "" : "disabled"}>Завершить урок и продолжить →</button>`}
-        <button class="button" id="save-notes">Сохранить заметки</button>
-      </div>
+      <header class="lab-intro"><p class="eyebrow">Практический урок</p><h2>Навык урока</h2><p>${escapeHtml(lab.skill)}</p></header>
+      <section class="v7-mission"><p class="lab-step">Цель</p><p>${escapeHtml(lab.mission || '')}</p>${renderTerms(lab.terms)}</section>
+      ${(lab.drills || []).slice(0, 1).map((drill, index) => renderLabDrill(drill, lessonState, index)).join('')}
+      <section class="lab-worked" id="lab-worked"><p class="lab-step">02 · Сверь мышление</p><h2>${escapeHtml(lab.workedExample.title)}</h2><ol>${(lab.workedExample.steps || []).map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol></section>
+      <section class="lab-technique" id="lab-technique"><p class="lab-step">03 · Техника</p><h2>${escapeHtml(lab.technique.name)}</h2><p class="lab-purpose">${escapeHtml(lab.technique.purpose)}</p><ol>${(lab.technique.steps || []).map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol><div class="lab-model">${escapeHtml(lab.technique.model)}</div>${lesson.body?.length ? `<details class="v7-theory"><summary>Почему это работает</summary>${lesson.body.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}</details>` : ''}</section>
+      ${(lab.drills || []).slice(1).map((drill, index) => renderLabDrill(drill, lessonState, index + 1)).join('')}
+      <section class="lab-workbook" id="lab-workbook"><p class="lab-step">05 · Рабочий инструмент</p><h2>${escapeHtml(lab.workbookTitle)}</h2><p>Не отмечай галочки. Зафиксируй факты, которые можно проверить или использовать в решении.</p><div class="lab-fields">${(lab.workbookFields || []).map((field) => `<label class="lab-field"><strong>${escapeHtml(field.label)}</strong><span>${escapeHtml(field.prompt)}</span><textarea data-lab-field="${field.id}" rows="3">${escapeHtml(lessonState.workbook[field.id] || '')}</textarea></label>`).join('')}</div></section>
+      <section class="lab-transfer"><p class="lab-step">06 · Перенос</p><h2>Перенеси на реальную работу</h2><p>${escapeHtml(lab.transferPrompt)}</p></section>
+      <section class="lab-finish"><p class="completion-status ${readiness.ready ? 'ready' : ''}" id="completion-status">${readiness.answeredDrills}/${readiness.requiredDrills} решений · ${readiness.completedFields}/${readiness.requiredFields} evidence${readiness.ready ? ' · можно завершать урок' : ' · заверши обязательные решения и рабочую карту'}</p><label for="lesson-notes"><strong>Личные заметки</strong><span class="field-help">Необязательно.</span></label><textarea class="notes" id="lesson-notes" placeholder="Что изменилось в твоём решении?">${escapeHtml(state.notes[lesson.id] || '')}</textarea><div class="lesson-actions">${done ? `<a class="button primary" href="${afterLessonHref(lesson)}">Продолжить →</a>` : `<button class="button primary" id="complete-lesson" ${readiness.ready ? '' : 'disabled'}>Завершить урок →</button>`}<button class="button" id="save-notes">Сохранить заметки</button></div></section>
     </section>`;
   }
 
   function lessonView(id) {
-    const lesson = allLessons.find((item) => item.id === id);
+    const lesson = lessonById(id);
     if (!lesson) return notFoundView();
     state.lastLesson = id;
-    if (lesson.learningLab) ensureLabState(id);
+    ensureLabState(id);
     saveState();
     const index = allLessons.findIndex((item) => item.id === id);
     const previous = allLessons[index - 1];
-    const next = allLessons[index + 1];
-    const checked = state.criteria[id] || [];
     const done = isLessonComplete(lesson);
-    const ready = lesson.learningLab ? labReady(lesson).ready : checked.length >= lesson.criteria.length;
+    const derived = mastery();
+    const skillId = MASTERY.LESSON_SKILLS[id]?.[0] || lesson.learningLab?.skillId || 'work';
+    const skill = derived.skills[skillId];
 
-    return `<div class="page lesson-layout">
+    return `<div class="page v7-lesson-shell">
       <article>
-        <header class="lesson-header">
-          <p class="eyebrow">${lesson.moduleTitle} · урок ${String(index + 1).padStart(2, "0")}/${allLessons.length}</p>
-          <h1>${lesson.title}</h1>
-          <p class="lead">${lesson.thesis}</p>
-          <div class="meta"><span>${lesson.minutes} минут</span><span>${done ? "завершён ✓" : lesson.learningLab ? "кейс + техника + инструмент" : "теория + практика"}</span></div>
-        </header>
-
-        ${lesson.learningLab ? "" : `<section class="lesson-block" id="idea"><h2>Главная мысль</h2>${lesson.body.map((paragraph) => `<p>${paragraph}</p>`).join("")}</section>`}
-        ${lesson.learningLab ? renderLearningLab(lesson, next, done) : `
-          <blockquote class="insight">${lesson.thesis}</blockquote>
-          <section class="lesson-block" id="model"><h2>Как это работает</h2><div class="model-card">${lesson.model}</div></section>
-          ${renderLegacyPractice(lesson, next, done, checked, ready)}`}
+        <header class="lesson-header"><p class="eyebrow">${escapeHtml(lesson.moduleTitle)} · ${lesson.lessonIndex + 1}/2</p><h1>${escapeHtml(lesson.title)}</h1><p class="lead">${escapeHtml(lesson.thesis)}</p><div class="v7-lesson-band"><strong>${escapeHtml(skill.name)} · ${escapeHtml(skill.label)}</strong><span>${lesson.minutes} минут · решение + техника + evidence</span></div></header>
+        ${renderLearningLab(lesson, done)}
       </article>
+      <aside class="lesson-aside"><nav class="toc" aria-label="Разделы урока"><small>В ЭТОМ УРОКЕ</small><a href="#/lesson/${id}" data-scroll="lab-cold">Решение</a><a href="#/lesson/${id}" data-scroll="lab-technique">Техника</a><a href="#/lesson/${id}" data-scroll="lab-workbook">Evidence</a></nav><div class="lesson-nav">${previous ? `<a class="button subtle" href="#/lesson/${previous.id}">← Предыдущий</a>` : ''}<a class="button subtle" href="#/course">Учебный путь</a></div></aside>
+    </div>`;
+  }
 
-      <aside class="lesson-aside">
-        <nav class="toc" aria-label="Разделы урока"><small>В ЭТОМ УРОКЕ</small>${lesson.learningLab
-          ? `<a href="#/lesson/${id}" data-scroll="lab-cold">Кейс</a><a href="#/lesson/${id}" data-scroll="lab-technique">Техника</a><a href="#/lesson/${id}" data-scroll="lab-workbook">Рабочий инструмент</a>`
-          : `<a href="#/lesson/${id}" data-scroll="idea">Главная мысль</a><a href="#/lesson/${id}" data-scroll="model">Как это работает</a><a href="#/lesson/${id}" data-scroll="practice">Практика</a>`}</nav>
-        <div class="lesson-nav">
-          ${previous ? `<a class="button subtle" href="#/lesson/${previous.id}">← Предыдущий урок</a>` : ""}
-          <a class="button subtle" href="#/course">Все модули</a>
-        </div>
-      </aside>
+  function practiceDecision(definition, practiceState, decision, index) {
+    const selectedId = practiceState.decisions[decision.id];
+    const selected = decision.options.find((option) => option.id === selectedId);
+    return `<section class="v7-practice-decision"><p class="lab-step">D${index + 1} · ${escapeHtml(MASTERY.SKILLS[decision.skillId]?.name || decision.skillId)}</p><h2>${escapeHtml(decision.title)}</h2><p class="lab-situation">${escapeHtml(decision.situation)}</p><fieldset><legend>${escapeHtml(decision.prompt)}</legend><div class="v7-practice-options">${decision.options.map((option) => `<label class="v7-practice-option ${selectedId === option.id ? 'selected' : ''}"><input type="radio" name="practice-${decision.id}" value="${option.id}" data-practice-decision="${decision.id}" ${selectedId === option.id ? 'checked' : ''} ${selectedId ? 'disabled' : ''}><span>${escapeHtml(option.label)}</span></label>`).join('')}</div></fieldset>${selected ? `<div class="v7-practice-feedback ${selected.strong ? 'strong' : ''}"><strong>${selected.strong ? 'Сильный ход' : 'Есть что усилить'}</strong><p>${escapeHtml(selected.feedback)}</p></div>` : ''}</section>`;
+  }
+
+  function practiceView(moduleId) {
+    const module = moduleById(moduleId);
+    if (!module || moduleId === 'm01') return notFoundView();
+    const definition = PRACTICE.definition(moduleId);
+    if (!definition) return notFoundView();
+    const ready = moduleLessonsComplete(module);
+    const practiceState = ensurePracticeState(moduleId);
+
+    if (!ready) {
+      return `<div class="page v7-practice"><section class="v7-practice-head"><p class="eyebrow">${moduleId.toUpperCase()} · Итоговая практика</p><h1>Сначала заверши два урока модуля</h1><p class="lead">Итоговая практика проверяет перенос без подсказки, поэтому открывается после evidence в обоих уроках.</p><div class="v7-actions">${module.lessons.map((lesson) => `<a class="button" href="#/lesson/${lesson.id}">${escapeHtml(lesson.title)}</a>`).join('')}</div></section></div>`;
+    }
+
+    const complete = PRACTICE.isComplete(definition, practiceState);
+    const currentProof = complete ? PRACTICE.proofFor(definition, practiceState.decisions) : {};
+    const mergedProof = complete ? PRACTICE.mergeProof(practiceState, currentProof) : practiceState.proof;
+    const proved = Object.keys(mergedProof || {}).filter((id) => mergedProof[id]);
+    const missing = [...new Set(definition.decisions.map((decision) => decision.skillId))].filter((id) => !mergedProof?.[id]);
+
+    return `<div class="page v7-practice">
+      <header class="v7-practice-head"><p class="eyebrow">${moduleId.toUpperCase()} · Итоговая практика</p><h1>${escapeHtml(module.title)}</h1><p class="lead">${escapeHtml(definition.lead)}</p><p>Два решения. Без числовой оценки. Навык получает «Доказал» только если выбран сильный ход.</p></header>
+      <div class="v7-practice-list">${definition.decisions.map((decision, index) => practiceDecision(definition, practiceState, decision, index)).join('')}</div>
+      ${complete ? `<section class="v7-practice-review"><div><p class="eyebrow">Что доказано</p><h2>${proved.length ? proved.map((id) => escapeHtml(MASTERY.SKILLS[id]?.name || id)).join(' · ') : 'Пока без уровня «Доказал»'}</h2></div><div><p class="eyebrow">Что усилить</p><p>${missing.length ? missing.map((id) => `${escapeHtml(MASTERY.SKILLS[id]?.name || id)} — вернись к связанному уроку и повтори практику.`).join('<br>') : 'Все навыки этого модуля подтверждены.'}</p></div><div class="v7-actions"><a class="button primary" href="${afterPracticeHref(moduleId)}">Дальше →</a><button class="button subtle" type="button" data-practice-reset>Пройти ещё раз</button></div></section>` : '<p class="v7-practice-progress">Зафиксируй оба решения, чтобы получить итоговый разбор.</p>'}
     </div>`;
   }
 
   function diagnosticView() {
     const choices = [
-      { score: 0, label: "Нет — это происходит случайно или никогда" },
-      { score: 1, label: "Иногда — зависит от конкретного человека" },
-      { score: 2, label: "Часто — есть практика, но она нестабильна" },
-      { score: 3, label: "Системно — есть правило, владелец и обратная связь" }
+      { score: 0, label: 'Нет — это происходит случайно или никогда' },
+      { score: 1, label: 'Иногда — зависит от конкретного человека' },
+      { score: 2, label: 'Часто — есть практика, но она нестабильна' },
+      { score: 3, label: 'Системно — есть правило, владелец и обратная связь' },
     ];
-    return `<div class="page">
-      <p class="eyebrow">Необязательная самопроверка</p><h1>Где проект теряет управляемость?</h1>
-      <p class="lead">Оцени, как проект работал последние четыре недели. Результат покажет слабое место, на которое стоит обратить внимание. Порядок курса при этом не меняется.</p>
-      <div class="diagnostic-grid section">
-        <form id="diagnostic-form">${DATA.diagnostics.map((item, index) => `<fieldset class="question-card"><legend>${index + 1}. ${item.q}</legend><div class="options">${choices.map((choice) => `<label class="option"><input type="radio" name="q${index}" value="${choice.score}" data-flow="${item.flow}" ${String(state.diagnostic[index]) === String(choice.score) ? "checked" : ""}><span>${choice.label}</span></label>`).join("")}</div></fieldset>`).join("")}</form>
-        <aside class="diagnostic-result" id="diagnostic-result"></aside>
-      </div>
-    </div>`;
+    return `<div class="page"><p class="eyebrow">Необязательная самопроверка</p><h1>Где проект теряет управляемость?</h1><p class="lead">Оцени последние четыре недели. Это не меняет порядок курса — только помогает увидеть слабый поток.</p><div class="diagnostic-grid section"><form id="diagnostic-form">${DATA.diagnostics.map((item, index) => `<fieldset class="question-card"><legend>${index + 1}. ${escapeHtml(item.q)}</legend><div class="options">${choices.map((choice) => `<label class="option"><input type="radio" name="q${index}" value="${choice.score}" data-flow="${item.flow}" ${String(state.diagnostic[index]) === String(choice.score) ? 'checked' : ''}><span>${choice.label}</span></label>`).join('')}</div></fieldset>`).join('')}</form><aside class="diagnostic-result" id="diagnostic-result"></aside></div></div>`;
   }
 
   function renderDiagnosticResult() {
-    const target = document.querySelector("#diagnostic-result");
+    const target = document.querySelector('#diagnostic-result');
     if (!target) return;
     const answers = Object.keys(state.diagnostic);
     if (answers.length < DATA.diagnostics.length) {
-      target.innerHTML = `<p class="eyebrow">Результат</p><h3>${answers.length}/${DATA.diagnostics.length} ответов</h3><p class="result-empty">Ответь на все вопросы. Ответы сохраняются в этом браузере автоматически.</p>`;
+      target.innerHTML = `<p class="eyebrow">Результат</p><h3>${answers.length}/${DATA.diagnostics.length} ответов</h3><p class="result-empty">Ответь на все вопросы. Ответы сохраняются автоматически.</p>`;
       return;
     }
     const scores = Object.fromEntries(DATA.flows.map((flow) => [flow.id, []]));
     DATA.diagnostics.forEach((item, index) => scores[item.flow].push(Number(state.diagnostic[index])));
     const results = DATA.flows.map((flow) => ({ ...flow, score: Math.round(scores[flow.id].reduce((a, b) => a + b, 0) / (scores[flow.id].length * 3) * 100) }));
     const weakest = [...results].sort((a, b) => a.score - b.score)[0];
-    const moduleMap = { value: 2, work: 4, information: 8, decisions: 7, dependencies: 3, uncertainty: 6, feedback: 10 };
-    const recommended = DATA.modules[moduleMap[weakest.id] - 1];
-    target.innerHTML = `<p class="eyebrow">Зона внимания</p><h3>${weakest.name}: ${weakest.score}%</h3><p class="result-empty">Слабее всего сейчас выглядит поток «${weakest.name}». Продолжай основной путь и обрати особое внимание на модуль «${recommended.title}».</p>${results.map((result) => `<div class="score-row"><div><span>${result.name}</span><strong>${result.score}%</strong></div><div class="progress-track"><div class="progress-fill" style="width:${result.score}%;background:${result.color}"></div></div></div>`).join("")}<a class="button primary" style="width:100%;margin-top:12px" href="#/course">Вернуться к основному пути</a>`;
+    target.innerHTML = `<p class="eyebrow">Зона внимания</p><h3>${escapeHtml(weakest.name)}: ${weakest.score}%</h3><p class="result-empty">Обрати особое внимание на этот поток в основном маршруте.</p>${results.map((result) => `<div class="score-row"><div><span>${escapeHtml(result.name)}</span><strong>${result.score}%</strong></div><div class="progress-track"><div class="progress-fill" style="width:${result.score}%;background:${result.color}"></div></div></div>`).join('')}<a class="button primary" style="width:100%;margin-top:12px" href="#/course">К учебному пути</a>`;
   }
 
   function toolkitView() {
-    return `<div class="page"><p class="eyebrow">Шаблоны для работы</p><h1>Инструменты,<br>которые помогают принять решение</h1><p class="lead">Скачай нужный Markdown-шаблон, заполни его фактами проекта и используй в реальной рабочей ситуации.</p>
-      <div class="tool-grid">${DATA.tools.map((tool, index) => `<article class="tool-card"><span class="tool-number">TOOL ${String(index + 1).padStart(2, "0")}</span><h3>${tool.name}</h3><p>${tool.description}</p><button class="button subtle download-tool" data-index="${index}">Скачать .md ↓</button></article>`).join("")}</div>
-      <section class="section"><div class="section-heading"><div><p class="eyebrow">Правило</p><h2>Шаблон нужен только тогда, когда помогает решить задачу</h2></div></div><div class="principles"><div class="principle"><strong>Понятно, кому нужен</strong><p>До заполнения ясно, кто и какое решение примет с его помощью.</p></div><div class="principle"><strong>Понятно, когда устареет</strong><p>Ненужный документ удаляют или обновляют, а не хранят ради процесса.</p></div><div class="principle"><strong>Один источник</strong><p>Не копируй одну и ту же информацию вручную в несколько мест.</p></div><div class="principle"><strong>Только нужные поля</strong><p>Оставляй поле, если без него уже возникали ошибки или плохие решения.</p></div></div></section>
-    </div>`;
+    return `<div class="page"><p class="eyebrow">Инструменты</p><h1>Шаблон нужен только тогда, когда меняет решение</h1><p class="lead">Скачай Markdown, заполни фактами проекта и используй в реальной рабочей ситуации.</p><div class="tool-grid">${DATA.tools.map((tool, index) => `<article class="tool-card"><span class="tool-number">TOOL ${String(index + 1).padStart(2, '0')}</span><h3>${escapeHtml(tool.name)}</h3><p>${escapeHtml(tool.description)}</p><button class="button subtle download-tool" data-index="${index}">Скачать .md ↓</button></article>`).join('')}</div></div>`;
   }
 
   function notFoundView() {
-    return `<div class="page empty-state"><p class="eyebrow">404</p><h1>Такой страницы нет</h1><p class="lead" style="margin-inline:auto">Вернись к учебному пути и продолжи с текущего шага.</p><a class="button primary" href="#/course">Открыть учебный путь</a></div>`;
-  }
-
-  function updateLessonCompletionGate(id) {
-    const criteria = document.querySelectorAll("[data-criterion]");
-    const checked = document.querySelectorAll("[data-criterion]:checked").length;
-    const button = document.querySelector("#complete-lesson");
-    const status = document.querySelector("#completion-status");
-    const ready = checked >= criteria.length;
-    if (button) button.disabled = !ready;
-    if (status) {
-      status.textContent = `${checked}/${criteria.length} выполнено${ready ? " · можно завершать урок" : " · выполни все пункты, чтобы открыть следующий шаг"}`;
-      status.classList.toggle("ready", ready);
-    }
-    state.criteria[id] = [...document.querySelectorAll("[data-criterion]:checked")].map((item) => Number(item.dataset.criterion));
-    saveState();
+    return `<div class="page empty-state"><p class="eyebrow">404</p><h1>Такой страницы нет</h1><p class="lead" style="margin-inline:auto">Вернись к учебному пути.</p><a class="button primary" href="#/course">Открыть путь</a></div>`;
   }
 
   function updateLabCompletionGate(id) {
-    const lesson = allLessons.find((item) => item.id === id);
-    if (!lesson?.learningLab) return;
+    const lesson = lessonById(id);
+    if (!lesson) return;
     const readiness = labReady(lesson);
-    const button = document.querySelector("#complete-lesson");
-    const status = document.querySelector("#completion-status");
+    const button = document.querySelector('#complete-lesson');
+    const status = document.querySelector('#completion-status');
     if (button) button.disabled = !readiness.ready;
     if (status) {
-      status.textContent = `${readiness.answeredDrills}/${readiness.requiredDrills} решений · ${readiness.completedFields}/${readiness.requiredFields} полей${readiness.ready ? " · можно завершать урок" : " · заверши обязательные решения и рабочую карту"}`;
-      status.classList.toggle("ready", readiness.ready);
+      status.textContent = `${readiness.answeredDrills}/${readiness.requiredDrills} решений · ${readiness.completedFields}/${readiness.requiredFields} evidence${readiness.ready ? ' · можно завершать урок' : ' · заверши обязательные решения и рабочую карту'}`;
+      status.classList.toggle('ready', readiness.ready);
     }
   }
 
+  function bindLessonEvents(id) {
+    const lesson = lessonById(id);
+    document.querySelectorAll('[data-scroll]').forEach((link) => link.addEventListener('click', (event) => {
+      event.preventDefault();
+      document.querySelector(`#${link.dataset.scroll}`)?.scrollIntoView({ behavior: 'smooth' });
+    }));
+
+    document.querySelectorAll('[data-lab-drill]').forEach((input) => input.addEventListener('change', (event) => {
+      const drillId = event.target.dataset.labDrill;
+      const drill = lesson?.learningLab?.drills?.find((item) => item.id === drillId);
+      const lessonState = ensureLabState(id);
+      if (drill?.stage === 'cold' && lessonState.drillAnswers[drillId]) return;
+      lessonState.drillAnswers[drillId] = event.target.value;
+      saveState();
+      if (drill?.stage === 'cold') {
+        document.querySelectorAll(`[data-lab-drill="${drillId}"]`).forEach((item) => { item.disabled = true; });
+      }
+      const feedback = document.querySelector(`[data-lab-feedback="${drillId}"]`);
+      if (feedback && drill) feedback.outerHTML = renderLabFeedback(drill, event.target.value);
+      updateLabCompletionGate(id);
+    }));
+
+    document.querySelectorAll('[data-lab-field]').forEach((field) => field.addEventListener('input', (event) => {
+      const lessonState = ensureLabState(id);
+      lessonState.workbook[event.target.dataset.labField] = event.target.value;
+      saveState();
+      updateLabCompletionGate(id);
+    }));
+
+    document.querySelector('#save-notes')?.addEventListener('click', () => {
+      state.notes[id] = document.querySelector('#lesson-notes')?.value || '';
+      saveState();
+      showToast('Заметки сохранены');
+    });
+
+    document.querySelector('#complete-lesson')?.addEventListener('click', () => {
+      if (!labReady(lesson).ready) {
+        updateLabCompletionGate(id);
+        showToast('Сначала заверши решения и рабочую карту');
+        return;
+      }
+      state.notes[id] = document.querySelector('#lesson-notes')?.value || '';
+      if (!state.completed.includes(id)) state.completed = [...state.completed, id];
+      saveState();
+      showToast('Урок завершён');
+      location.href = afterLessonHref(lesson);
+    });
+  }
+
+  function bindPracticeEvents(moduleId) {
+    const definition = PRACTICE.definition(moduleId);
+    const practiceState = ensurePracticeState(moduleId);
+    document.querySelectorAll('[data-practice-decision]').forEach((input) => input.addEventListener('change', (event) => {
+      const decisionId = event.target.dataset.practiceDecision;
+      if (practiceState.decisions[decisionId]) return;
+      practiceState.decisions[decisionId] = event.target.value;
+      if (PRACTICE.isComplete(definition, practiceState)) {
+        const proof = PRACTICE.proofFor(definition, practiceState.decisions);
+        practiceState.proof = PRACTICE.mergeProof(practiceState, proof);
+        practiceState.completedAt ||= new Date().toISOString();
+      }
+      saveState();
+      render();
+    }));
+    document.querySelector('[data-practice-reset]')?.addEventListener('click', () => {
+      practiceState.decisions = {};
+      practiceState.completedAt = null;
+      saveState();
+      render();
+    });
+  }
+
   function bindViewEvents(route, id) {
-    if (route === "lesson") {
-      const lesson = allLessons.find((item) => item.id === id);
-      document.querySelectorAll("[data-scroll]").forEach((link) => {
-        link.addEventListener("click", (event) => {
-          event.preventDefault();
-          document.querySelector(`#${link.dataset.scroll}`)?.scrollIntoView({ behavior: "smooth" });
-        });
-      });
-
-      document.querySelectorAll("[data-criterion]").forEach((checkbox) => {
-        checkbox.addEventListener("change", () => updateLessonCompletionGate(id));
-      });
-
-      document.querySelectorAll("[data-lab-drill]").forEach((input) => {
-        input.addEventListener("change", (event) => {
-          const drillId = event.target.dataset.labDrill;
-          const lessonState = ensureLabState(id);
-          lessonState.drillAnswers[drillId] = event.target.value;
-          const drill = lesson?.learningLab?.drills.find((item) => item.id === drillId);
-          const feedback = document.querySelector(`[data-lab-feedback="${drillId}"]`);
-          if (feedback && drill) feedback.outerHTML = renderLabFeedback(drill, event.target.value);
-          saveState();
-          updateLabCompletionGate(id);
-        });
-      });
-
-      document.querySelectorAll("[data-lab-field]").forEach((field) => {
-        field.addEventListener("input", (event) => {
-          const lessonState = ensureLabState(id);
-          lessonState.workbook[event.target.dataset.labField] = event.target.value;
-          saveState();
-          updateLabCompletionGate(id);
-        });
-      });
-
-      document.querySelector("#save-notes")?.addEventListener("click", () => {
-        state.notes[id] = document.querySelector("#lesson-notes")?.value || "";
-        saveState();
-        showToast("Заметки сохранены");
-      });
-
-      document.querySelector("#complete-lesson")?.addEventListener("click", () => {
-        state.notes[id] = document.querySelector("#lesson-notes")?.value || "";
-        if (lesson?.learningLab) {
-          if (!labReady(lesson).ready) {
-            updateLabCompletionGate(id);
-            showToast("Сначала заверши решения и рабочую карту");
-            return;
-          }
-        } else {
-          const criteriaCount = document.querySelectorAll("[data-criterion]").length;
-          if ((state.criteria[id] || []).length < criteriaCount) {
-            updateLessonCompletionGate(id);
-            showToast("Сначала выполни все пункты практики");
-            return;
-          }
-        }
-        if (!state.completed.includes(id)) state.completed = [...state.completed, id];
-        saveState();
-        const index = allLessons.findIndex((item) => item.id === id);
-        const next = allLessons[index + 1];
-        showToast("Урок завершён");
-        location.hash = next ? `#/lesson/${next.id}` : "#/course";
-      });
-    }
-
-    if (route === "diagnostic") {
-      document.querySelector("#diagnostic-form")?.addEventListener("change", (event) => {
+    if (route === 'lesson') bindLessonEvents(id);
+    if (route === 'practice') bindPracticeEvents(id);
+    if (route === 'diagnostic') {
+      document.querySelector('#diagnostic-form')?.addEventListener('change', (event) => {
         const index = Number(event.target.name.slice(1));
         state.diagnostic[index] = Number(event.target.value);
         saveState();
@@ -483,13 +539,12 @@
       });
       renderDiagnosticResult();
     }
-
-    if (route === "toolkit") {
-      document.querySelectorAll(".download-tool").forEach((button) => button.addEventListener("click", () => {
+    if (route === 'toolkit') {
+      document.querySelectorAll('.download-tool').forEach((button) => button.addEventListener('click', () => {
         const tool = DATA.tools[Number(button.dataset.index)];
-        const blob = new Blob([tool.content], { type: "text/markdown;charset=utf-8" });
+        const blob = new Blob([tool.content], { type: 'text/markdown;charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.href = url;
         link.download = tool.file;
         link.click();
@@ -500,34 +555,48 @@
   }
 
   function parseRoute() {
-    const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
-    if (!parts.length) return { route: "home" };
-    if (parts[0] === "lesson") return { route: "lesson", id: parts[1] };
-    if (parts[0] === "validation" && parts[1] === "m01" && parts.length === 2) return { route: "validation-m01" };
-    if (["course", "diagnostic", "toolkit"].includes(parts[0])) return { route: parts[0] };
-    return { route: "not-found" };
+    const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+    if (!parts.length) return { route: 'home' };
+    if (parts[0] === 'lesson') return { route: 'lesson', id: parts[1] };
+    if (parts[0] === 'practice') return { route: 'practice', id: parts[1] };
+    if (parts[0] === 'validation' && parts[1] === 'm01' && parts.length === 2) return { route: 'validation-m01' };
+    if (['course', 'diagnostic', 'toolkit'].includes(parts[0])) return { route: parts[0] };
+    return { route: 'not-found' };
   }
 
   function render() {
     const { route, id } = parseRoute();
-    if (route === "validation-m01") return;
-    const views = { home: homeView, course: courseView, lesson: () => lessonView(id), diagnostic: diagnosticView, toolkit: toolkitView, "not-found": notFoundView };
-    document.querySelector("#main").innerHTML = views[route]();
+    if (route === 'validation-m01') return;
+    const views = {
+      home: homeView,
+      course: courseView,
+      lesson: () => lessonView(id),
+      practice: () => practiceView(id),
+      diagnostic: diagnosticView,
+      toolkit: toolkitView,
+      'not-found': notFoundView,
+    };
+    const main = document.querySelector('#main');
+    if (!main) return;
+    main.innerHTML = views[route]();
     setActiveNav(route);
     renderSidebarProgress();
     bindViewEvents(route, id);
-    document.querySelector("#main")?.focus({ preventScroll: true });
+    window.PM01ThemeV7?.bind?.();
+    main.focus({ preventScroll: true });
     window.scrollTo(0, 0);
-    document.querySelector("#mobile-nav")?.classList.remove("open");
-    document.querySelector("#menu-button")?.setAttribute("aria-expanded", "false");
+    document.querySelector('#mobile-nav')?.classList.remove('open');
+    document.querySelector('#menu-button')?.setAttribute('aria-expanded', 'false');
   }
 
-  document.querySelector("#menu-button")?.addEventListener("click", (event) => {
-    const nav = document.querySelector("#mobile-nav");
-    const open = nav?.classList.toggle("open") || false;
-    event.currentTarget.setAttribute("aria-expanded", String(open));
+  document.querySelector('#menu-button')?.addEventListener('click', (event) => {
+    const nav = document.querySelector('#mobile-nav');
+    const open = nav?.classList.toggle('open') || false;
+    event.currentTarget.setAttribute('aria-expanded', String(open));
   });
 
-  window.addEventListener("hashchange", render);
+  window.addEventListener('hashchange', render);
+  window.addEventListener('pageshow', () => renderSidebarProgress());
+  window.PM01AppV7 = Object.freeze({ render, parseRoute, nextStep, labReady, isLessonComplete });
   render();
 })();
